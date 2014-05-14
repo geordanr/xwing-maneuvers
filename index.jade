@@ -6,7 +6,8 @@ html
   body
     canvas#playarea(width=914, height=914) You need a canvas-capable browser.
     script(src="javascripts/jquery-2.1.1.min.js")
-    script(src="javascripts/maneuvers.js")
+    script(src="javascripts/canvas.js")
+    script(src="javascripts/ship.js")
     script
       :coffee
         $(document).ready ->
@@ -15,26 +16,34 @@ html
             ctx = canvas.getContext '2d'
             init ctx
 
-            ctx.save()
-            ctx.translate 100, 100
-            drawSmallBase ctx
-            translateToNubs ctx, 'small'
-            drawStraight ctx, 2
-            ctx.restore()
+            ship1 = new Ship
+                name: 'test'
+                size: 'small'
+                ctx: ctx
+                center_x: 400
+                center_y: 300
+                heading_radians: window.WEST
 
-            ctx.save()
-            ctx.translate 200, 200
-            drawLargeBase ctx
-            translateToNubs ctx, 'large'
-            drawBank ctx, 3, 'left'
-            ctx.restore()
+            ship2 = new Ship
+                name: 'test'
+                size: 'small'
+                ctx: ctx
+                center_x: 200
+                center_y: 100
+                heading_radians: (window.NORTH + window.EAST) / 2
 
-            ctx.save()
-            ctx.translate 400, 200
-            drawLargeBase ctx
-            ctx.restore()
+            ship3 = new Ship
+                name: 'test'
+                size: 'large'
+                ctx: ctx
+                center_x: 500
+                center_y: 600
+                heading_radians: (window.SOUTH + window.WEST) / 2
 
-            ctx.save()
-            ctx.translate 500, 200
-            drawSmallBase ctx
-            ctx.restore()
+            ship1.draw()
+            ship2.draw()
+            ship3.draw()
+
+            ship1.placeTemplate 'straight', 3
+            ship2.placeTemplate 'bank', 2, 'left'
+            ship3.placeTemplate 'turn', 3, 'right'

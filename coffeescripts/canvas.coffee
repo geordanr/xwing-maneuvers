@@ -43,15 +43,19 @@ exportObj.drawBase = (ctx, width) ->
   ctx.strokeRect nub_offset + TEMPLATE_WIDTH, -1, 1, 2
   ctx.strokeRect nub_offset + TEMPLATE_WIDTH, width - 1, 1, 2
 
-exportObj.translateToNubs = (ctx, size) ->
-  offset = switch size
+exportObj.transformToCenterAndHeading = (ctx, center_x, center_y, heading_radians) ->
+  ctx.translate center_x, center_y
+  ctx.rotate heading_radians
+
+exportObj.translateToNubsFromCenter = (ctx, size) ->
+  switch size
     when 'small'
-      SMALL_BASE_WIDTH / 4
+      x_offset = SMALL_BASE_WIDTH / 4
     when 'large'
-      (LARGE_BASE_WIDTH - TEMPLATE_WIDTH) / 2
+      x_offset = (LARGE_BASE_WIDTH - TEMPLATE_WIDTH) / 2
     else
       throw new Error("Invalid size #{size}")
-  ctx.translate offset, 0
+  ctx.translate x_offset, 0
 
 exportObj.drawStraight = (ctx, length) ->
   ctx.strokeRect 0, 0, TEMPLATE_WIDTH, -SMALL_BASE_WIDTH * length
