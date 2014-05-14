@@ -6,6 +6,88 @@ exportObj.EAST = Math.PI / 2
 exportObj.SOUTH = Math.PI
 exportObj.WEST = -Math.PI / 2
 
+class exportObj.Template
+  constructor: (args) ->
+    @type = args.type
+    @distance = args.distance
+    @direction = args.direction
+
+exportObj.STRAIGHT1 = new exportObj.Template
+  type: 'straight'
+  distance: 1
+
+exportObj.STRAIGHT2 = new exportObj.Template
+  type: 'straight'
+  distance: 2
+
+exportObj.STRAIGHT3 = new exportObj.Template
+  type: 'straight'
+  distance: 3
+
+exportObj.STRAIGHT4 = new exportObj.Template
+  type: 'straight'
+  distance: 4
+
+exportObj.BANKLEFT1 = new exportObj.Template
+  type: 'bank'
+  direction: 'left'
+  distance: 1
+
+exportObj.BANKLEFT2 = new exportObj.Template
+  type: 'bank'
+  direction: 'left'
+  distance: 2
+
+exportObj.BANKLEFT3 = new exportObj.Template
+  type: 'bank'
+  direction: 'left'
+  distance: 3
+
+exportObj.BANKRIGHT1 = new exportObj.Template
+  type: 'bank'
+  direction: 'right'
+  distance: 1
+
+exportObj.BANKRIGHT2 = new exportObj.Template
+  type: 'bank'
+  direction: 'right'
+  distance: 2
+
+exportObj.BANKRIGHT3 = new exportObj.Template
+  type: 'bank'
+  direction: 'right'
+  distance: 3
+
+exportObj.TURNLEFT1 = new exportObj.Template
+  type: 'turn'
+  direction: 'left'
+  distance: 1
+
+exportObj.TURNLEFT2 = new exportObj.Template
+  type: 'turn'
+  direction: 'left'
+  distance: 2
+
+exportObj.TURNLEFT3 = new exportObj.Template
+  type: 'turn'
+  direction: 'left'
+  distance: 3
+
+exportObj.TURNRIGHT1 = new exportObj.Template
+  type: 'turn'
+  direction: 'right'
+  distance: 1
+
+exportObj.TURNRIGHT2 = new exportObj.Template
+  type: 'turn'
+  direction: 'right'
+  distance: 2
+
+exportObj.TURNRIGHT3 = new exportObj.Template
+  type: 'turn'
+  direction: 'right'
+  distance: 3
+
 class exportObj.Ship
   constructor: (args) ->
     @name = args.name
@@ -32,21 +114,23 @@ class exportObj.Ship
     finally
       @ctx.restore()
 
-  placeTemplate: (type, distance, direction) ->
+  placeTemplate: (template) ->
     @ctx.save()
     try
       exportObj.transformToCenterAndHeading @ctx, @center_x, @center_y, @heading_radians
       exportObj.translateToNubsFromCenter @ctx, @size
-      switch type
+      switch template.type
         when 'straight', 'koiogran'
-          exportObj.drawStraight @ctx, distance
+          exportObj.drawStraight @ctx, template.distance
         when 'bank'
-          exportObj.drawBank @ctx, distance, direction
+          exportObj.drawBank @ctx, template.distance, template.direction
         when 'turn'
-          exportObj.drawTurn @ctx, distance, direction
+          exportObj.drawTurn @ctx, template.distance, template.direction
         else
-          throw new Error("Invalid template type #{type}")
+          throw new Error("Invalid template type #{template.type}")
     catch e
       throw e
     finally
       @ctx.restore()
+
+  move: (template) ->

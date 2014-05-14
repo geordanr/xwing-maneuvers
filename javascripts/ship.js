@@ -12,6 +12,109 @@
 
   exportObj.WEST = -Math.PI / 2;
 
+  exportObj.Template = (function() {
+    function Template(args) {
+      this.type = args.type;
+      this.distance = args.distance;
+      this.direction = args.direction;
+    }
+
+    return Template;
+
+  })();
+
+  exportObj.STRAIGHT1 = new exportObj.Template({
+    type: 'straight',
+    distance: 1
+  });
+
+  exportObj.STRAIGHT2 = new exportObj.Template({
+    type: 'straight',
+    distance: 2
+  });
+
+  exportObj.STRAIGHT3 = new exportObj.Template({
+    type: 'straight',
+    distance: 3
+  });
+
+  exportObj.STRAIGHT4 = new exportObj.Template({
+    type: 'straight',
+    distance: 4
+  });
+
+  exportObj.BANKLEFT1 = new exportObj.Template({
+    type: 'bank',
+    direction: 'left',
+    distance: 1
+  });
+
+  exportObj.BANKLEFT2 = new exportObj.Template({
+    type: 'bank',
+    direction: 'left',
+    distance: 2
+  });
+
+  exportObj.BANKLEFT3 = new exportObj.Template({
+    type: 'bank',
+    direction: 'left',
+    distance: 3
+  });
+
+  exportObj.BANKRIGHT1 = new exportObj.Template({
+    type: 'bank',
+    direction: 'right',
+    distance: 1
+  });
+
+  exportObj.BANKRIGHT2 = new exportObj.Template({
+    type: 'bank',
+    direction: 'right',
+    distance: 2
+  });
+
+  exportObj.BANKRIGHT3 = new exportObj.Template({
+    type: 'bank',
+    direction: 'right',
+    distance: 3
+  });
+
+  exportObj.TURNLEFT1 = new exportObj.Template({
+    type: 'turn',
+    direction: 'left',
+    distance: 1
+  });
+
+  exportObj.TURNLEFT2 = new exportObj.Template({
+    type: 'turn',
+    direction: 'left',
+    distance: 2
+  });
+
+  exportObj.TURNLEFT3 = new exportObj.Template({
+    type: 'turn',
+    direction: 'left',
+    distance: 3
+  });
+
+  exportObj.TURNRIGHT1 = new exportObj.Template({
+    type: 'turn',
+    direction: 'right',
+    distance: 1
+  });
+
+  exportObj.TURNRIGHT2 = new exportObj.Template({
+    type: 'turn',
+    direction: 'right',
+    distance: 2
+  });
+
+  exportObj.TURNRIGHT3 = new exportObj.Template({
+    type: 'turn',
+    direction: 'right',
+    distance: 3
+  });
+
   exportObj.Ship = (function() {
     function Ship(args) {
       var _ref, _ref1, _ref2;
@@ -44,22 +147,22 @@
       }
     };
 
-    Ship.prototype.placeTemplate = function(type, distance, direction) {
+    Ship.prototype.placeTemplate = function(template) {
       var e;
       this.ctx.save();
       try {
         exportObj.transformToCenterAndHeading(this.ctx, this.center_x, this.center_y, this.heading_radians);
         exportObj.translateToNubsFromCenter(this.ctx, this.size);
-        switch (type) {
+        switch (template.type) {
           case 'straight':
           case 'koiogran':
-            return exportObj.drawStraight(this.ctx, distance);
+            return exportObj.drawStraight(this.ctx, template.distance);
           case 'bank':
-            return exportObj.drawBank(this.ctx, distance, direction);
+            return exportObj.drawBank(this.ctx, template.distance, template.direction);
           case 'turn':
-            return exportObj.drawTurn(this.ctx, distance, direction);
+            return exportObj.drawTurn(this.ctx, template.distance, template.direction);
           default:
-            throw new Error("Invalid template type " + type);
+            throw new Error("Invalid template type " + template.type);
         }
       } catch (_error) {
         e = _error;
@@ -68,6 +171,8 @@
         this.ctx.restore();
       }
     };
+
+    Ship.prototype.move = function(template) {};
 
     return Ship;
 
