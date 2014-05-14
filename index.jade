@@ -1,0 +1,13 @@
+doctype html
+html
+  head
+    title X-Wing Maneuvers
+    link(rel="stylesheet", href="stylesheets/main.css")
+  body
+    canvas#playarea(width=914, height=914) You need a canvas-capable browser.
+    script(src="javascripts/jquery-2.1.1.min.js")
+    script(src="javascripts/maneuvers.js")
+    script
+      :coffee
+        $(document).ready ->
+          window.draw()

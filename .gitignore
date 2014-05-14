@@ -1,0 +1,4 @@
+*.swp
+_vimrc_local.vim
+.sass-cache
+coffeelint.json
