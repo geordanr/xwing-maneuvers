@@ -1,6 +1,31 @@
 <!DOCTYPE html><html><head><title>X-Wing Maneuvers</title><link rel="stylesheet" href="stylesheets/main.css"></head><body><canvas id="playarea" width="914" height="914">You need a canvas-capable browser.</canvas><script src="javascripts/jquery-2.1.1.min.js"></script><script src="javascripts/maneuvers.js"></script><script>(function() {
   $(document).ready(function() {
-    return window.draw();
+    var canvas, ctx;
+    canvas = document.getElementById('playarea');
+    if (canvas.getContext != null) {
+      ctx = canvas.getContext('2d');
+      init(ctx);
+      ctx.save();
+      ctx.translate(100, 100);
+      drawSmallBase(ctx);
+      translateToNubs(ctx, 'small');
+      drawStraight(ctx, 2);
+      ctx.restore();
+      ctx.save();
+      ctx.translate(200, 200);
+      drawLargeBase(ctx);
+      translateToNubs(ctx, 'large');
+      drawBank(ctx, 3, 'left');
+      ctx.restore();
+      ctx.save();
+      ctx.translate(400, 200);
+      drawLargeBase(ctx);
+      ctx.restore();
+      ctx.save();
+      ctx.translate(500, 200);
+      drawSmallBase(ctx);
+      return ctx.restore();
+    }
   });
 
 }).call(this);

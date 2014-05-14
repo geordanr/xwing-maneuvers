@@ -14,30 +14,6 @@
 
   TURN_INSIDE_RADII = ['', 27, 52, 79];
 
-  exportObj.draw = function() {
-    var canvas, ctx;
-    canvas = document.getElementById('playarea');
-    if (canvas.getContext != null) {
-      ctx = canvas.getContext('2d');
-      ctx.save();
-      ctx.translate(40, 40);
-      exportObj.drawSmallBase(ctx);
-      ctx.restore();
-      ctx.save();
-      ctx.translate(40 + exportObj.getNubOffset(SMALL_BASE_WIDTH), 40);
-      exportObj.drawStraight(ctx, 1);
-      ctx.restore();
-      ctx.save();
-      ctx.translate(100, 200);
-      exportObj.drawBank(ctx, 3, 'left');
-      ctx.restore();
-      ctx.save();
-      ctx.translate(200, 100);
-      exportObj.drawTurn(ctx, 1, 'right');
-      return ctx.restore();
-    }
-  };
-
   exportObj.init = function(ctx) {
     return ctx.lineWidth = 1;
   };
@@ -46,17 +22,38 @@
     return exportObj.drawBase(ctx, SMALL_BASE_WIDTH);
   };
 
+  exportObj.drawLargeBase = function(ctx) {
+    return exportObj.drawBase(ctx, LARGE_BASE_WIDTH);
+  };
+
   exportObj.drawBase = function(ctx, width) {
+    var nub_offset;
     ctx.strokeRect(0, 0, width, width);
     ctx.beginPath();
     ctx.moveTo(1, 0);
     ctx.lineTo(width / 2, width / 2);
     ctx.lineTo(width - 1, 0);
-    return ctx.stroke();
+    ctx.stroke();
+    nub_offset = (width - TEMPLATE_WIDTH) / 2;
+    ctx.strokeRect(nub_offset - 1, -1, 1, 2);
+    ctx.strokeRect(nub_offset - 1, width - 1, 1, 2);
+    ctx.strokeRect(nub_offset + TEMPLATE_WIDTH, -1, 1, 2);
+    return ctx.strokeRect(nub_offset + TEMPLATE_WIDTH, width - 1, 1, 2);
   };
 
-  exportObj.getNubOffset = function(base_width) {
-    return (base_width - TEMPLATE_WIDTH) / 2;
+  exportObj.translateToNubs = function(ctx, size) {
+    var offset;
+    offset = (function() {
+      switch (size) {
+        case 'small':
+          return SMALL_BASE_WIDTH / 4;
+        case 'large':
+          return (LARGE_BASE_WIDTH - TEMPLATE_WIDTH) / 2;
+        default:
+          throw new Error("Invalid size " + size);
+      }
+    })();
+    return ctx.translate(offset, 0);
   };
 
   exportObj.drawStraight = function(ctx, length) {

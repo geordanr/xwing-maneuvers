@@ -10,4 +10,31 @@ html
     script
       :coffee
         $(document).ready ->
-          window.draw()
+          canvas = document.getElementById('playarea')
+          if canvas.getContext?
+            ctx = canvas.getContext '2d'
+            init ctx
+
+            ctx.save()
+            ctx.translate 100, 100
+            drawSmallBase ctx
+            translateToNubs ctx, 'small'
+            drawStraight ctx, 2
+            ctx.restore()
+
+            ctx.save()
+            ctx.translate 200, 200
+            drawLargeBase ctx
+            translateToNubs ctx, 'large'
+            drawBank ctx, 3, 'left'
+            ctx.restore()
+
+            ctx.save()
+            ctx.translate 400, 200
+            drawLargeBase ctx
+            ctx.restore()
+
+            ctx.save()
+            ctx.translate 500, 200
+            drawSmallBase ctx
+            ctx.restore()
