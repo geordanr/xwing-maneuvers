@@ -44,12 +44,16 @@ class exportObj.Template
           else
             throw new Error("Invalid direction #{@direction}")
       when 'koiogran'
-        ''
+        ship.ctx.translate 0, -@distance * SMALL_BASE_WIDTH
       else
         throw new Error("Invalid template type #{@type}")
 
     # And move up some more
     ship.ctx.translate 0, -ship.width / 2
+
+    # Spin if we K-turned
+    if @type == 'koiogran'
+      ship.ctx.rotate Math.PI
 
 exportObj.STRAIGHT1 = new exportObj.Template
   type: 'straight'

@@ -58,12 +58,15 @@
           }
           break;
         case 'koiogran':
-          '';
+          ship.ctx.translate(0, -this.distance * SMALL_BASE_WIDTH);
           break;
         default:
           throw new Error("Invalid template type " + this.type);
       }
-      return ship.ctx.translate(0, -ship.width / 2);
+      ship.ctx.translate(0, -ship.width / 2);
+      if (this.type === 'koiogran') {
+        return ship.ctx.rotate(Math.PI);
+      }
     };
 
     return Template;

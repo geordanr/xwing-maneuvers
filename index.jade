@@ -21,7 +21,7 @@ html
                 size: 'large'
                 ctx: ctx
                 center_x: 800
-                center_y: 300
+                center_y: 600
                 heading_radians: window.WEST
 
             ship1.addMove new window.Movement
@@ -41,6 +41,11 @@ html
                   type: 'turn'
                   distance: 1
                   direction: 'right'
+
+            ship1.addMove new window.Movement
+                template: new window.Template
+                  type: 'koiogran'
+                  distance: 4
 
             ship1.addMove new window.Movement
                 template: new window.Template
