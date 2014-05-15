@@ -19,6 +19,53 @@
       this.direction = args.direction;
     }
 
+    Template.prototype.transformShip = function(ship) {
+      ship.ctx.translate(0, -ship.width / 2);
+      switch (this.type) {
+        case 'straight':
+          ship.ctx.translate(0, -this.distance * SMALL_BASE_WIDTH);
+          break;
+        case 'bank':
+          switch (this.direction) {
+            case 'left':
+              ship.ctx.translate(-(exportObj.BANK_INSIDE_RADII[this.distance] + (exportObj.TEMPLATE_WIDTH / 2)), 0);
+              ship.ctx.rotate(-Math.PI / 4);
+              ship.ctx.translate(exportObj.BANK_INSIDE_RADII[this.distance] + (exportObj.TEMPLATE_WIDTH / 2), 0);
+              break;
+            case 'right':
+              ship.ctx.translate(exportObj.BANK_INSIDE_RADII[this.distance] + (exportObj.TEMPLATE_WIDTH / 2), 0);
+              ship.ctx.rotate(Math.PI / 4);
+              ship.ctx.translate(-(exportObj.BANK_INSIDE_RADII[this.distance] + (exportObj.TEMPLATE_WIDTH / 2)), 0);
+              break;
+            default:
+              throw new Error("Invalid direction " + this.direction);
+          }
+          break;
+        case 'turn':
+          switch (this.direction) {
+            case 'left':
+              ship.ctx.translate(-(exportObj.TURN_INSIDE_RADII[this.distance] + (exportObj.TEMPLATE_WIDTH / 2)), 0);
+              ship.ctx.rotate(-Math.PI / 2);
+              ship.ctx.translate(exportObj.TURN_INSIDE_RADII[this.distance] + (exportObj.TEMPLATE_WIDTH / 2), 0);
+              break;
+            case 'right':
+              ship.ctx.translate(exportObj.TURN_INSIDE_RADII[this.distance] + (exportObj.TEMPLATE_WIDTH / 2), 0);
+              ship.ctx.rotate(Math.PI / 2);
+              ship.ctx.translate(-(exportObj.TURN_INSIDE_RADII[this.distance] + (exportObj.TEMPLATE_WIDTH / 2)), 0);
+              break;
+            default:
+              throw new Error("Invalid direction " + this.direction);
+          }
+          break;
+        case 'koiogran':
+          '';
+          break;
+        default:
+          throw new Error("Invalid template type " + this.type);
+      }
+      return ship.ctx.translate(0, -ship.width / 2);
+    };
+
     return Template;
 
   })();
@@ -115,6 +162,17 @@
     distance: 3
   });
 
+  exportObj.Movement = (function() {
+    function Movement(args) {
+      this.before = args.before;
+      this.template = args.template;
+      this.after = args.after;
+    }
+
+    return Movement;
+
+  })();
+
   exportObj.Ship = (function() {
     function Ship(args) {
       var _ref, _ref1, _ref2;
@@ -124,21 +182,38 @@
       this.center_x = (_ref = args.center_x) != null ? _ref : 0;
       this.center_y = (_ref1 = args.center_y) != null ? _ref1 : 0;
       this.heading_radians = (_ref2 = args.heading_radians) != null ? _ref2 : exportObj.NORTH;
-    }
-
-    Ship.prototype.draw = function() {
-      var e;
-      this.ctx.save();
-      exportObj.transformToCenterAndHeading(this.ctx, this.center_x, this.center_y, this.heading_radians);
-      try {
+      this.width = (function() {
         switch (this.size) {
           case 'small':
-            return exportObj.drawSmallBase(this.ctx);
+            return exportObj.SMALL_BASE_WIDTH;
           case 'large':
-            return exportObj.drawLargeBase(this.ctx);
+            return exportObj.LARGE_BASE_WIDTH;
           default:
             throw new Error("Invalid size " + this.size);
         }
+      }).call(this);
+      this.move_history = [];
+    }
+
+    Ship.prototype.addMove = function(movement) {
+      return this.move_history.push(movement);
+    };
+
+    Ship.prototype.drawMovements = function() {
+      var e, movement, _i, _len, _ref, _results;
+      this.ctx.save();
+      exportObj.transformToCenterAndHeading(this.ctx, this.width, this.center_x, this.center_y, this.heading_radians);
+      this.draw();
+      try {
+        _ref = this.move_history;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          movement = _ref[_i];
+          this.placeTemplate(movement.template);
+          movement.template.transformShip(this);
+          _results.push(this.draw());
+        }
+        return _results;
       } catch (_error) {
         e = _error;
         throw e;
@@ -147,12 +222,22 @@
       }
     };
 
+    Ship.prototype.draw = function() {
+      switch (this.size) {
+        case 'small':
+          return exportObj.drawSmallBase(this.ctx);
+        case 'large':
+          return exportObj.drawLargeBase(this.ctx);
+        default:
+          throw new Error("Invalid size " + this.size);
+      }
+    };
+
     Ship.prototype.placeTemplate = function(template) {
       var e;
       this.ctx.save();
       try {
-        exportObj.transformToCenterAndHeading(this.ctx, this.center_x, this.center_y, this.heading_radians);
-        exportObj.translateToNubsFromCenter(this.ctx, this.size);
+        exportObj.translateToNubsFromCenter(this.ctx, this.width);
         switch (template.type) {
           case 'straight':
           case 'koiogran':
@@ -172,10 +257,12 @@
       }
     };
 
-    Ship.prototype.move = function(template) {};
-
     return Ship;
 
   })();
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=ship.map
+*/

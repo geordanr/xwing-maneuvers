@@ -12,6 +12,45 @@ class exportObj.Template
     @distance = args.distance
     @direction = args.direction
 
+  transformShip: (ship) ->
+    # We always move half our base length, as far as I can tell
+    ship.ctx.translate 0, -ship.width / 2
+
+    switch @type
+      when 'straight'
+        ship.ctx.translate 0, -@distance * SMALL_BASE_WIDTH
+      when 'bank'
+        switch @direction
+          when 'left'
+            ship.ctx.translate -(exportObj.BANK_INSIDE_RADII[@distance] + (exportObj.TEMPLATE_WIDTH / 2) ), 0
+            ship.ctx.rotate -Math.PI / 4
+            ship.ctx.translate exportObj.BANK_INSIDE_RADII[@distance] + (exportObj.TEMPLATE_WIDTH / 2), 0
+          when 'right'
+            ship.ctx.translate exportObj.BANK_INSIDE_RADII[@distance] + (exportObj.TEMPLATE_WIDTH / 2), 0
+            ship.ctx.rotate Math.PI / 4
+            ship.ctx.translate -(exportObj.BANK_INSIDE_RADII[@distance] + (exportObj.TEMPLATE_WIDTH /2 )), 0
+          else
+            throw new Error("Invalid direction #{@direction}")
+      when 'turn'
+        switch @direction
+          when 'left'
+            ship.ctx.translate -(exportObj.TURN_INSIDE_RADII[@distance] + (exportObj.TEMPLATE_WIDTH / 2) ), 0
+            ship.ctx.rotate -Math.PI / 2
+            ship.ctx.translate exportObj.TURN_INSIDE_RADII[@distance] + (exportObj.TEMPLATE_WIDTH / 2), 0
+          when 'right'
+            ship.ctx.translate exportObj.TURN_INSIDE_RADII[@distance] + (exportObj.TEMPLATE_WIDTH / 2), 0
+            ship.ctx.rotate Math.PI / 2
+            ship.ctx.translate -(exportObj.TURN_INSIDE_RADII[@distance] + (exportObj.TEMPLATE_WIDTH /2 )), 0
+          else
+            throw new Error("Invalid direction #{@direction}")
+      when 'koiogran'
+        ''
+      else
+        throw new Error("Invalid template type #{@type}")
+
+    # And move up some more
+    ship.ctx.translate 0, -ship.width / 2
+
 exportObj.STRAIGHT1 = new exportObj.Template
   type: 'straight'
   distance: 1
@@ -88,6 +127,14 @@ exportObj.TURNRIGHT3 = new exportObj.Template
   direction: 'right'
   distance: 3
 
+class exportObj.Movement
+  constructor: (args) ->
+    # Before comes from Advanced Sensors.
+    # Before/after can be a boost or barrel roll.
+    @before = args.before
+    @template = args.template
+    @after = args.after
+
 class exportObj.Ship
   constructor: (args) ->
     @name = args.name
@@ -98,27 +145,48 @@ class exportObj.Ship
     @center_y = args.center_y ? 0
     @heading_radians = args.heading_radians ? exportObj.NORTH
 
-  draw: ->
+    @width = switch @size
+      when 'small'
+        exportObj.SMALL_BASE_WIDTH
+      when 'large'
+        exportObj.LARGE_BASE_WIDTH
+      else
+        throw new Error("Invalid size #{@size}")
+
+    @move_history = []
+
+  addMove: (movement) ->
+    @move_history.push movement
+
+  drawMovements: ->
     @ctx.save()
-    exportObj.transformToCenterAndHeading @ctx, @center_x, @center_y, @heading_radians
+    # Draw initial position
+    exportObj.transformToCenterAndHeading @ctx, @width, @center_x, @center_y, @heading_radians
+    @draw()
     try
-      switch @size
-        when 'small'
-          exportObj.drawSmallBase @ctx
-        when 'large'
-          exportObj.drawLargeBase @ctx
-        else
-          throw new Error("Invalid size #{@size}")
+      for movement in @move_history
+        # TODO: before/after
+        @placeTemplate movement.template
+        movement.template.transformShip this
+        @draw()
     catch e
       throw e
     finally
       @ctx.restore()
 
+  draw: ->
+    switch @size
+      when 'small'
+        exportObj.drawSmallBase @ctx
+      when 'large'
+        exportObj.drawLargeBase @ctx
+      else
+        throw new Error("Invalid size #{@size}")
+
   placeTemplate: (template) ->
     @ctx.save()
     try
-      exportObj.transformToCenterAndHeading @ctx, @center_x, @center_y, @heading_radians
-      exportObj.translateToNubsFromCenter @ctx, @size
+      exportObj.translateToNubsFromCenter @ctx, @width
       switch template.type
         when 'straight', 'koiogran'
           exportObj.drawStraight @ctx, template.distance
@@ -132,5 +200,3 @@ class exportObj.Ship
       throw e
     finally
       @ctx.restore()
-
-  move: (template) ->

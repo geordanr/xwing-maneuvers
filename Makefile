@@ -9,4 +9,4 @@ css:
 	sass --update stylesheets
 
 js:
-	coffee -o javascripts -c coffeescripts
+	coffee --map --output javascripts --compile coffeescripts

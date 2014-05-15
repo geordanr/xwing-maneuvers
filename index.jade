@@ -18,32 +18,34 @@ html
 
             ship1 = new Ship
                 name: 'test'
-                size: 'small'
+                size: 'large'
                 ctx: ctx
-                center_x: 400
+                center_x: 800
                 center_y: 300
                 heading_radians: window.WEST
 
-            ship2 = new Ship
-                name: 'test'
-                size: 'small'
-                ctx: ctx
-                center_x: 200
-                center_y: 100
-                heading_radians: (window.NORTH + window.EAST) / 2
+            ship1.addMove new window.Movement
+                template: new window.Template
+                  type: 'bank'
+                  distance: 3
+                  direction: 'left'
 
-            ship3 = new Ship
-                name: 'test'
-                size: 'large'
-                ctx: ctx
-                center_x: 500
-                center_y: 600
-                heading_radians: (window.SOUTH + window.WEST) / 2
+            ship1.addMove new window.Movement
+                template: new window.Template
+                  type: 'bank'
+                  distance: 1
+                  direction: 'right'
 
-            ship1.draw()
-            ship2.draw()
-            ship3.draw()
+            ship1.addMove new window.Movement
+                template: new window.Template
+                  type: 'turn'
+                  distance: 1
+                  direction: 'right'
 
-            ship1.placeTemplate window.STRAIGHT3
-            ship2.placeTemplate window.BANKLEFT2
-            ship3.placeTemplate window.TURNRIGHT3
+            ship1.addMove new window.Movement
+                template: new window.Template
+                  type: 'turn'
+                  distance: 2
+                  direction: 'left'
+
+            ship1.drawMovements()
