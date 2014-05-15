@@ -32,6 +32,11 @@
           type: 'turn',
           distance: 1,
           direction: 'right'
+        }),
+        after: new window.BarrelRoll({
+          direction: 'right',
+          start_distance_from_front: 20,
+          end_distance_from_front: 50
         })
       }));
       ship1.addMove(new window.Movement({

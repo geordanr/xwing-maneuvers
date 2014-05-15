@@ -14,7 +14,8 @@ class exportObj.Template
 
   transformShip: (ship) ->
     # We always move half our base length, as far as I can tell
-    ship.ctx.translate 0, -ship.width / 2
+    # ...except for barrel rolls
+    ship.ctx.translate 0, -ship.width / 2 unless @type == 'barrelroll'
 
     switch @type
       when 'straight'
@@ -45,15 +46,31 @@ class exportObj.Template
             throw new Error("Invalid direction #{@direction}")
       when 'koiogran'
         ship.ctx.translate 0, -@distance * SMALL_BASE_WIDTH
+      when 'barrelroll'
+        x_offset = ship.width + exportObj.SMALL_BASE_WIDTH
+        switch @direction
+          when 'left'
+            ship.ctx.translate -x_offset, -@end_distance_from_front + @start_distance_from_front
+          when 'right'
+            ship.ctx.translate x_offset, -@end_distance_from_front + @start_distance_from_front
+          else
+            throw new Error("Invalid direction #{@direction}")
       else
         throw new Error("Invalid template type #{@type}")
 
     # And move up some more
-    ship.ctx.translate 0, -ship.width / 2
+    ship.ctx.translate 0, -ship.width / 2 unless @type == 'barrelroll'
 
     # Spin if we K-turned
     if @type == 'koiogran'
       ship.ctx.rotate Math.PI
+
+class exportObj.BarrelRoll extends exportObj.Template
+  constructor: (args) ->
+    super args
+    @type = 'barrelroll'
+    @start_distance_from_front = args.start_distance_from_front
+    @end_distance_from_front = args.end_distance_from_front
 
 exportObj.STRAIGHT1 = new exportObj.Template
   type: 'straight'
@@ -169,10 +186,17 @@ class exportObj.Ship
     @draw()
     try
       for movement in @move_history
-        # TODO: before/after
+        if movement.before
+          @placeTemplate movement.before
+          movement.before.transformShip this
+          @draw()
         @placeTemplate movement.template
         movement.template.transformShip this
         @draw()
+        if movement.after
+          @placeTemplate movement.after
+          movement.after.transformShip this
+          @draw()
     catch e
       throw e
     finally
@@ -190,7 +214,7 @@ class exportObj.Ship
   placeTemplate: (template) ->
     @ctx.save()
     try
-      exportObj.translateToNubsFromCenter @ctx, @width
+      exportObj.translateToNubsFromCenter @ctx, @width unless template.type == 'barrelroll'
       switch template.type
         when 'straight', 'koiogran'
           exportObj.drawStraight @ctx, template.distance
@@ -198,6 +222,16 @@ class exportObj.Ship
           exportObj.drawBank @ctx, template.distance, template.direction
         when 'turn'
           exportObj.drawTurn @ctx, template.distance, template.direction
+        when 'barrelroll'
+          @ctx.rotate Math.PI / 2
+          switch template.direction
+            when 'left'
+              @ctx.translate -(@width / 2) + template.start_distance_from_front, 2 * exportObj.SMALL_BASE_WIDTH
+            when 'right'
+              @ctx.translate -(@width / 2) + template.start_distance_from_front, -exportObj.SMALL_BASE_WIDTH
+            else
+              throw new Error("Invalid barrel roll direction #{template.direction}")
+          exportObj.drawStraight @ctx, 1
         else
           throw new Error("Invalid template type #{template.type}")
     catch e
