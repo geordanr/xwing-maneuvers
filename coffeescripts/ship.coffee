@@ -53,6 +53,14 @@ class exportObj.Template
             ship.ctx.translate -x_offset, -@end_distance_from_front + @start_distance_from_front
           when 'right'
             ship.ctx.translate x_offset, -@end_distance_from_front + @start_distance_from_front
+          when 'leftforward'
+            ''
+          when 'leftback'
+            ''
+          when 'rightforward'
+            ''
+          when 'rightback'
+            ''
           else
             throw new Error("Invalid direction #{@direction}")
       else
@@ -67,6 +75,14 @@ class exportObj.Template
 
 class exportObj.BarrelRoll extends exportObj.Template
   constructor: (args) ->
+    # Acceptable directions:
+    #
+    # left
+    # right
+    # leftforward
+    # leftback
+    # rightforward
+    # rightback
     super args
     @distance = args.distance ? 1
     @type = 'barrelroll'
@@ -75,6 +91,7 @@ class exportObj.BarrelRoll extends exportObj.Template
 
 class exportObj.Decloak extends exportObj.BarrelRoll
   constructor: (args) ->
+    # Acceptable directions: as BarrelRoll but including straight
     super args
     @distance = 2
     @type = 'decloak'
@@ -230,15 +247,33 @@ class exportObj.Ship
         when 'turn'
           exportObj.drawTurn @ctx, template.distance, template.direction
         when 'barrelroll'
-          @ctx.rotate Math.PI / 2
+          #@ctx.strokeStyle = 'red'
+          #exportObj.drawBank @ctx, template.distance, 'left'
+          #exportObj.drawBank @ctx, template.distance, 'right'
+          switch template.direction
+            when 'leftforward', 'leftback'
+              @ctx.rotate -Math.PI / 2
+            else
+              @ctx.rotate Math.PI / 2
+          #@ctx.strokeStyle = 'green'
+          #exportObj.drawBank @ctx, template.distance, 'left'
+          #exportObj.drawBank @ctx, template.distance, 'right'
           switch template.direction
             when 'left'
               @ctx.translate -(@width / 2) + template.start_distance_from_front, (template.distance + 1) * exportObj.SMALL_BASE_WIDTH
-            when 'right'
+            when 'leftforward', 'leftback'
+              @ctx.translate -(@width / 2) + template.start_distance_from_front + exportObj.TEMPLATE_WIDTH, -@width / 2
+            when 'right', 'rightforward', 'rightback'
               @ctx.translate -(@width / 2) + template.start_distance_from_front, -exportObj.SMALL_BASE_WIDTH
             else
               throw new Error("Invalid barrel roll direction #{template.direction}")
-          exportObj.drawStraight @ctx, template.distance
+          switch template.direction
+            when 'leftforward', 'rightback'
+              exportObj.drawBank @ctx, template.distance, 'right'
+            when 'rightforward', 'leftback'
+              exportObj.drawBank @ctx, template.distance, 'left'
+            else
+              exportObj.drawStraight @ctx, template.distance
         when 'decloak'
           ''
         else

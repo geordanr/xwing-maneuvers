@@ -74,6 +74,18 @@
             case 'right':
               ship.ctx.translate(x_offset, -this.end_distance_from_front + this.start_distance_from_front);
               break;
+            case 'leftforward':
+              '';
+              break;
+            case 'leftback':
+              '';
+              break;
+            case 'rightforward':
+              '';
+              break;
+            case 'rightback':
+              '';
+              break;
             default:
               throw new Error("Invalid direction " + this.direction);
           }
@@ -313,18 +325,41 @@
           case 'turn':
             return exportObj.drawTurn(this.ctx, template.distance, template.direction);
           case 'barrelroll':
-            this.ctx.rotate(Math.PI / 2);
+            switch (template.direction) {
+              case 'leftforward':
+              case 'leftback':
+                this.ctx.rotate(-Math.PI / 2);
+                break;
+              default:
+                this.ctx.rotate(Math.PI / 2);
+            }
             switch (template.direction) {
               case 'left':
                 this.ctx.translate(-(this.width / 2) + template.start_distance_from_front, (template.distance + 1) * exportObj.SMALL_BASE_WIDTH);
                 break;
+              case 'leftforward':
+              case 'leftback':
+                this.ctx.translate(-(this.width / 2) + template.start_distance_from_front + exportObj.TEMPLATE_WIDTH, -this.width / 2);
+                break;
               case 'right':
+              case 'rightforward':
+              case 'rightback':
                 this.ctx.translate(-(this.width / 2) + template.start_distance_from_front, -exportObj.SMALL_BASE_WIDTH);
                 break;
               default:
                 throw new Error("Invalid barrel roll direction " + template.direction);
             }
-            return exportObj.drawStraight(this.ctx, template.distance);
+            switch (template.direction) {
+              case 'leftforward':
+              case 'rightback':
+                return exportObj.drawBank(this.ctx, template.distance, 'right');
+              case 'rightforward':
+              case 'leftback':
+                return exportObj.drawBank(this.ctx, template.distance, 'left');
+              default:
+                return exportObj.drawStraight(this.ctx, template.distance);
+            }
+            break;
           case 'decloak':
             return '';
           default:
