@@ -47,7 +47,7 @@ class exportObj.Template
       when 'koiogran'
         ship.ctx.translate 0, -@distance * SMALL_BASE_WIDTH
       when 'barrelroll'
-        x_offset = ship.width + exportObj.SMALL_BASE_WIDTH
+        x_offset = ship.width + (@distance * exportObj.SMALL_BASE_WIDTH)
         switch @direction
           when 'left'
             ship.ctx.translate -x_offset, -@end_distance_from_front + @start_distance_from_front
@@ -68,9 +68,16 @@ class exportObj.Template
 class exportObj.BarrelRoll extends exportObj.Template
   constructor: (args) ->
     super args
+    @distance = args.distance ? 1
     @type = 'barrelroll'
     @start_distance_from_front = args.start_distance_from_front
     @end_distance_from_front = args.end_distance_from_front
+
+class exportObj.Decloak extends exportObj.BarrelRoll
+  constructor: (args) ->
+    super args
+    @distance = 2
+    @type = 'decloak'
 
 exportObj.STRAIGHT1 = new exportObj.Template
   type: 'straight'
@@ -226,12 +233,14 @@ class exportObj.Ship
           @ctx.rotate Math.PI / 2
           switch template.direction
             when 'left'
-              @ctx.translate -(@width / 2) + template.start_distance_from_front, 2 * exportObj.SMALL_BASE_WIDTH
+              @ctx.translate -(@width / 2) + template.start_distance_from_front, (template.distance + 1) * exportObj.SMALL_BASE_WIDTH
             when 'right'
               @ctx.translate -(@width / 2) + template.start_distance_from_front, -exportObj.SMALL_BASE_WIDTH
             else
               throw new Error("Invalid barrel roll direction #{template.direction}")
-          exportObj.drawStraight @ctx, 1
+          exportObj.drawStraight @ctx, template.distance
+        when 'decloak'
+          ''
         else
           throw new Error("Invalid template type #{template.type}")
     catch e

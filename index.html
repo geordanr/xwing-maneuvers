@@ -11,42 +11,43 @@
         ctx: ctx,
         center_x: 800,
         center_y: 600,
-        heading_radians: window.WEST
+        heading_radians: WEST
       });
-      ship1.addMove(new window.Movement({
-        template: new window.Template({
+      ship1.addMove(new Movement({
+        template: new Template({
           type: 'bank',
           distance: 3,
           direction: 'left'
         })
       }));
-      ship1.addMove(new window.Movement({
-        template: new window.Template({
+      ship1.addMove(new Movement({
+        template: new Template({
           type: 'bank',
           distance: 1,
           direction: 'right'
         })
       }));
-      ship1.addMove(new window.Movement({
-        template: new window.Template({
+      ship1.addMove(new Movement({
+        template: new Template({
           type: 'turn',
           distance: 1,
           direction: 'right'
         }),
-        after: new window.BarrelRoll({
-          direction: 'right',
+        after: new BarrelRoll({
+          direction: 'left',
+          distance: 2,
           start_distance_from_front: 20,
           end_distance_from_front: 50
         })
       }));
-      ship1.addMove(new window.Movement({
-        template: new window.Template({
+      ship1.addMove(new Movement({
+        template: new Template({
           type: 'koiogran',
           distance: 4
         })
       }));
-      ship1.addMove(new window.Movement({
-        template: new window.Template({
+      ship1.addMove(new Movement({
+        template: new Template({
           type: 'turn',
           distance: 2,
           direction: 'left'
