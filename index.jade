@@ -20,32 +20,35 @@ html
                 name: 'test'
                 size: 'large'
                 ctx: ctx
-                center_x: 800
-                center_y: 600
-                heading_radians: WEST
+                center_x: 40
+                center_y: 800
+                heading_radians: (NORTH + EAST) / 2
 
             ship1.addMove new Movement
                 template: new Template
-                  type: 'bank'
-                  distance: 3
-                  direction: 'left'
+                  type: 'straight'
+                  distance: 2
+                after: new BarrelRoll
+                  direction: 'right'
+                  start_distance_from_front: 10
+                  end_distance_from_front: 55
 
             ship1.addMove new Movement
                 template: new Template
                   type: 'bank'
                   distance: 1
                   direction: 'right'
+                after: new BarrelRoll
+                  direction: 'rightforward'
+                  distance: 1
+                  start_distance_from_front: 10
+                  end_distance_from_front: 55
 
             ship1.addMove new Movement
                 template: new Template
                   type: 'turn'
                   distance: 1
-                  direction: 'right'
-                after: new BarrelRoll
                   direction: 'left'
-                  distance: 2
-                  start_distance_from_front: 20
-                  end_distance_from_front: 50
 
             ship1.addMove new Movement
                 template: new Template
@@ -56,11 +59,11 @@ html
                 template: new Template
                   type: 'turn'
                   distance: 2
-                  direction: 'left'
+                  direction: 'right'
                 after: new BarrelRoll
-                  direction: 'rightforward'
+                  direction: 'leftforward'
                   distance: 2
-                  start_distance_from_front: 20
-                  end_distance_from_front: 50
+                  start_distance_from_front: 55
+                  end_distance_from_front: 10
 
             ship1.drawMovements()

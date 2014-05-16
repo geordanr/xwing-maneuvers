@@ -54,13 +54,35 @@ class exportObj.Template
           when 'right'
             ship.ctx.translate x_offset, -@end_distance_from_front + @start_distance_from_front
           when 'leftforward'
-            ''
+            #ship.ctx.strokeStyle = 'red'
+            #ship.draw()
+            ship.ctx.translate -ship.width / 2, @start_distance_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[@distance]
+            #ship.ctx.strokeStyle = 'green'
+            #ship.draw()
+            ship.ctx.rotate Math.PI / 4
+            #ship.ctx.strokeStyle = 'blue'
+            #ship.draw()
+            ship.ctx.translate -ship.width / 2, -@end_distance_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[@distance]
+            #ship.ctx.strokeStyle = 'orange'
           when 'leftback'
-            ''
+            ship.ctx.translate -ship.width / 2, @start_distance_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[@distance]
+            ship.ctx.rotate -Math.PI / 4
+            ship.ctx.translate -ship.width / 2, -exportObj.BANK_INSIDE_RADII[@distance] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - @end_distance_from_front
           when 'rightforward'
-            ''
+            #ship.ctx.strokeStyle = 'red'
+            #ship.draw()
+            ship.ctx.translate ship.width / 2, @start_distance_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[@distance]
+            #ship.ctx.strokeStyle = 'green'
+            #ship.draw()
+            ship.ctx.rotate -Math.PI / 4
+            #ship.ctx.strokeStyle = 'blue'
+            #ship.draw()
+            ship.ctx.translate ship.width / 2, -@end_distance_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[@distance]
+            #ship.ctx.strokeStyle = 'orange'
           when 'rightback'
-            ''
+            ship.ctx.translate ship.width / 2, @start_distance_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[@distance]
+            ship.ctx.rotate Math.PI / 4
+            ship.ctx.translate ship.width / 2, -exportObj.BANK_INSIDE_RADII[@distance] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - @end_distance_from_front
           else
             throw new Error("Invalid direction #{@direction}")
       else
@@ -262,7 +284,7 @@ class exportObj.Ship
             when 'left'
               @ctx.translate -(@width / 2) + template.start_distance_from_front, (template.distance + 1) * exportObj.SMALL_BASE_WIDTH
             when 'leftforward', 'leftback'
-              @ctx.translate -(@width / 2) + template.start_distance_from_front + exportObj.TEMPLATE_WIDTH, -@width / 2
+              @ctx.translate (@width / 2) - template.start_distance_from_front - exportObj.TEMPLATE_WIDTH, -@width / 2
             when 'right', 'rightforward', 'rightback'
               @ctx.translate -(@width / 2) + template.start_distance_from_front, -exportObj.SMALL_BASE_WIDTH
             else

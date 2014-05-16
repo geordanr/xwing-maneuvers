@@ -75,16 +75,24 @@
               ship.ctx.translate(x_offset, -this.end_distance_from_front + this.start_distance_from_front);
               break;
             case 'leftforward':
-              '';
+              ship.ctx.translate(-ship.width / 2, this.start_distance_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[this.distance]);
+              ship.ctx.rotate(Math.PI / 4);
+              ship.ctx.translate(-ship.width / 2, -this.end_distance_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[this.distance]);
               break;
             case 'leftback':
-              '';
+              ship.ctx.translate(-ship.width / 2, this.start_distance_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[this.distance]);
+              ship.ctx.rotate(-Math.PI / 4);
+              ship.ctx.translate(-ship.width / 2, -exportObj.BANK_INSIDE_RADII[this.distance] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - this.end_distance_from_front);
               break;
             case 'rightforward':
-              '';
+              ship.ctx.translate(ship.width / 2, this.start_distance_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[this.distance]);
+              ship.ctx.rotate(-Math.PI / 4);
+              ship.ctx.translate(ship.width / 2, -this.end_distance_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[this.distance]);
               break;
             case 'rightback':
-              '';
+              ship.ctx.translate(ship.width / 2, this.start_distance_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[this.distance]);
+              ship.ctx.rotate(Math.PI / 4);
+              ship.ctx.translate(ship.width / 2, -exportObj.BANK_INSIDE_RADII[this.distance] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - this.end_distance_from_front);
               break;
             default:
               throw new Error("Invalid direction " + this.direction);
@@ -339,7 +347,7 @@
                 break;
               case 'leftforward':
               case 'leftback':
-                this.ctx.translate(-(this.width / 2) + template.start_distance_from_front + exportObj.TEMPLATE_WIDTH, -this.width / 2);
+                this.ctx.translate((this.width / 2) - template.start_distance_from_front - exportObj.TEMPLATE_WIDTH, -this.width / 2);
                 break;
               case 'right':
               case 'rightforward':
