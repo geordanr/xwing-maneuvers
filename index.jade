@@ -27,7 +27,7 @@ html
             ship1.addMove new Movement
                 template: new Template
                   type: 'straight'
-                  distance: 2
+                  distance: 4
                 after: new BarrelRoll
                   direction: 'right'
                   start_distance_from_front: 10
@@ -36,18 +36,16 @@ html
             ship1.addMove new Movement
                 template: new Template
                   type: 'bank'
-                  distance: 1
+                  distance: 3
                   direction: 'right'
                 after: new BarrelRoll
                   direction: 'rightforward'
                   distance: 1
-                  start_distance_from_front: 10
-                  end_distance_from_front: 55
 
             ship1.addMove new Movement
                 template: new Template
                   type: 'turn'
-                  distance: 1
+                  distance: 3
                   direction: 'left'
 
             ship1.addMove new Movement
@@ -62,7 +60,25 @@ html
                   direction: 'right'
                 after: new BarrelRoll
                   direction: 'leftforward'
-                  distance: 2
+                  start_distance_from_front: 55
+                  end_distance_from_front: 10
+
+            ship1.addMove new Movement
+                template: new Template
+                  type: 'turn'
+                  distance: 3
+                  direction: 'right'
+                after: new BarrelRoll
+                  direction: 'rightback'
+                  start_distance_from_front: 55
+                  end_distance_from_front: 10
+
+            ship1.addMove new Movement
+                template: new Template
+                  type: 'straight'
+                  distance: 5
+                after: new BarrelRoll
+                  direction: 'leftback'
                   start_distance_from_front: 55
                   end_distance_from_front: 10
 

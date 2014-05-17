@@ -108,15 +108,8 @@ class exportObj.BarrelRoll extends exportObj.Template
     super args
     @distance = args.distance ? 1
     @type = 'barrelroll'
-    @start_distance_from_front = args.start_distance_from_front
-    @end_distance_from_front = args.end_distance_from_front
-
-class exportObj.Decloak extends exportObj.BarrelRoll
-  constructor: (args) ->
-    # Acceptable directions: as BarrelRoll but including straight
-    super args
-    @distance = 2
-    @type = 'decloak'
+    @start_distance_from_front = args.start_distance_from_front ? 0
+    @end_distance_from_front = args.end_distance_from_front ? 0
 
 exportObj.STRAIGHT1 = new exportObj.Template
   type: 'straight'
@@ -296,8 +289,6 @@ class exportObj.Ship
               exportObj.drawBank @ctx, template.distance, 'left'
             else
               exportObj.drawStraight @ctx, template.distance
-        when 'decloak'
-          ''
         else
           throw new Error("Invalid template type #{template.type}")
     catch e

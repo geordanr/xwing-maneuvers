@@ -117,30 +117,17 @@
     __extends(BarrelRoll, _super);
 
     function BarrelRoll(args) {
-      var _ref;
+      var _ref, _ref1, _ref2;
       BarrelRoll.__super__.constructor.call(this, args);
       this.distance = (_ref = args.distance) != null ? _ref : 1;
       this.type = 'barrelroll';
-      this.start_distance_from_front = args.start_distance_from_front;
-      this.end_distance_from_front = args.end_distance_from_front;
+      this.start_distance_from_front = (_ref1 = args.start_distance_from_front) != null ? _ref1 : 0;
+      this.end_distance_from_front = (_ref2 = args.end_distance_from_front) != null ? _ref2 : 0;
     }
 
     return BarrelRoll;
 
   })(exportObj.Template);
-
-  exportObj.Decloak = (function(_super) {
-    __extends(Decloak, _super);
-
-    function Decloak(args) {
-      Decloak.__super__.constructor.call(this, args);
-      this.distance = 2;
-      this.type = 'decloak';
-    }
-
-    return Decloak;
-
-  })(exportObj.BarrelRoll);
 
   exportObj.STRAIGHT1 = new exportObj.Template({
     type: 'straight',
@@ -368,8 +355,6 @@
                 return exportObj.drawStraight(this.ctx, template.distance);
             }
             break;
-          case 'decloak':
-            return '';
           default:
             throw new Error("Invalid template type " + template.type);
         }
