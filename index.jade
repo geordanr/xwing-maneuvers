@@ -4,82 +4,151 @@ html
     title X-Wing Maneuvers
     link(rel="stylesheet", href="stylesheets/main.css")
   body
-    canvas#playarea(width=914, height=914) You need a canvas-capable browser.
+    div#stage
+    //-canvas#playarea(width=914, height=914) You need a canvas-capable browser.
     script(src="javascripts/jquery-2.1.1.min.js")
-    script(src="javascripts/canvas.js")
-    script(src="javascripts/ship.js")
-    script
+    script(src="javascripts/kinetic-v5.1.0.min.js")
+    script(src="javascripts/kinetic.js")
+    script(defer="defer")
       :coffee
-        $(document).ready ->
-          canvas = document.getElementById('playarea')
-          if canvas.getContext?
-            ctx = canvas.getContext '2d'
-            init ctx
+        stage = new Kinetic.Stage
+          container: 'stage'
+          width: 914
+          height: 914
 
-            ship1 = new Ship
-                name: 'test'
-                size: 'large'
-                ctx: ctx
-                center_x: 40
-                center_y: 800
-                heading_radians: (NORTH + EAST) / 2
+        layer = new Kinetic.Layer()
 
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'straight'
-                  distance: 4
-                after: new BarrelRoll
-                  direction: 'right'
-                  start_distance_from_front: 10
-                  end_distance_from_front: 55
+        ship = new Ship
+          stage: stage
+          name: 'test'
+          size: 'small'
 
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'bank'
-                  distance: 3
-                  direction: 'right'
-                after: new BarrelRoll
-                  direction: 'rightforward'
-                  distance: 1
+        bigship = new Ship
+          stage: stage
+          name: 'big'
+          size: 'large'
 
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'turn'
-                  distance: 3
-                  direction: 'left'
+        window.shipInst = new ShipInstance
+          ship: ship
+          x: 200
+          y: 500
+          heading_deg: 45
 
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'koiogran'
-                  distance: 4
+        window.bigShipInst = new ShipInstance
+          ship: bigship
+          x: 500
+          y: 500
+          heading_deg: 270
 
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'turn'
-                  distance: 2
-                  direction: 'right'
-                after: new BarrelRoll
-                  direction: 'leftforward'
-                  start_distance_from_front: 55
-                  end_distance_from_front: 10
+        layer.add shipInst.group
+        layer.add bigShipInst.group
 
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'turn'
-                  distance: 3
-                  direction: 'right'
-                after: new BarrelRoll
-                  direction: 'rightback'
-                  start_distance_from_front: 55
-                  end_distance_from_front: 10
+        window.bank = new Template
+          type: 'bank'
+          distance: 2
+          direction: 'right'
+        shipInst.placeTemplate bank
+        newinst = bank.move shipInst
 
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'straight'
-                  distance: 5
-                after: new BarrelRoll
-                  direction: 'leftback'
-                  start_distance_from_front: 55
-                  end_distance_from_front: 10
+        window.turn = new Template
+          type: 'turn'
+          distance: 3
+          direction: 'left'
+        newinst.placeTemplate turn
+        thirdinst = turn.move newinst
 
-            ship1.drawMovements()
+        window.straight = new Template
+          type: 'koiogran'
+          distance: 4
+        thirdinst.placeTemplate straight
+        window.fourthinst = straight.move thirdinst
+
+        window.bank3 = new Template
+          type: 'bank'
+          distance: 3
+          direction: 'right'
+        fourthinst.placeTemplate bank3
+        fifthinst = bank3.move fourthinst
+
+        layer.add bank.shape
+        layer.add bank3.shape
+        layer.add turn.shape
+        layer.add straight.shape
+        layer.add newinst.group
+        layer.add thirdinst.group
+        layer.add fourthinst.group
+        layer.add fifthinst.group
+        stage.add layer
+
+        #canvas = document.getElementById('playarea')
+        #if canvas.getContext?
+        #  ctx = canvas.getContext '2d'
+        #  init ctx
+
+        #  ship1 = new Ship
+        #      name: 'test'
+        #      size: 'large'
+        #      ctx: ctx
+        #      center_x: 40
+        #      center_y: 800
+        #      heading_radians: (NORTH + EAST) / 2
+
+        #  ship1.addMove new Movement
+        #      template: new Template
+        #        type: 'straight'
+        #        distance: 4
+        #      after: new BarrelRoll
+        #        direction: 'right'
+        #        start_distance_from_front: 10
+        #        end_distance_from_front: 55
+
+        #  ship1.addMove new Movement
+        #      template: new Template
+        #        type: 'bank'
+        #        distance: 3
+        #        direction: 'right'
+        #      after: new BarrelRoll
+        #        direction: 'rightforward'
+        #        distance: 1
+
+        #  ship1.addMove new Movement
+        #      template: new Template
+        #        type: 'turn'
+        #        distance: 3
+        #        direction: 'left'
+
+        #  ship1.addMove new Movement
+        #      template: new Template
+        #        type: 'koiogran'
+        #        distance: 4
+
+        #  ship1.addMove new Movement
+        #      template: new Template
+        #        type: 'turn'
+        #        distance: 2
+        #        direction: 'right'
+        #      after: new BarrelRoll
+        #        direction: 'leftforward'
+        #        start_distance_from_front: 55
+        #        end_distance_from_front: 10
+
+        #  ship1.addMove new Movement
+        #      template: new Template
+        #        type: 'turn'
+        #        distance: 3
+        #        direction: 'right'
+        #      after: new BarrelRoll
+        #        direction: 'rightback'
+        #        start_distance_from_front: 55
+        #        end_distance_from_front: 10
+
+        #  ship1.addMove new Movement
+        #      template: new Template
+        #        type: 'straight'
+        #        distance: 5
+        #      after: new BarrelRoll
+        #        direction: 'leftback'
+        #        start_distance_from_front: 55
+        #        end_distance_from_front: 10
+
+        #  ship1.drawMovements()
