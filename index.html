@@ -1,5 +1,5 @@
-<!DOCTYPE html><html><head><title>X-Wing Maneuvers</title><link rel="stylesheet" href="stylesheets/main.css"></head><body><div id="stage"></div><script src="javascripts/jquery-2.1.1.min.js"></script><script src="javascripts/kinetic-v5.1.0.min.js"></script><script src="javascripts/kinetic.js"></script><script defer="defer">(function() {
-  var bigship, fifthinst, layer, newinst, ship, stage, thirdinst;
+<!DOCTYPE html><html><head><title>X-Wing Maneuvers</title><link rel="stylesheet" href="stylesheets/main.css"></head><body><div id="stage"></div><script src="javascripts/jquery-2.1.1.min.js"></script><script src="javascripts/kinetic-v5.1.0.min.js"></script><script src="javascripts/kinetic.js"></script><script src="javascripts/constants.js"></script><script src="javascripts/template.js"></script><script defer="defer">(function() {
+  var bigship, inst, instances, layer, ship, stage, _i, _len;
 
   stage = new Kinetic.Stage({
     container: 'stage',
@@ -21,23 +21,14 @@
     size: 'large'
   });
 
-  window.shipInst = new ShipInstance({
+  instances = [];
+
+  instances.push(new ShipInstance({
     ship: ship,
     x: 200,
     y: 500,
     heading_deg: 45
-  });
-
-  window.bigShipInst = new ShipInstance({
-    ship: bigship,
-    x: 500,
-    y: 500,
-    heading_deg: 270
-  });
-
-  layer.add(shipInst.group);
-
-  layer.add(bigShipInst.group);
+  }));
 
   window.bank = new Template({
     type: 'bank',
@@ -45,9 +36,9 @@
     direction: 'right'
   });
 
-  shipInst.placeTemplate(bank);
+  instances[instances.length - 1].placeTemplate(bank);
 
-  newinst = bank.move(shipInst);
+  instances.push(bank.move(instances[instances.length - 1]));
 
   window.turn = new Template({
     type: 'turn',
@@ -55,18 +46,18 @@
     direction: 'left'
   });
 
-  newinst.placeTemplate(turn);
+  instances[instances.length - 1].placeTemplate(turn);
 
-  thirdinst = turn.move(newinst);
+  instances.push(turn.move(instances[instances.length - 1]));
 
   window.straight = new Template({
     type: 'koiogran',
     distance: 4
   });
 
-  thirdinst.placeTemplate(straight);
+  instances[instances.length - 1].placeTemplate(straight);
 
-  window.fourthinst = straight.move(thirdinst);
+  instances.push(straight.move(instances[instances.length - 1]));
 
   window.bank3 = new Template({
     type: 'bank',
@@ -74,9 +65,9 @@
     direction: 'right'
   });
 
-  fourthinst.placeTemplate(bank3);
+  instances[instances.length - 1].placeTemplate(bank3);
 
-  fifthinst = bank3.move(fourthinst);
+  instances.push(bank3.move(instances[instances.length - 1]));
 
   layer.add(bank.shape);
 
@@ -86,13 +77,10 @@
 
   layer.add(straight.shape);
 
-  layer.add(newinst.group);
-
-  layer.add(thirdinst.group);
-
-  layer.add(fourthinst.group);
-
-  layer.add(fifthinst.group);
+  for (_i = 0, _len = instances.length; _i < _len; _i++) {
+    inst = instances[_i];
+    layer.add(inst.group);
+  }
 
   stage.add(layer);
 
