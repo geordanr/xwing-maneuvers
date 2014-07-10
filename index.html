@@ -1,5 +1,5 @@
-<!DOCTYPE html><html><head><title>X-Wing Maneuvers</title><link rel="stylesheet" href="stylesheets/main.css"></head><body><div id="stage"></div><script src="javascripts/jquery-2.1.1.min.js"></script><script src="javascripts/kinetic-v5.1.0.min.js"></script><script src="javascripts/kinetic.js"></script><script src="javascripts/constants.js"></script><script src="javascripts/template.js"></script><script defer="defer">(function() {
-  var bigship, inst, instances, layer, ship, stage, _i, _len;
+<!DOCTYPE html><html><head><title>X-Wing Maneuvers</title><link rel="stylesheet" href="stylesheets/main.css"></head><body><div id="stage"></div><script src="javascripts/jquery-2.1.1.min.js"></script><script src="javascripts/kinetic-v5.1.0.min.js"></script><script src="javascripts/kinetic.js"></script><script src="javascripts/constants.js"></script><script src="javascripts/template.js"></script><script src="javascripts/demo.js"></script><script src="javascripts/grid.js"></script><script defer="defer">(function() {
+  var stage;
 
   stage = new Kinetic.Stage({
     container: 'stage',
@@ -7,82 +7,9 @@
     height: 914
   });
 
-  layer = new Kinetic.Layer();
+  drawGridOn(stage);
 
-  ship = new Ship({
-    stage: stage,
-    name: 'test',
-    size: 'small'
-  });
-
-  bigship = new Ship({
-    stage: stage,
-    name: 'big',
-    size: 'large'
-  });
-
-  instances = [];
-
-  instances.push(new ShipInstance({
-    ship: ship,
-    x: 200,
-    y: 500,
-    heading_deg: 45
-  }));
-
-  window.bank = new Template({
-    type: 'bank',
-    distance: 2,
-    direction: 'right'
-  });
-
-  instances[instances.length - 1].placeTemplate(bank);
-
-  instances.push(bank.move(instances[instances.length - 1]));
-
-  window.turn = new Template({
-    type: 'turn',
-    distance: 3,
-    direction: 'left'
-  });
-
-  instances[instances.length - 1].placeTemplate(turn);
-
-  instances.push(turn.move(instances[instances.length - 1]));
-
-  window.straight = new Template({
-    type: 'koiogran',
-    distance: 4
-  });
-
-  instances[instances.length - 1].placeTemplate(straight);
-
-  instances.push(straight.move(instances[instances.length - 1]));
-
-  window.bank3 = new Template({
-    type: 'bank',
-    distance: 3,
-    direction: 'right'
-  });
-
-  instances[instances.length - 1].placeTemplate(bank3);
-
-  instances.push(bank3.move(instances[instances.length - 1]));
-
-  layer.add(bank.shape);
-
-  layer.add(bank3.shape);
-
-  layer.add(turn.shape);
-
-  layer.add(straight.shape);
-
-  for (_i = 0, _len = instances.length; _i < _len; _i++) {
-    inst = instances[_i];
-    layer.add(inst.group);
-  }
-
-  stage.add(layer);
+  demo(stage);
 
 }).call(this);
 </script></body></html>
