@@ -7,8 +7,9 @@ html
     div#stage
     script(src="javascripts/jquery-2.1.1.min.js")
     script(src="javascripts/kinetic-v5.1.0.min.js")
-    script(src="javascripts/kinetic.js")
     script(src="javascripts/constants.js")
+    script(src="javascripts/position.js")
+    script(src="javascripts/ship.js")
     script(src="javascripts/template.js")
     script(src="javascripts/demo.js")
     script(src="javascripts/grid.js")
@@ -21,4 +22,66 @@ html
 
         drawGridOn stage
 
-        demo stage
+        layer = new Kinetic.Layer()
+        stage.add layer
+
+        b1 = new Base
+          size: 'small'
+          position: new Position
+            center_x: 100
+            center_y: 200
+            heading_deg: 45
+        b1.draw layer,
+          stroke: 'red'
+
+        b2 = new Base
+          size: 'large'
+          position: new Position
+            center_x: 200
+            center_y: 300
+            heading_deg: 135
+        b2.draw layer,
+          stroke: 'green'
+
+        b3 = new Base
+          size: 'small'
+          position: new Position
+            center_x: 300
+            center_y: 100
+            heading_deg: 270
+        b3.draw layer,
+          stroke: 'blue'
+
+        t = new Template
+          type: 'bank'
+          direction: 'left'
+          speed: 2
+          position: b3.frontNubOrigin()
+        t.draw layer,
+          stroke: 'purple'
+
+        t = new Template
+          type: 'turn'
+          direction: 'right'
+          speed: 3
+          position: b3.rearNubOrigin()
+        t.draw layer,
+          stroke: 'orange'
+
+        t = new Template
+          type: 'turn'
+          direction: 'right'
+          speed: 3
+          position: b2.barrelrollOrigin 'left', 10
+        t.draw layer,
+          stroke: 'orange'
+
+        t = new Template
+          type: 'bank'
+          direction: 'left'
+          speed: 3
+          position: b2.barrelrollOrigin 'right', 60
+        t.draw layer,
+          stroke: 'orange'
+
+        #demo stage

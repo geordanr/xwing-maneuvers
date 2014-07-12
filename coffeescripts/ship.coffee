@@ -1,18 +1,12 @@
 exportObj = exports ? this
 
-class exportObj.Ship
-  # A ship and its moves
+class exportObj.Base
+  # A ship base at a given position
   constructor: (args) ->
-    @name = args.name ? 'Unnamed Ship'
     @size = args.size
-    @move_history = []
+    @position = args.position
 
-class exportObj.ShipInstance
-  # A single instance of a ship that can be drawn on a layer
-  constructor: (args) ->
-    @ship = args.ship
-
-    @width = switch @ship.size
+    @width = switch @size
       when 'small'
         exportObj.SMALL_BASE_WIDTH
       when 'large'
@@ -20,65 +14,105 @@ class exportObj.ShipInstance
       else
         throw new Error("Invalid size #{@size}")
 
+    throw new Error("Position required") unless @position instanceof exportObj.Position
+
     @group = new Kinetic.Group
-      x: args.x
-      y: args.y
+      x: @position.center_x
+      y: @position.center_y
       offsetX: @width / 2
       offsetY: @width / 2
-      rotation: args.heading_deg
+      rotation: @position.heading_deg
 
     @group.add new Kinetic.Rect
+      name: 'base'
       x: 0
       y: 0
       width: @width
       height: @width
-      stroke: 'black'
-      strokeWidth: 1
 
     @group.add new Kinetic.Line
+      name: 'firing_arc'
       points: [
         1, 0
         @width / 2, @width / 2
         @width - 1, 0
       ]
-      stroke: 'black'
-      strokeWidth: 1
 
     nub_offset = exportObj.TEMPLATE_WIDTH / 2
+
     @group.add new Kinetic.Rect
+      name: 'nub'
       x: (@width / 2) - nub_offset - 1
       y: -2
       width: 1
       height: 2
-      stroke: 'black'
-      strokeWidth: 1
 
     @group.add new Kinetic.Rect
+      name: 'nub'
       x: (@width / 2) + nub_offset - 1
       y: - 2
       width: 1
       height: 2
-      stroke: 'black'
-      strokeWidth: 1
 
     @group.add new Kinetic.Rect
+      name: 'nub'
       x: (@width / 2) - nub_offset - 1
       y: @width
       width: 1
       height: 2
-      stroke: 'black'
-      strokeWidth: 1
 
     @group.add new Kinetic.Rect
+      name: 'nub'
       x: (@width / 2) + nub_offset - 1
       y: @width
       width: 1
       height: 2
-      stroke: 'black'
-      strokeWidth: 1
 
-  placeTemplate: (template) ->
-    template.shape.move @group.getTransform().point
+  draw: (layer, args) ->
+    layer.add @group
+    for child in @group.children
+      child.stroke args.stroke ? 'black'
+      child.strokeWidth args.strokeWidth ? 1
+      child.draw()
+
+  frontNubOrigin: ->
+    p = @group.getTransform().point
       x: @width / 2
       y: 0
-    template.shape.rotation @group.getRotation()
+    new exportObj.Position
+      center_x: p.x
+      center_y: p.y
+      heading_deg: @position.heading_deg
+
+  rearNubOrigin: ->
+    p = @group.getTransform().point
+      x: @width / 2
+      y: @width
+    new exportObj.Position
+      center_x: p.x
+      center_y: p.y
+      heading_deg: (@position.heading_deg + 180) % 360
+
+  barrelrollOrigin: (side, distance_from_front) ->
+    if distance_from_front > @width - exportObj.TEMPLATE_WIDTH
+      throw new Error("Barrel roll template placed too far back (#{distance_from_front} but base width is #{@width}) and template width is #{exportObj.TEMPLATE_WIDTH}")
+    distance_from_front += exportObj.TEMPLATE_WIDTH / 2
+    switch side
+      when 'left'
+        p = @group.getTransform().point
+          x: 0
+          y: distance_from_front
+        new exportObj.Position
+          center_x: p.x
+          center_y: p.y
+          heading_deg: (@position.heading_deg + 270) % 360
+      when 'right'
+        p = @group.getTransform().point
+          x: @width
+          y: distance_from_front
+        new exportObj.Position
+          center_x: p.x
+          center_y: p.y
+          heading_deg: (@position.heading_deg + 90) % 360
+      else
+        throw new Error("Invalid side #{side}")

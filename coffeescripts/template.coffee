@@ -4,23 +4,20 @@ class exportObj.Template
   # Created such that the bottom center of the template is 0, 0, extending up (-y)
   constructor: (args) ->
     @type = args.type
-    @distance = args.distance
+    @speed = args.speed
     @direction = args.direction
+    @position = args.position
 
     @shape = switch @type
       when 'straight', 'koiogran'
         new Kinetic.Rect
-          x: 0
-          y: 0
           offsetX: exportObj.TEMPLATE_WIDTH / 2
           offsetY: 0
           width: exportObj.TEMPLATE_WIDTH
-          height: -exportObj.SMALL_BASE_WIDTH * @distance
-          stroke: 'black'
-          strokeWidth: 1
+          height: -exportObj.SMALL_BASE_WIDTH * @speed
       when 'bank'
         dir = @direction
-        dist = @distance
+        dist = @speed
         do (dir, dist) ->
           new Kinetic.Shape
             drawFunc: (ctx) ->
@@ -42,11 +39,9 @@ class exportObj.Template
                   throw new Error("Invalid direction #{dir}")
               ctx.closePath()
               ctx.strokeShape this
-            stroke: 'black'
-            strokeWidth: 1
       when 'turn'
         dir = @direction
-        dist = @distance
+        dist = @speed
         do (dir, dist) ->
           new Kinetic.Shape
             drawFunc: (ctx) ->
@@ -69,10 +64,20 @@ class exportObj.Template
 
               ctx.closePath()
               ctx.strokeShape this
-            stroke: 'black'
-            strokeWidth: 1
 
-  move: (shipinst) ->
+    @shape.x @position.center_x
+    @shape.y @position.center_y
+    @shape.rotation @position.heading_deg
+
+  draw: (layer, args) ->
+    layer.add @shape
+    @shape.stroke args.stroke ? 'black'
+    @shape.strokeWidth args.strokeWidth ? 1
+    @shape.draw()
+
+  deprecated_move: (shipinst) ->
+    # TODO: transform base center based on template origin
+
     # Returns new ShipInstance at new location
     rotation = 0
 
@@ -82,17 +87,17 @@ class exportObj.Template
 
     end_center = switch @type
       when 'straight'
-        new Kinetic.Transform().translate(0, -@distance * exportObj.SMALL_BASE_WIDTH - shipinst.width).point start_center
+        new Kinetic.Transform().translate(0, -@speed * exportObj.SMALL_BASE_WIDTH - shipinst.width).point start_center
       when 'bank'
         switch @direction
           when 'left'
-            d = exportObj.BANK_INSIDE_RADII[@distance] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2)
+            d = exportObj.BANK_INSIDE_RADII[@speed] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2)
             rotation = -45
             end_center = new Kinetic.Transform().translate(d, -shipinst.width).point start_center
             end_center = new Kinetic.Transform().rotate(-Math.PI / 4).point end_center
             end_center = new Kinetic.Transform().translate(-d, 0).point end_center
           when 'right'
-            d = exportObj.BANK_INSIDE_RADII[@distance] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2)
+            d = exportObj.BANK_INSIDE_RADII[@speed] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2)
             rotation = 45
             end_center = new Kinetic.Transform().translate(-d, -shipinst.width).point start_center
             end_center = new Kinetic.Transform().rotate(Math.PI / 4).point end_center
@@ -102,13 +107,13 @@ class exportObj.Template
       when 'turn'
         switch @direction
           when 'left'
-            d = exportObj.TURN_INSIDE_RADII[@distance] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2)
+            d = exportObj.TURN_INSIDE_RADII[@speed] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2)
             rotation = -90
             end_center = new Kinetic.Transform().translate(d, -shipinst.width).point start_center
             end_center = new Kinetic.Transform().rotate(-Math.PI / 2).point end_center
             end_center = new Kinetic.Transform().translate(-d, 0).point end_center
           when 'right'
-            d = exportObj.TURN_INSIDE_RADII[@distance] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2)
+            d = exportObj.TURN_INSIDE_RADII[@speed] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2)
             rotation = 90
             end_center = new Kinetic.Transform().translate(-d, -shipinst.width).point start_center
             end_center = new Kinetic.Transform().rotate(Math.PI / 2).point end_center
@@ -119,44 +124,44 @@ class exportObj.Template
         rotation = 180
         end_center = new Kinetic.Transform().translate(-shipinst.group.getOffsetX(), -shipinst.group.getOffsetY()).point start_center
         end_center = new Kinetic.Transform().rotate(Math.PI).point end_center
-        end_center = new Kinetic.Transform().translate(shipinst.group.getOffsetX(), -shipinst.group.getOffsetY() - (@distance * exportObj.SMALL_BASE_WIDTH)).point end_center
+        end_center = new Kinetic.Transform().translate(shipinst.group.getOffsetX(), -shipinst.group.getOffsetY() - (@speed * exportObj.SMALL_BASE_WIDTH)).point end_center
       when 'barrelroll'
-        x_offset = ship.width + (@distance * exportObj.SMALL_BASE_WIDTH)
+        x_offset = ship.width + (@speed * exportObj.SMALL_BASE_WIDTH)
         switch @direction
           when 'left'
-            t.translate -x_offset, -@end_distance_from_front + @start_distance_from_front
+            t.translate -x_offset, -@end_speed_from_front + @start_speed_from_front
           when 'right'
-            t.translate x_offset, -@end_distance_from_front + @start_distance_from_front
+            t.translate x_offset, -@end_speed_from_front + @start_speed_from_front
           when 'leftforward'
             #t.strokeStyle = 'red'
             #ship.draw()
-            t.translate -ship.width / 2, @start_distance_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[@distance]
+            t.translate -ship.width / 2, @start_speed_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[@speed]
             #t.strokeStyle = 'green'
             #ship.draw()
             t.rotate Math.PI / 4
             #t.strokeStyle = 'blue'
             #ship.draw()
-            t.translate -ship.width / 2, -@end_distance_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[@distance]
+            t.translate -ship.width / 2, -@end_speed_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[@speed]
             #t.strokeStyle = 'orange'
           when 'leftback'
-            t.translate -ship.width / 2, @start_distance_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[@distance]
+            t.translate -ship.width / 2, @start_speed_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[@speed]
             t.rotate -Math.PI / 4
-            t.translate -ship.width / 2, -exportObj.BANK_INSIDE_RADII[@distance] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - @end_distance_from_front
+            t.translate -ship.width / 2, -exportObj.BANK_INSIDE_RADII[@speed] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - @end_speed_from_front
           when 'rightforward'
             #t.strokeStyle = 'red'
             #ship.draw()
-            t.translate ship.width / 2, @start_distance_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[@distance]
+            t.translate ship.width / 2, @start_speed_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[@speed]
             #t.strokeStyle = 'green'
             #ship.draw()
             t.rotate -Math.PI / 4
             #t.strokeStyle = 'blue'
             #ship.draw()
-            t.translate ship.width / 2, -@end_distance_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[@distance]
+            t.translate ship.width / 2, -@end_speed_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[@speed]
             #t.strokeStyle = 'orange'
           when 'rightback'
-            t.translate ship.width / 2, @start_distance_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[@distance]
+            t.translate ship.width / 2, @start_speed_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[@speed]
             t.rotate Math.PI / 4
-            t.translate ship.width / 2, -exportObj.BANK_INSIDE_RADII[@distance] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - @end_distance_from_front
+            t.translate ship.width / 2, -exportObj.BANK_INSIDE_RADII[@speed] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - @end_speed_from_front
           else
             throw new Error("Invalid direction #{@direction}")
       else

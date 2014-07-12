@@ -8,25 +8,22 @@
     function Template(args) {
       var dir, dist;
       this.type = args.type;
-      this.distance = args.distance;
+      this.speed = args.speed;
       this.direction = args.direction;
+      this.position = args.position;
       this.shape = (function() {
         switch (this.type) {
           case 'straight':
           case 'koiogran':
             return new Kinetic.Rect({
-              x: 0,
-              y: 0,
               offsetX: exportObj.TEMPLATE_WIDTH / 2,
               offsetY: 0,
               width: exportObj.TEMPLATE_WIDTH,
-              height: -exportObj.SMALL_BASE_WIDTH * this.distance,
-              stroke: 'black',
-              strokeWidth: 1
+              height: -exportObj.SMALL_BASE_WIDTH * this.speed
             });
           case 'bank':
             dir = this.direction;
-            dist = this.distance;
+            dist = this.speed;
             return (function(dir, dist) {
               return new Kinetic.Shape({
                 drawFunc: function(ctx) {
@@ -51,14 +48,12 @@
                   }
                   ctx.closePath();
                   return ctx.strokeShape(this);
-                },
-                stroke: 'black',
-                strokeWidth: 1
+                }
               });
             })(dir, dist);
           case 'turn':
             dir = this.direction;
-            dist = this.distance;
+            dist = this.speed;
             return (function(dir, dist) {
               return new Kinetic.Shape({
                 drawFunc: function(ctx) {
@@ -82,16 +77,25 @@
                   }
                   ctx.closePath();
                   return ctx.strokeShape(this);
-                },
-                stroke: 'black',
-                strokeWidth: 1
+                }
               });
             })(dir, dist);
         }
       }).call(this);
+      this.shape.x(this.position.center_x);
+      this.shape.y(this.position.center_y);
+      this.shape.rotation(this.position.heading_deg);
     }
 
-    Template.prototype.move = function(shipinst) {
+    Template.prototype.draw = function(layer, args) {
+      var _ref, _ref1;
+      layer.add(this.shape);
+      this.shape.stroke((_ref = args.stroke) != null ? _ref : 'black');
+      this.shape.strokeWidth((_ref1 = args.strokeWidth) != null ? _ref1 : 1);
+      return this.shape.draw();
+    };
+
+    Template.prototype.deprecated_move = function(shipinst) {
       var d, end_center, new_center, rotation, start_center, x_offset;
       rotation = 0;
       start_center = {
@@ -101,17 +105,17 @@
       end_center = (function() {
         switch (this.type) {
           case 'straight':
-            return new Kinetic.Transform().translate(0, -this.distance * exportObj.SMALL_BASE_WIDTH - shipinst.width).point(start_center);
+            return new Kinetic.Transform().translate(0, -this.speed * exportObj.SMALL_BASE_WIDTH - shipinst.width).point(start_center);
           case 'bank':
             switch (this.direction) {
               case 'left':
-                d = exportObj.BANK_INSIDE_RADII[this.distance] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2);
+                d = exportObj.BANK_INSIDE_RADII[this.speed] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2);
                 rotation = -45;
                 end_center = new Kinetic.Transform().translate(d, -shipinst.width).point(start_center);
                 end_center = new Kinetic.Transform().rotate(-Math.PI / 4).point(end_center);
                 return end_center = new Kinetic.Transform().translate(-d, 0).point(end_center);
               case 'right':
-                d = exportObj.BANK_INSIDE_RADII[this.distance] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2);
+                d = exportObj.BANK_INSIDE_RADII[this.speed] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2);
                 rotation = 45;
                 end_center = new Kinetic.Transform().translate(-d, -shipinst.width).point(start_center);
                 end_center = new Kinetic.Transform().rotate(Math.PI / 4).point(end_center);
@@ -123,13 +127,13 @@
           case 'turn':
             switch (this.direction) {
               case 'left':
-                d = exportObj.TURN_INSIDE_RADII[this.distance] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2);
+                d = exportObj.TURN_INSIDE_RADII[this.speed] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2);
                 rotation = -90;
                 end_center = new Kinetic.Transform().translate(d, -shipinst.width).point(start_center);
                 end_center = new Kinetic.Transform().rotate(-Math.PI / 2).point(end_center);
                 return end_center = new Kinetic.Transform().translate(-d, 0).point(end_center);
               case 'right':
-                d = exportObj.TURN_INSIDE_RADII[this.distance] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2);
+                d = exportObj.TURN_INSIDE_RADII[this.speed] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2);
                 rotation = 90;
                 end_center = new Kinetic.Transform().translate(-d, -shipinst.width).point(start_center);
                 end_center = new Kinetic.Transform().rotate(Math.PI / 2).point(end_center);
@@ -142,30 +146,30 @@
             rotation = 180;
             end_center = new Kinetic.Transform().translate(-shipinst.group.getOffsetX(), -shipinst.group.getOffsetY()).point(start_center);
             end_center = new Kinetic.Transform().rotate(Math.PI).point(end_center);
-            return end_center = new Kinetic.Transform().translate(shipinst.group.getOffsetX(), -shipinst.group.getOffsetY() - (this.distance * exportObj.SMALL_BASE_WIDTH)).point(end_center);
+            return end_center = new Kinetic.Transform().translate(shipinst.group.getOffsetX(), -shipinst.group.getOffsetY() - (this.speed * exportObj.SMALL_BASE_WIDTH)).point(end_center);
           case 'barrelroll':
-            x_offset = ship.width + (this.distance * exportObj.SMALL_BASE_WIDTH);
+            x_offset = ship.width + (this.speed * exportObj.SMALL_BASE_WIDTH);
             switch (this.direction) {
               case 'left':
-                return t.translate(-x_offset, -this.end_distance_from_front + this.start_distance_from_front);
+                return t.translate(-x_offset, -this.end_speed_from_front + this.start_speed_from_front);
               case 'right':
-                return t.translate(x_offset, -this.end_distance_from_front + this.start_distance_from_front);
+                return t.translate(x_offset, -this.end_speed_from_front + this.start_speed_from_front);
               case 'leftforward':
-                t.translate(-ship.width / 2, this.start_distance_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[this.distance]);
+                t.translate(-ship.width / 2, this.start_speed_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[this.speed]);
                 t.rotate(Math.PI / 4);
-                return t.translate(-ship.width / 2, -this.end_distance_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[this.distance]);
+                return t.translate(-ship.width / 2, -this.end_speed_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[this.speed]);
               case 'leftback':
-                t.translate(-ship.width / 2, this.start_distance_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[this.distance]);
+                t.translate(-ship.width / 2, this.start_speed_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[this.speed]);
                 t.rotate(-Math.PI / 4);
-                return t.translate(-ship.width / 2, -exportObj.BANK_INSIDE_RADII[this.distance] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - this.end_distance_from_front);
+                return t.translate(-ship.width / 2, -exportObj.BANK_INSIDE_RADII[this.speed] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - this.end_speed_from_front);
               case 'rightforward':
-                t.translate(ship.width / 2, this.start_distance_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[this.distance]);
+                t.translate(ship.width / 2, this.start_speed_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[this.speed]);
                 t.rotate(-Math.PI / 4);
-                return t.translate(ship.width / 2, -this.end_distance_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[this.distance]);
+                return t.translate(ship.width / 2, -this.end_speed_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[this.speed]);
               case 'rightback':
-                t.translate(ship.width / 2, this.start_distance_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[this.distance]);
+                t.translate(ship.width / 2, this.start_speed_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[this.speed]);
                 t.rotate(Math.PI / 4);
-                return t.translate(ship.width / 2, -exportObj.BANK_INSIDE_RADII[this.distance] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - this.end_distance_from_front);
+                return t.translate(ship.width / 2, -exportObj.BANK_INSIDE_RADII[this.speed] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - this.end_speed_from_front);
               default:
                 throw new Error("Invalid direction " + this.direction);
             }
