@@ -75,44 +75,25 @@ class exportObj.Base
       child.strokeWidth args.strokeWidth ? 1
       child.draw()
 
-  frontNubOrigin: ->
-    p = @group.getTransform().point
-      x: @width / 2
-      y: 0
-    new exportObj.Position
-      center_x: p.x
-      center_y: p.y
-      heading_deg: @position.heading_deg
+  getRotation: ->
+    @group.rotation()
 
-  rearNubOrigin: ->
-    p = @group.getTransform().point
-      x: @width / 2
-      y: @width
-    new exportObj.Position
-      center_x: p.x
-      center_y: p.y
-      heading_deg: (@position.heading_deg + 180) % 360
+  getFrontNubTransform: ->
+    @group.getAbsoluteTransform().copy().translate(@width / 2, 0)
 
-  barrelrollOrigin: (side, distance_from_front) ->
+  getRearNubTransform: ->
+    @group.getAbsoluteTransform().copy().translate(@width / 2, @width)
+
+  getBarrelRollTransform: (side, distance_from_front) ->
     if distance_from_front > @width - exportObj.TEMPLATE_WIDTH
       throw new Error("Barrel roll template placed too far back (#{distance_from_front} but base width is #{@width}) and template width is #{exportObj.TEMPLATE_WIDTH}")
+
     distance_from_front += exportObj.TEMPLATE_WIDTH / 2
+
     switch side
       when 'left'
-        p = @group.getTransform().point
-          x: 0
-          y: distance_from_front
-        new exportObj.Position
-          center_x: p.x
-          center_y: p.y
-          heading_deg: (@position.heading_deg + 270) % 360
+        @group.getAbsoluteTransform().copy().translate(0, distance_from_front)
       when 'right'
-        p = @group.getTransform().point
-          x: @width
-          y: distance_from_front
-        new exportObj.Position
-          center_x: p.x
-          center_y: p.y
-          heading_deg: (@position.heading_deg + 90) % 360
+        @group.getAbsoluteTransform().copy().translate(@width, distance_from_front)
       else
         throw new Error("Invalid side #{side}")

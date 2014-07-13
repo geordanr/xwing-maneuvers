@@ -9,6 +9,8 @@
       this.center_x = args.center_x;
       this.center_y = args.center_y;
       this.heading_deg = args.heading_deg;
+      this.x = this.center_x;
+      this.y = this.center_y;
     }
 
     return Position;

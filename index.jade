@@ -11,11 +11,12 @@ html
     script(src="javascripts/position.js")
     script(src="javascripts/base.js")
     script(src="javascripts/template.js")
+    script(src="javascripts/movement.js")
     script(src="javascripts/demo.js")
     script(src="javascripts/grid.js")
     script(defer="defer")
       :coffee
-        stage = new Kinetic.Stage
+        window.stage = new Kinetic.Stage
           container: 'stage'
           width: 914
           height: 914
@@ -39,7 +40,7 @@ html
           position: new Position
             center_x: 200
             center_y: 300
-            heading_deg: 135
+            heading_deg: 112
         b2.draw layer,
           stroke: 'green'
 
@@ -52,36 +53,25 @@ html
         b3.draw layer,
           stroke: 'blue'
 
-        t = new Template
-          type: 'bank'
-          direction: 'left'
-          speed: 2
-          position: b3.frontNubOrigin()
+        t = new templates.Straight
+          speed: 3
+          base: b2
+          where: 'front_nubs'
         t.draw layer,
           stroke: 'purple'
 
-        t = new Template
-          type: 'turn'
-          direction: 'right'
+        xform = new movements.Straight
           speed: 3
-          position: b3.rearNubOrigin()
-        t.draw layer,
-          stroke: 'orange'
-
-        t = new Template
-          type: 'turn'
-          direction: 'right'
-          speed: 3
-          position: b2.barrelrollOrigin 'left', 10
-        t.draw layer,
-          stroke: 'orange'
-
-        t = new Template
-          type: 'bank'
-          direction: 'left'
-          speed: 3
-          position: b2.barrelrollOrigin 'right', 60
-        t.draw layer,
+        .getBaseTransform(b2)
+        p = xform.point {x:0, y:0}
+        console.log p
+        b4 = new Base
+          size: 'large'
+          position: new Position
+            center_x: p.x
+            center_y: p.y
+            heading_deg: 112
+        b4.draw layer,
           stroke: 'orange'
 
         #demo stage

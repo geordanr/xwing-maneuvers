@@ -1,7 +1,7 @@
-<!DOCTYPE html><html><head><title>X-Wing Maneuvers</title><link rel="stylesheet" href="stylesheets/main.css"></head><body><div id="stage"></div><script src="javascripts/jquery-2.1.1.min.js"></script><script src="javascripts/kinetic-v5.1.0.min.js"></script><script src="javascripts/constants.js"></script><script src="javascripts/position.js"></script><script src="javascripts/ship.js"></script><script src="javascripts/template.js"></script><script src="javascripts/demo.js"></script><script src="javascripts/grid.js"></script><script defer="defer">(function() {
-  var b1, b2, b3, layer, stage, t;
+<!DOCTYPE html><html><head><title>X-Wing Maneuvers</title><link rel="stylesheet" href="stylesheets/main.css"></head><body><div id="stage"></div><script src="javascripts/jquery-2.1.1.min.js"></script><script src="javascripts/kinetic-v5.1.0.min.js"></script><script src="javascripts/constants.js"></script><script src="javascripts/position.js"></script><script src="javascripts/base.js"></script><script src="javascripts/template.js"></script><script src="javascripts/movement.js"></script><script src="javascripts/demo.js"></script><script src="javascripts/grid.js"></script><script defer="defer">(function() {
+  var b1, b2, b3, b4, layer, p, t, xform;
 
-  stage = new Kinetic.Stage({
+  window.stage = new Kinetic.Stage({
     container: 'stage',
     width: 914,
     height: 914
@@ -31,7 +31,7 @@
     position: new Position({
       center_x: 200,
       center_y: 300,
-      heading_deg: 135
+      heading_deg: 112
     })
   });
 
@@ -52,47 +52,37 @@
     stroke: 'blue'
   });
 
-  t = new Template({
-    type: 'bank',
-    direction: 'left',
-    speed: 2,
-    position: b3.frontNubOrigin()
+  t = new templates.Straight({
+    speed: 3,
+    base: b2,
+    where: 'front_nubs'
   });
 
   t.draw(layer, {
     stroke: 'purple'
   });
 
-  t = new Template({
-    type: 'turn',
-    direction: 'right',
-    speed: 3,
-    position: b3.rearNubOrigin()
+  xform = new movements.Straight({
+    speed: 3
+  }).getBaseTransform(b2);
+
+  p = xform.point({
+    x: 0,
+    y: 0
   });
 
-  t.draw(layer, {
-    stroke: 'orange'
+  console.log(p);
+
+  b4 = new Base({
+    size: 'large',
+    position: new Position({
+      center_x: p.x,
+      center_y: p.y,
+      heading_deg: 112
+    })
   });
 
-  t = new Template({
-    type: 'turn',
-    direction: 'right',
-    speed: 3,
-    position: b2.barrelrollOrigin('left', 10)
-  });
-
-  t.draw(layer, {
-    stroke: 'orange'
-  });
-
-  t = new Template({
-    type: 'bank',
-    direction: 'left',
-    speed: 3,
-    position: b2.barrelrollOrigin('right', 60)
-  });
-
-  t.draw(layer, {
+  b4.draw(layer, {
     stroke: 'orange'
   });
 
