@@ -54,15 +54,15 @@
 
   args = {
     speed: 2,
-    direction: 'left',
+    direction: 'leftforward',
     base: b2,
     where: 'left',
     distance_from_front: 10,
     start_distance_from_front: 10,
-    end_distance_from_front: 50
+    end_distance_from_front: 60
   };
 
-  t = new templates.Straight(args);
+  t = new templates.Bank(args);
 
   t.draw(layer, {
     stroke: 'purple'

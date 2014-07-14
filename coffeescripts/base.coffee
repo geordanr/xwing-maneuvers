@@ -91,9 +91,9 @@ class exportObj.Base
     distance_from_front += exportObj.TEMPLATE_WIDTH / 2
 
     switch side
-      when 'left'
+      when 'left', 'leftforward', 'leftbackward'
         @group.getAbsoluteTransform().copy().translate(0, distance_from_front)
-      when 'right'
+      when 'right', 'rightforward', 'rightbackward'
         @group.getAbsoluteTransform().copy().translate(@width, distance_from_front)
       else
         throw new Error("Invalid side #{side}")

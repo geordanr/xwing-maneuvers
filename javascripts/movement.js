@@ -140,39 +140,37 @@
     }
 
     BarrelRoll.prototype.getBaseTransformAndHeading = function(base) {
-      var rotation, transform, x_offset;
-      x_offset = base.width + (this.speed * exportObj.SMALL_BASE_WIDTH);
+      var d, rotation, transform, x_offset, y_offset;
+      x_offset = (this.speed * exportObj.SMALL_BASE_WIDTH) + (base.width / 2);
+      y_offset = ((base.width - exportObj.TEMPLATE_WIDTH) / 2) - this.end_distance_from_front;
       switch (this.direction) {
         case 'left':
           rotation = 0;
-          transform = base.getBarrelRollTransform(this.direction, this.start_distance_from_front).translate(-(this.speed * exportObj.SMALL_BASE_WIDTH) - (base.width / 2), 0);
-          console.log(transform);
+          transform = base.getBarrelRollTransform(this.direction, this.start_distance_from_front).translate(-x_offset, y_offset);
           break;
         case 'right':
-          t.translate(x_offset, -this.end_speed_from_front + this.start_speed_from_front);
+          rotation = 0;
+          transform = base.getBarrelRollTransform(this.direction, this.start_distance_from_front).translate(x_offset, y_offset);
           break;
         case 'leftforward':
-          t.translate(-ship.width / 2, this.start_speed_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[this.speed]);
-          t.rotate(Math.PI / 4);
-          t.translate(-ship.width / 2, -this.end_speed_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[this.speed]);
+          d = exportObj.BANK_INSIDE_RADII[this.speed] + (exportObj.TEMPLATE_WIDTH / 2);
+          rotation = 45;
+          transform = base.getBarrelRollTransform(this.direction, this.start_distance_from_front).translate(0, -d).rotate(Math.PI / 4).translate(-base.width / 2, d + y_offset);
           break;
-        case 'leftback':
-          t.translate(-ship.width / 2, this.start_speed_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[this.speed]);
-          t.rotate(-Math.PI / 4);
-          t.translate(-ship.width / 2, -exportObj.BANK_INSIDE_RADII[this.speed] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - this.end_speed_from_front);
+        case 'leftbackward':
+          d = exportObj.BANK_INSIDE_RADII[this.speed] + (exportObj.TEMPLATE_WIDTH / 2);
+          rotation = 315;
+          transform = base.getBarrelRollTransform(this.direction, this.start_distance_from_front).translate(0, d).rotate(-Math.PI / 4).translate(-base.width / 2, -d + y_offset);
           break;
         case 'rightforward':
-          t.translate(ship.width / 2, this.start_speed_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[this.speed]);
-          t.rotate(-Math.PI / 4);
-          t.translate(ship.width / 2, -this.end_speed_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[this.speed]);
+          d = exportObj.BANK_INSIDE_RADII[this.speed] + (exportObj.TEMPLATE_WIDTH / 2);
+          rotation = 315;
+          transform = base.getBarrelRollTransform(this.direction, this.start_distance_from_front).translate(0, -d).rotate(-Math.PI / 4).translate(base.width / 2, d + y_offset);
           break;
-        case 'rightback':
-          t.translate(ship.width / 2, this.start_speed_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[this.speed]);
-          t.rotate(Math.PI / 4);
-          t.translate(ship.width / 2, -exportObj.BANK_INSIDE_RADII[this.speed] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - this.end_speed_from_front);
-          break;
-        default:
-          throw new Error("Invalid direction " + this.direction);
+        case 'rightbackward':
+          d = exportObj.BANK_INSIDE_RADII[this.speed] + (exportObj.TEMPLATE_WIDTH / 2);
+          rotation = 45;
+          transform = base.getBarrelRollTransform(this.direction, this.start_distance_from_front).translate(0, d).rotate(Math.PI / 4).translate(base.width / 2, -d + y_offset);
       }
       return {
         transform: transform,

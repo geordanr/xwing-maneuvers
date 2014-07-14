@@ -104,8 +104,12 @@
       distance_from_front += exportObj.TEMPLATE_WIDTH / 2;
       switch (side) {
         case 'left':
+        case 'leftforward':
+        case 'leftbackward':
           return this.group.getAbsoluteTransform().copy().translate(0, distance_from_front);
         case 'right':
+        case 'rightforward':
+        case 'rightbackward':
           return this.group.getAbsoluteTransform().copy().translate(this.width, distance_from_front);
         default:
           throw new Error("Invalid side " + side);

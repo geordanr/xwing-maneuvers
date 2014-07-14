@@ -99,47 +99,50 @@ class exportObj.movements.BarrelRoll extends Movement
     @end_distance_from_front = args.end_distance_from_front
 
   getBaseTransformAndHeading: (base) ->
-    x_offset = base.width + (@speed * exportObj.SMALL_BASE_WIDTH)
+    x_offset = (@speed * exportObj.SMALL_BASE_WIDTH) + (base.width / 2)
+    y_offset = ((base.width - exportObj.TEMPLATE_WIDTH) / 2) - @end_distance_from_front
     switch @direction
       when 'left'
         rotation = 0
         transform = base.getBarrelRollTransform(@direction, @start_distance_from_front)
-          .translate -(@speed * exportObj.SMALL_BASE_WIDTH) - (base.width / 2), 0
-        console.log transform
+          .translate -x_offset, y_offset
+
       when 'right'
-        t.translate x_offset, -@end_speed_from_front + @start_speed_from_front
+        rotation = 0
+        transform = base.getBarrelRollTransform(@direction, @start_distance_from_front)
+          .translate x_offset, y_offset
+
       when 'leftforward'
-        #t.strokeStyle = 'red'
-        #ship.draw()
-        t.translate -ship.width / 2, @start_speed_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[@speed]
-        #t.strokeStyle = 'green'
-        #ship.draw()
-        t.rotate Math.PI / 4
-        #t.strokeStyle = 'blue'
-        #ship.draw()
-        t.translate -ship.width / 2, -@end_speed_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[@speed]
-        #t.strokeStyle = 'orange'
-      when 'leftback'
-        t.translate -ship.width / 2, @start_speed_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[@speed]
-        t.rotate -Math.PI / 4
-        t.translate -ship.width / 2, -exportObj.BANK_INSIDE_RADII[@speed] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - @end_speed_from_front
+        d = exportObj.BANK_INSIDE_RADII[@speed] + ((exportObj.TEMPLATE_WIDTH) / 2)
+        rotation = 45
+        transform = base.getBarrelRollTransform(@direction, @start_distance_from_front)
+          .translate(0, -d)
+          .rotate(Math.PI / 4)
+          .translate(-base.width / 2, d + y_offset)
+
+      when 'leftbackward'
+        d = exportObj.BANK_INSIDE_RADII[@speed] + ((exportObj.TEMPLATE_WIDTH) / 2)
+        rotation = 315
+        transform = base.getBarrelRollTransform(@direction, @start_distance_from_front)
+          .translate(0, d)
+          .rotate(-Math.PI / 4)
+          .translate(-base.width / 2, -d + y_offset)
+
       when 'rightforward'
-        #t.strokeStyle = 'red'
-        #ship.draw()
-        t.translate ship.width / 2, @start_speed_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[@speed]
-        #t.strokeStyle = 'green'
-        #ship.draw()
-        t.rotate -Math.PI / 4
-        #t.strokeStyle = 'blue'
-        #ship.draw()
-        t.translate ship.width / 2, -@end_speed_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[@speed]
-        #t.strokeStyle = 'orange'
-      when 'rightback'
-        t.translate ship.width / 2, @start_speed_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[@speed]
-        t.rotate Math.PI / 4
-        t.translate ship.width / 2, -exportObj.BANK_INSIDE_RADII[@speed] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - @end_speed_from_front
-      else
-        throw new Error("Invalid direction #{@direction}")
+        d = exportObj.BANK_INSIDE_RADII[@speed] + ((exportObj.TEMPLATE_WIDTH) / 2)
+        rotation = 315
+        transform = base.getBarrelRollTransform(@direction, @start_distance_from_front)
+          .translate(0, -d)
+          .rotate(-Math.PI / 4)
+          .translate(base.width / 2, d + y_offset)
+
+      when 'rightbackward'
+        d = exportObj.BANK_INSIDE_RADII[@speed] + ((exportObj.TEMPLATE_WIDTH) / 2)
+        rotation = 45
+        transform = base.getBarrelRollTransform(@direction, @start_distance_from_front)
+          .translate(0, d)
+          .rotate(Math.PI / 4)
+          .translate(base.width / 2, -d + y_offset)
 
     {
       transform: transform

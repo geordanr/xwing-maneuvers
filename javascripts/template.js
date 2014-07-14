@@ -116,12 +116,16 @@
             ctx.beginPath();
             switch (dir) {
               case 'left':
+              case 'leftbackward':
+              case 'rightforward':
                 angle = -Math.PI / 4.0;
                 ctx.arc(-radius - (exportObj.TEMPLATE_WIDTH / 2), 0, radius, angle, 0);
                 ctx.lineTo(exportObj.TEMPLATE_WIDTH / 2, 0);
                 ctx.arc(-radius - (exportObj.TEMPLATE_WIDTH / 2), 0, radius + exportObj.TEMPLATE_WIDTH, 0, angle, true);
                 break;
               case 'right':
+              case 'leftforward':
+              case 'rightbackward':
                 angle = -3 * Math.PI / 4.0;
                 ctx.arc(radius + (exportObj.TEMPLATE_WIDTH / 2), 0, radius, angle, Math.PI, true);
                 ctx.lineTo(-exportObj.TEMPLATE_WIDTH / 2, 0);

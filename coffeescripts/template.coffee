@@ -79,12 +79,12 @@ class exportObj.templates.Bank extends Template
 
           ctx.beginPath()
           switch dir
-            when 'left'
+            when 'left', 'leftbackward', 'rightforward'
               angle = -Math.PI / 4.0
               ctx.arc -radius - (exportObj.TEMPLATE_WIDTH / 2), 0, radius, angle, 0
               ctx.lineTo exportObj.TEMPLATE_WIDTH / 2, 0
               ctx.arc -radius - (exportObj.TEMPLATE_WIDTH / 2), 0, radius + exportObj.TEMPLATE_WIDTH, 0, angle, true
-            when 'right'
+            when 'right', 'leftforward', 'rightbackward'
               angle = -3 * Math.PI / 4.0
               ctx.arc radius + (exportObj.TEMPLATE_WIDTH / 2), 0, radius, angle, Math.PI, true
               ctx.lineTo -exportObj.TEMPLATE_WIDTH / 2, 0
