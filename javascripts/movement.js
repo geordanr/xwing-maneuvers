@@ -18,6 +18,10 @@
       throw new Error('Base class; implement me!');
     };
 
+    Movement.prototype.getTemplate = function() {
+      throw new Error('Base class; implement me!');
+    };
+
     return Movement;
 
   })();
@@ -36,6 +40,15 @@
       };
     };
 
+    Straight.prototype.getTemplateForBase = function(base) {
+      return new exportObj.templates.Straight({
+        speed: this.speed,
+        direction: this.direction,
+        base: base,
+        where: 'front_nubs'
+      });
+    };
+
     return Straight;
 
   })(Movement);
@@ -52,6 +65,15 @@
         transform: base.getFrontNubTransform().translate(0, -this.speed * exportObj.SMALL_BASE_WIDTH - (base.width / 2)),
         heading_deg: (base.position.heading_deg + 180) % 360
       };
+    };
+
+    Koiogran.prototype.getTemplateForBase = function(base) {
+      return new exportObj.templates.Straight({
+        speed: this.speed,
+        direction: this.direction,
+        base: base,
+        where: 'front_nubs'
+      });
     };
 
     return Koiogran;
@@ -87,6 +109,15 @@
       };
     };
 
+    Bank.prototype.getTemplateForBase = function(base) {
+      return new exportObj.templates.Bank({
+        speed: this.speed,
+        direction: this.direction,
+        base: base,
+        where: 'front_nubs'
+      });
+    };
+
     return Bank;
 
   })(Movement);
@@ -120,6 +151,15 @@
       };
     };
 
+    Turn.prototype.getTemplateForBase = function(base) {
+      return new exportObj.templates.Turn({
+        speed: this.speed,
+        direction: this.direction,
+        base: base,
+        where: 'front_nubs'
+      });
+    };
+
     return Turn;
 
   })(Movement);
@@ -129,6 +169,9 @@
 
     function BarrelRoll(args) {
       BarrelRoll.__super__.constructor.call(this, args);
+      if (this.speed == null) {
+        this.speed = 1;
+      }
       if (args.start_distance_from_front == null) {
         throw new Error('Missing argument start_distance_from_front');
       }
@@ -171,6 +214,9 @@
           d = exportObj.BANK_INSIDE_RADII[this.speed] + (exportObj.TEMPLATE_WIDTH / 2);
           rotation = 45;
           transform = base.getBarrelRollTransform(this.direction, this.start_distance_from_front).translate(0, d).rotate(Math.PI / 4).translate(base.width / 2, -d + y_offset);
+          break;
+        default:
+          throw new Error("Invalid direction " + this.direction);
       }
       return {
         transform: transform,
@@ -178,9 +224,47 @@
       };
     };
 
+    BarrelRoll.prototype.getTemplateForBase = function(base) {
+      switch (this.direction) {
+        case 'left':
+        case 'right':
+          return new exportObj.templates.Straight({
+            speed: this.speed,
+            base: base,
+            where: this.direction,
+            distance_from_front: this.start_distance_from_front
+          });
+        case 'leftforward':
+        case 'rightbackward':
+        case 'leftbackward':
+        case 'rightforward':
+          return new exportObj.templates.Bank({
+            speed: this.speed,
+            base: base,
+            where: this.direction,
+            direction: this.direction,
+            distance_from_front: this.start_distance_from_front
+          });
+        default:
+          throw new Error("Invalid direction " + this.direction);
+      }
+    };
+
     return BarrelRoll;
 
   })(Movement);
+
+  exportObj.movements.Decloak = (function(_super) {
+    __extends(Decloak, _super);
+
+    function Decloak(args) {
+      Decloak.__super__.constructor.call(this, args);
+      this.speed = 2;
+    }
+
+    return Decloak;
+
+  })(exportObj.movements.BarrelRoll);
 
 }).call(this);
 

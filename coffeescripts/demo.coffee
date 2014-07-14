@@ -5,62 +5,28 @@ exportObj.demo = (stage) ->
 
   ship = new Ship
     stage: stage
-    name: 'test'
+    name: 'Phantom'
     size: 'small'
+    x: 100
+    y: 200
+    heading_deg: 112
 
-  bigship = new Ship
-    stage: stage
-    name: 'big'
-    size: 'large'
+  ship.addTurn
+    before: new movements.Decloak
+      direction: 'leftforward'
+      start_distance_from_front: 7
+      end_distance_from_front: 14
+    during: new movements.Straight
+      speed: 3
+    after: new movements.BarrelRoll
+      direction: 'right'
+      start_distance_from_front: 20
+      end_distance_from_front: 0
 
-  instances = []
+  ship.addTurn
+    during: new movements.Turn
+      speed: 2
+      direction: 'left'
 
-  instances.push new ShipInstance
-    ship: ship
-    x: 200
-    y: 500
-    heading_deg: 45
-
-  window.bank = new Template
-    type: 'bank'
-    distance: 2
-    direction: 'right'
-  instances[instances.length - 1].placeTemplate bank
-  instances.push bank.move instances[instances.length - 1]
-
-  window.turn = new Template
-    type: 'turn'
-    distance: 3
-    direction: 'left'
-  instances[instances.length - 1].placeTemplate turn
-  instances.push turn.move instances[instances.length - 1]
-
-  window.straight = new Template
-    type: 'koiogran'
-    distance: 4
-  instances[instances.length - 1].placeTemplate straight
-  instances.push straight.move instances[instances.length - 1]
-
-  window.bank3 = new Template
-    type: 'bank'
-    distance: 3
-    direction: 'right'
-  instances[instances.length - 1].placeTemplate bank3
-  instances.push bank3.move instances[instances.length - 1]
-
-  window.rollleft = new Template
-    type: 'barrelroll'
-    distance: 1
-    direction: 'left'
-  #instances[instances.length - 1].placeTemplate rollleft
-  #instances.push rollleft.move instances[instances.length - 1]
-
-  layer.add bank.shape
-  layer.add bank3.shape
-  layer.add turn.shape
-  layer.add straight.shape
-
-  for inst in instances
-    layer.add inst.group
-
-  stage.add layer
+  ship.drawTurns
+    stroke: 'blue'

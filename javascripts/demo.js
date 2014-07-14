@@ -5,66 +5,40 @@
   exportObj = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   exportObj.demo = function(stage) {
-    var bigship, inst, instances, layer, ship, _i, _len;
+    var layer, ship;
     layer = new Kinetic.Layer();
     ship = new Ship({
       stage: stage,
-      name: 'test',
-      size: 'small'
+      name: 'Phantom',
+      size: 'small',
+      x: 100,
+      y: 200,
+      heading_deg: 112
     });
-    bigship = new Ship({
-      stage: stage,
-      name: 'big',
-      size: 'large'
+    ship.addTurn({
+      before: new movements.Decloak({
+        direction: 'leftforward',
+        start_distance_from_front: 7,
+        end_distance_from_front: 14
+      }),
+      during: new movements.Straight({
+        speed: 3
+      }),
+      after: new movements.BarrelRoll({
+        direction: 'right',
+        start_distance_from_front: 20,
+        end_distance_from_front: 0
+      })
     });
-    instances = [];
-    instances.push(new ShipInstance({
-      ship: ship,
-      x: 200,
-      y: 500,
-      heading_deg: 45
-    }));
-    window.bank = new Template({
-      type: 'bank',
-      distance: 2,
-      direction: 'right'
+    ship.addTurn({
+      during: new movements.Turn({
+        speed: 2,
+        direction: 'left'
+      })
     });
-    instances[instances.length - 1].placeTemplate(bank);
-    instances.push(bank.move(instances[instances.length - 1]));
-    window.turn = new Template({
-      type: 'turn',
-      distance: 3,
-      direction: 'left'
+    return ship.drawTurns({
+      stroke: 'blue'
     });
-    instances[instances.length - 1].placeTemplate(turn);
-    instances.push(turn.move(instances[instances.length - 1]));
-    window.straight = new Template({
-      type: 'koiogran',
-      distance: 4
-    });
-    instances[instances.length - 1].placeTemplate(straight);
-    instances.push(straight.move(instances[instances.length - 1]));
-    window.bank3 = new Template({
-      type: 'bank',
-      distance: 3,
-      direction: 'right'
-    });
-    instances[instances.length - 1].placeTemplate(bank3);
-    instances.push(bank3.move(instances[instances.length - 1]));
-    window.rollleft = new Template({
-      type: 'barrelroll',
-      distance: 1,
-      direction: 'left'
-    });
-    layer.add(bank.shape);
-    layer.add(bank3.shape);
-    layer.add(turn.shape);
-    layer.add(straight.shape);
-    for (_i = 0, _len = instances.length; _i < _len; _i++) {
-      inst = instances[_i];
-      layer.add(inst.group);
-    }
-    return stage.add(layer);
   };
 
 }).call(this);

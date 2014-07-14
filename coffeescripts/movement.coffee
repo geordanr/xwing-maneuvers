@@ -10,6 +10,9 @@ class Movement
   getBaseTransformAndHeading: (base) ->
     throw new Error('Base class; implement me!')
 
+  getTemplate: ->
+    throw new Error('Base class; implement me!')
+
 class exportObj.movements.Straight extends Movement
   # Movement when a straight template is placed on the front nubs
   constructor: (args) ->
@@ -19,6 +22,13 @@ class exportObj.movements.Straight extends Movement
     transform: base.getFrontNubTransform().translate 0, -@speed * exportObj.SMALL_BASE_WIDTH - (base.width / 2)
     heading_deg: base.position.heading_deg
 
+  getTemplateForBase: (base) ->
+    new exportObj.templates.Straight
+      speed: @speed
+      direction: @direction
+      base: base
+      where: 'front_nubs'
+
 class exportObj.movements.Koiogran extends Movement
   # K-turn from the front nubs
   constructor: (args) ->
@@ -27,6 +37,13 @@ class exportObj.movements.Koiogran extends Movement
   getBaseTransformAndHeading: (base) ->
     transform: base.getFrontNubTransform().translate 0, -@speed * exportObj.SMALL_BASE_WIDTH - (base.width / 2)
     heading_deg: (base.position.heading_deg + 180) % 360
+
+  getTemplateForBase: (base) ->
+    new exportObj.templates.Straight
+      speed: @speed
+      direction: @direction
+      base: base
+      where: 'front_nubs'
 
 class exportObj.movements.Bank extends Movement
   # Bank from the front nubs
@@ -57,6 +74,13 @@ class exportObj.movements.Bank extends Movement
       heading_deg: (base.position.heading_deg + rotation) % 360
     }
 
+  getTemplateForBase: (base) ->
+    new exportObj.templates.Bank
+      speed: @speed
+      direction: @direction
+      base: base
+      where: 'front_nubs'
+
 class exportObj.movements.Turn extends Movement
   # Turn from the front nubs
   constructor: (args) ->
@@ -86,11 +110,19 @@ class exportObj.movements.Turn extends Movement
       heading_deg: (base.position.heading_deg + rotation) % 360
     }
 
+  getTemplateForBase: (base) ->
+    new exportObj.templates.Turn
+      speed: @speed
+      direction: @direction
+      base: base
+      where: 'front_nubs'
+
 class exportObj.movements.BarrelRoll extends Movement
   # Template aligned on the sides
   # Takes additional arguments start_distance_from_front, end_distance_from_front
   constructor: (args) ->
     super args
+    @speed ?= 1
 
     throw new Error('Missing argument start_distance_from_front') unless args.start_distance_from_front?
     @start_distance_from_front = args.start_distance_from_front
@@ -144,7 +176,35 @@ class exportObj.movements.BarrelRoll extends Movement
           .rotate(Math.PI / 4)
           .translate(base.width / 2, -d + y_offset)
 
+      else
+        throw new Error("Invalid direction #{@direction}")
+
     {
       transform: transform
       heading_deg: (base.position.heading_deg + rotation) % 360
     }
+
+  getTemplateForBase: (base) ->
+    switch @direction
+      when 'left', 'right'
+        new exportObj.templates.Straight
+          speed: @speed
+          base: base
+          where: @direction
+          distance_from_front: @start_distance_from_front
+
+      when 'leftforward', 'rightbackward', 'leftbackward', 'rightforward'
+        new exportObj.templates.Bank
+          speed: @speed
+          base: base
+          where: @direction
+          direction: @direction
+          distance_from_front: @start_distance_from_front
+
+      else
+        throw new Error("Invalid direction #{@direction}")
+
+class exportObj.movements.Decloak extends exportObj.movements.BarrelRoll
+  constructor: (args) ->
+    super args
+    @speed = 2

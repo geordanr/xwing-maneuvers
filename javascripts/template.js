@@ -32,6 +32,8 @@
           origin_rotation_deg = (this.base.getRotation() + 180) % 360;
           break;
         case 'left':
+        case 'leftforward':
+        case 'leftbackward':
           origin = this.base.getBarrelRollTransform('left', args.distance_from_front).point({
             x: 0,
             y: 0
@@ -39,11 +41,16 @@
           origin_rotation_deg = (this.base.getRotation() + 270) % 360;
           break;
         case 'right':
+        case 'rightforward':
+        case 'rightbackward':
           origin = this.base.getBarrelRollTransform('right', args.distance_from_front).point({
             x: 0,
             y: 0
           });
           origin_rotation_deg = (this.base.getRotation() + 90) % 360;
+          break;
+        default:
+          throw new Error("Invalid template placement " + this.where);
       }
       this.shape.x(origin.x);
       this.shape.y(origin.y);
