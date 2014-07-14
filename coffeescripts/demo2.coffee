@@ -1,55 +1,31 @@
 exportObj = exports ? this
 
 exportObj.demo = (stage) ->
-  ship = new exportObj.Ship
+  layer = new Kinetic.Layer()
+  stage.add layer
+
+  b1 = new Base
     size: 'small'
-    name: 'Test Ship'
-    center_x: 200
-    center_y: 300
-    heading_deg: 45
-    color: 'blue'
+    position: new Position
+      center_x: 100
+      center_y: 200
+      heading_deg: 45
+  b1.draw layer,
+    stroke: 'red'
 
-  ship.addMovement new exportObj.Movement
-    before: null
-    during: new exportObj.movements.Straight
-      speed: 3
-    after: null
+  args =
+    speed: 2
+    direction: 'leftforward'
+    base: b1
+    where: 'left'
+    distance_from_front: 10
+    start_distance_from_front: 10
+    end_distance_from_front: 0
 
-  ship.addMovement new exportObj.Movement
-    before: new exportObj.movements.Decloak
-      direction: 'leftrear'
-      start_front_distance: 5
-      end_front_distance: 15
-    during: new exportObj.movements.Turn
-      direction: 'right'
-      speed: 1
-    after: new exportObj.movements.BarrelRoll
-      direction: 'left'
+  t = new templates.Bank args
+  t.draw layer,
+    stroke: 'purple'
 
-  ship.addMovement new exportObj.Movement
-    before: null
-    during: new exportObj.movements.Straight
-      speed: 5
-    after: new exportObj.movements.Bank
-      direction: 'left'
-      speed: 1
-
-  ship.addMovement new exportObj.Movement
-    before: new exportObj.movements.Decloak
-      direction: 'straightleft'
-    during: new exportObj.movements.Bank
-      direction: 'left'
-    after: null
-
-  ship.addMovement new exportObj.Movement
-    before: new exportObj.movements.BarrelRoll
-      direction: 'left'
-      start_front_distance: 7
-      end_front_distance: 2
-    during: new exportObj.movements.Koiogran
-      speed: 3
-    after: null
-
-  ship.drawMoves
-    first: 1
-    last: 3
+  b2 = b1.newBaseFromMovement new movements.BarrelRoll args
+  b2.draw layer,
+    stroke: 'orange'

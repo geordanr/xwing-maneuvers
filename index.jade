@@ -12,7 +12,7 @@ html
     script(src="javascripts/base.js")
     script(src="javascripts/template.js")
     script(src="javascripts/movement.js")
-    script(src="javascripts/demo.js")
+    script(src="javascripts/demo2.js")
     script(src="javascripts/grid.js")
     script(defer="defer")
       :coffee
@@ -23,51 +23,4 @@ html
 
         drawGridOn stage
 
-        layer = new Kinetic.Layer()
-        stage.add layer
-
-        b1 = new Base
-          size: 'small'
-          position: new Position
-            center_x: 100
-            center_y: 200
-            heading_deg: 45
-        b1.draw layer,
-          stroke: 'red'
-
-        b2 = new Base
-          size: 'large'
-          position: new Position
-            center_x: 200
-            center_y: 300
-            heading_deg: 112
-        b2.draw layer,
-          stroke: 'green'
-
-        b3 = new Base
-          size: 'small'
-          position: new Position
-            center_x: 300
-            center_y: 100
-            heading_deg: 270
-        b3.draw layer,
-          stroke: 'blue'
-
-        args =
-          speed: 2
-          direction: 'leftforward'
-          base: b2
-          where: 'left'
-          distance_from_front: 10
-          start_distance_from_front: 10
-          end_distance_from_front: 60
-
-        t = new templates.Bank args
-        t.draw layer,
-          stroke: 'purple'
-
-        b4 = b2.newBaseFromMovement new movements.BarrelRoll args
-        b4.draw layer,
-          stroke: 'orange'
-
-        #demo stage
+        demo stage
