@@ -17,7 +17,7 @@ class exportObj.Ship
     turn.execute()
     @turns = [turn]
 
-    @layer = new Kinetic.Layer()
+    @layer = new Kinetic.Layer({draggable:true})
     @stage.add @layer
 
   addTurn: (args) ->

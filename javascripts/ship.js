@@ -21,7 +21,9 @@
       });
       turn.execute();
       this.turns = [turn];
-      this.layer = new Kinetic.Layer();
+      this.layer = new Kinetic.Layer({
+        draggable: true
+      });
       this.stage.add(this.layer);
     }
 

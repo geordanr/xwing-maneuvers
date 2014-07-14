@@ -5,9 +5,9 @@
   exportObj = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   exportObj.demo = function(stage) {
-    var layer, ship;
+    var falcon, layer, phantom;
     layer = new Kinetic.Layer();
-    ship = new Ship({
+    phantom = new Ship({
       stage: stage,
       name: 'Phantom',
       size: 'small',
@@ -15,7 +15,15 @@
       y: 200,
       heading_deg: 112
     });
-    ship.addTurn({
+    falcon = new Ship({
+      stage: stage,
+      name: 'Falcon',
+      size: 'large',
+      x: 750,
+      y: 600,
+      heading_deg: 300
+    });
+    phantom.addTurn({
       before: new movements.Decloak({
         direction: 'leftforward',
         start_distance_from_front: 7,
@@ -30,13 +38,38 @@
         end_distance_from_front: 0
       })
     });
-    ship.addTurn({
+    falcon.addTurn({
+      during: new movements.Bank({
+        direction: 'right',
+        speed: 3
+      }),
+      after: new movements.Bank({
+        direction: 'left',
+        speed: 1
+      })
+    });
+    falcon.addTurn({
+      during: new movements.Bank({
+        direction: 'left',
+        speed: 3
+      }),
+      after: new movements.BarrelRoll({
+        direction: 'right',
+        speed: 1,
+        start_distance_from_front: 0,
+        end_distance_from_front: 60
+      })
+    });
+    phantom.addTurn({
       during: new movements.Turn({
         speed: 2,
         direction: 'left'
       })
     });
-    return ship.drawTurns({
+    falcon.drawTurns({
+      stroke: 'red'
+    });
+    return phantom.drawTurns({
       stroke: 'blue'
     });
   };
