@@ -11,22 +11,24 @@ class exportObj.Ship
       heading_deg: args.heading_deg
 
     # Turn 0
-    @turns = [
-      new Turn
-        ship: this
-        start_position: @start_position
-    ]
+    turn = new Turn
+      ship: this
+      start_position: @start_position
+    turn.execute()
+    @turns = [turn]
 
     @layer = new Kinetic.Layer()
     @stage.add @layer
 
   addTurn: (args) ->
-    @turns.push new Turn
+    turn = new Turn
       ship: this
-      start_position: @turns[@turns.length - 1].base_at_start.position
+      start_position: @turns[@turns.length - 1].final_position
       before: args.before
       during: args.during
       after: args.after
+    turn.execute()
+    @turns.push turn
 
   drawTurns: (args) ->
     for turn in @turns
@@ -42,12 +44,26 @@ class Turn
     @during = args.during
     @after = args.after
 
-  draw: (layer, args={}) ->
+    @bases = []
+    @templates = []
+
+    @final_position = null
+
+  execute: ->
+    # Creates bases and templates, but does not draw them.
+    @bases = [@base_at_start]
+    @templates = []
     cur_base = @base_at_start
     for movement in [@before, @during, @after]
       if movement?
-        template = movement.getTemplateForBase cur_base
-        template.draw layer, args
+        @templates.push movement.getTemplateForBase cur_base
         new_base = cur_base.newBaseFromMovement movement
-        new_base.draw layer, args
+        @bases.push new_base
         cur_base = new_base
+    @final_position = @bases[@bases.length - 1].position
+
+  draw: (layer, args={}) ->
+    for base in @bases
+      base.draw layer, args
+    for template in @templates
+      template.draw layer, args

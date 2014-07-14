@@ -6,6 +6,7 @@
 
   exportObj.Ship = (function() {
     function Ship(args) {
+      var turn;
       this.stage = args.stage;
       this.name = args.name;
       this.size = args.size;
@@ -14,24 +15,27 @@
         center_y: args.y,
         heading_deg: args.heading_deg
       });
-      this.turns = [
-        new Turn({
-          ship: this,
-          start_position: this.start_position
-        })
-      ];
+      turn = new Turn({
+        ship: this,
+        start_position: this.start_position
+      });
+      turn.execute();
+      this.turns = [turn];
       this.layer = new Kinetic.Layer();
       this.stage.add(this.layer);
     }
 
     Ship.prototype.addTurn = function(args) {
-      return this.turns.push(new Turn({
+      var turn;
+      turn = new Turn({
         ship: this,
-        start_position: this.turns[this.turns.length - 1].base_at_start.position,
+        start_position: this.turns[this.turns.length - 1].final_position,
         before: args.before,
         during: args.during,
         after: args.after
-      }));
+      });
+      turn.execute();
+      return this.turns.push(turn);
     };
 
     Ship.prototype.drawTurns = function(args) {
@@ -59,27 +63,44 @@
       this.before = args.before;
       this.during = args.during;
       this.after = args.after;
+      this.bases = [];
+      this.templates = [];
+      this.final_position = null;
     }
 
-    Turn.prototype.draw = function(layer, args) {
-      var cur_base, movement, new_base, template, _i, _len, _ref, _results;
-      if (args == null) {
-        args = {};
-      }
+    Turn.prototype.execute = function() {
+      var cur_base, movement, new_base, _i, _len, _ref;
+      this.bases = [this.base_at_start];
+      this.templates = [];
       cur_base = this.base_at_start;
       _ref = [this.before, this.during, this.after];
-      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         movement = _ref[_i];
         if (movement != null) {
-          template = movement.getTemplateForBase(cur_base);
-          template.draw(layer, args);
+          this.templates.push(movement.getTemplateForBase(cur_base));
           new_base = cur_base.newBaseFromMovement(movement);
-          new_base.draw(layer, args);
-          _results.push(cur_base = new_base);
-        } else {
-          _results.push(void 0);
+          this.bases.push(new_base);
+          cur_base = new_base;
         }
+      }
+      return this.final_position = this.bases[this.bases.length - 1].position;
+    };
+
+    Turn.prototype.draw = function(layer, args) {
+      var base, template, _i, _j, _len, _len1, _ref, _ref1, _results;
+      if (args == null) {
+        args = {};
+      }
+      _ref = this.bases;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        base = _ref[_i];
+        base.draw(layer, args);
+      }
+      _ref1 = this.templates;
+      _results = [];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        template = _ref1[_j];
+        _results.push(template.draw(layer, args));
       }
       return _results;
     };
