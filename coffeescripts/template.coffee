@@ -136,45 +136,6 @@ class Deprecated
       y: shipinst.group.getOffsetY()
 
     end_center = switch @type
-      when 'straight'
-        new Kinetic.Transform().translate(0, -@speed * exportObj.SMALL_BASE_WIDTH - shipinst.width).point start_center
-      when 'bank'
-        switch @direction
-          when 'left'
-            d = exportObj.BANK_INSIDE_RADII[@speed] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2)
-            rotation = -45
-            end_center = new Kinetic.Transform().translate(d, -shipinst.width).point start_center
-            end_center = new Kinetic.Transform().rotate(-Math.PI / 4).point end_center
-            end_center = new Kinetic.Transform().translate(-d, 0).point end_center
-          when 'right'
-            d = exportObj.BANK_INSIDE_RADII[@speed] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2)
-            rotation = 45
-            end_center = new Kinetic.Transform().translate(-d, -shipinst.width).point start_center
-            end_center = new Kinetic.Transform().rotate(Math.PI / 4).point end_center
-            end_center = new Kinetic.Transform().translate(d, 0).point end_center
-          else
-            throw new Error("Invalid direction #{@direction}")
-      when 'turn'
-        switch @direction
-          when 'left'
-            d = exportObj.TURN_INSIDE_RADII[@speed] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2)
-            rotation = -90
-            end_center = new Kinetic.Transform().translate(d, -shipinst.width).point start_center
-            end_center = new Kinetic.Transform().rotate(-Math.PI / 2).point end_center
-            end_center = new Kinetic.Transform().translate(-d, 0).point end_center
-          when 'right'
-            d = exportObj.TURN_INSIDE_RADII[@speed] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2)
-            rotation = 90
-            end_center = new Kinetic.Transform().translate(-d, -shipinst.width).point start_center
-            end_center = new Kinetic.Transform().rotate(Math.PI / 2).point end_center
-            end_center = new Kinetic.Transform().translate(d, 0).point end_center
-          else
-            throw new Error("Invalid direction #{@direction}")
-      when 'koiogran'
-        rotation = 180
-        end_center = new Kinetic.Transform().translate(-shipinst.group.getOffsetX(), -shipinst.group.getOffsetY()).point start_center
-        end_center = new Kinetic.Transform().rotate(Math.PI).point end_center
-        end_center = new Kinetic.Transform().translate(shipinst.group.getOffsetX(), -shipinst.group.getOffsetY() - (@speed * exportObj.SMALL_BASE_WIDTH)).point end_center
       when 'barrelroll'
         x_offset = ship.width + (@speed * exportObj.SMALL_BASE_WIDTH)
         switch @direction

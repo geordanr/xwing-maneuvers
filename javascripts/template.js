@@ -188,7 +188,7 @@
     function Deprecated() {}
 
     Deprecated.prototype.deprecated_move = function(shipinst) {
-      var d, end_center, new_center, rotation, start_center, x_offset;
+      var end_center, new_center, rotation, start_center, x_offset;
       rotation = 0;
       start_center = {
         x: shipinst.group.getOffsetX(),
@@ -196,49 +196,6 @@
       };
       end_center = (function() {
         switch (this.type) {
-          case 'straight':
-            return new Kinetic.Transform().translate(0, -this.speed * exportObj.SMALL_BASE_WIDTH - shipinst.width).point(start_center);
-          case 'bank':
-            switch (this.direction) {
-              case 'left':
-                d = exportObj.BANK_INSIDE_RADII[this.speed] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2);
-                rotation = -45;
-                end_center = new Kinetic.Transform().translate(d, -shipinst.width).point(start_center);
-                end_center = new Kinetic.Transform().rotate(-Math.PI / 4).point(end_center);
-                return end_center = new Kinetic.Transform().translate(-d, 0).point(end_center);
-              case 'right':
-                d = exportObj.BANK_INSIDE_RADII[this.speed] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2);
-                rotation = 45;
-                end_center = new Kinetic.Transform().translate(-d, -shipinst.width).point(start_center);
-                end_center = new Kinetic.Transform().rotate(Math.PI / 4).point(end_center);
-                return end_center = new Kinetic.Transform().translate(d, 0).point(end_center);
-              default:
-                throw new Error("Invalid direction " + this.direction);
-            }
-            break;
-          case 'turn':
-            switch (this.direction) {
-              case 'left':
-                d = exportObj.TURN_INSIDE_RADII[this.speed] - ((shipinst.width - exportObj.TEMPLATE_WIDTH) / 2);
-                rotation = -90;
-                end_center = new Kinetic.Transform().translate(d, -shipinst.width).point(start_center);
-                end_center = new Kinetic.Transform().rotate(-Math.PI / 2).point(end_center);
-                return end_center = new Kinetic.Transform().translate(-d, 0).point(end_center);
-              case 'right':
-                d = exportObj.TURN_INSIDE_RADII[this.speed] + ((shipinst.width + exportObj.TEMPLATE_WIDTH) / 2);
-                rotation = 90;
-                end_center = new Kinetic.Transform().translate(-d, -shipinst.width).point(start_center);
-                end_center = new Kinetic.Transform().rotate(Math.PI / 2).point(end_center);
-                return end_center = new Kinetic.Transform().translate(d, 0).point(end_center);
-              default:
-                throw new Error("Invalid direction " + this.direction);
-            }
-            break;
-          case 'koiogran':
-            rotation = 180;
-            end_center = new Kinetic.Transform().translate(-shipinst.group.getOffsetX(), -shipinst.group.getOffsetY()).point(start_center);
-            end_center = new Kinetic.Transform().rotate(Math.PI).point(end_center);
-            return end_center = new Kinetic.Transform().translate(shipinst.group.getOffsetX(), -shipinst.group.getOffsetY() - (this.speed * exportObj.SMALL_BASE_WIDTH)).point(end_center);
           case 'barrelroll':
             x_offset = ship.width + (this.speed * exportObj.SMALL_BASE_WIDTH);
             switch (this.direction) {

@@ -97,3 +97,13 @@ class exportObj.Base
         @group.getAbsoluteTransform().copy().translate(@width, distance_from_front)
       else
         throw new Error("Invalid side #{side}")
+
+  newBaseFromMovement: (movement) ->
+    {transform, heading_deg} = movement.getBaseTransformAndHeading this
+    p = transform.point {x:0, y:0}
+    new exportObj.Base
+      size: @size
+      position: new Position
+        center_x: p.x
+        center_y: p.y
+        heading_deg: heading_deg

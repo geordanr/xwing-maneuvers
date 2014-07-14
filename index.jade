@@ -53,24 +53,20 @@ html
         b3.draw layer,
           stroke: 'blue'
 
-        t = new templates.Straight
-          speed: 3
+        args =
+          speed: 2
+          direction: 'left'
           base: b2
-          where: 'front_nubs'
+          where: 'left'
+          distance_from_front: 10
+          start_distance_from_front: 10
+          end_distance_from_front:50
+
+        t = new templates.Straight args
         t.draw layer,
           stroke: 'purple'
 
-        xform = new movements.Straight
-          speed: 3
-        .getBaseTransform(b2)
-        p = xform.point {x:0, y:0}
-        console.log p
-        b4 = new Base
-          size: 'large'
-          position: new Position
-            center_x: p.x
-            center_y: p.y
-            heading_deg: 112
+        b4 = b2.newBaseFromMovement new movements.BarrelRoll args
         b4.draw layer,
           stroke: 'orange'
 

@@ -112,6 +112,23 @@
       }
     };
 
+    Base.prototype.newBaseFromMovement = function(movement) {
+      var heading_deg, p, transform, _ref;
+      _ref = movement.getBaseTransformAndHeading(this), transform = _ref.transform, heading_deg = _ref.heading_deg;
+      p = transform.point({
+        x: 0,
+        y: 0
+      });
+      return new exportObj.Base({
+        size: this.size,
+        position: new Position({
+          center_x: p.x,
+          center_y: p.y,
+          heading_deg: heading_deg
+        })
+      });
+    };
+
     return Base;
 
   })();

@@ -14,7 +14,7 @@
       this.direction = args.direction;
     }
 
-    Movement.prototype.getBaseTransform = function(base) {
+    Movement.prototype.getBaseTransformAndHeading = function(base) {
       throw new Error('Base class; implement me!');
     };
 
@@ -29,11 +29,158 @@
       Straight.__super__.constructor.call(this, args);
     }
 
-    Straight.prototype.getBaseTransform = function(base) {
-      return base.group.getAbsoluteTransform().copy().translate(base.width / 2, -this.speed * exportObj.SMALL_BASE_WIDTH - (base.width / 2));
+    Straight.prototype.getBaseTransformAndHeading = function(base) {
+      return {
+        transform: base.getFrontNubTransform().translate(0, -this.speed * exportObj.SMALL_BASE_WIDTH - (base.width / 2)),
+        heading_deg: base.position.heading_deg
+      };
     };
 
     return Straight;
+
+  })(Movement);
+
+  exportObj.movements.Koiogran = (function(_super) {
+    __extends(Koiogran, _super);
+
+    function Koiogran(args) {
+      Koiogran.__super__.constructor.call(this, args);
+    }
+
+    Koiogran.prototype.getBaseTransformAndHeading = function(base) {
+      return {
+        transform: base.getFrontNubTransform().translate(0, -this.speed * exportObj.SMALL_BASE_WIDTH - (base.width / 2)),
+        heading_deg: (base.position.heading_deg + 180) % 360
+      };
+    };
+
+    return Koiogran;
+
+  })(Movement);
+
+  exportObj.movements.Bank = (function(_super) {
+    __extends(Bank, _super);
+
+    function Bank(args) {
+      Bank.__super__.constructor.call(this, args);
+    }
+
+    Bank.prototype.getBaseTransformAndHeading = function(base) {
+      var d, rotation, transform;
+      switch (this.direction) {
+        case 'left':
+          d = exportObj.BANK_INSIDE_RADII[this.speed] + (exportObj.TEMPLATE_WIDTH / 2);
+          rotation = 315;
+          transform = base.getFrontNubTransform().translate(-d, 0).rotate(-Math.PI / 4).translate(d, -base.width / 2);
+          break;
+        case 'right':
+          d = exportObj.BANK_INSIDE_RADII[this.speed] + (exportObj.TEMPLATE_WIDTH / 2);
+          rotation = 45;
+          transform = base.getFrontNubTransform().translate(d, 0).rotate(Math.PI / 4).translate(-d, -base.width / 2);
+          break;
+        default:
+          throw new Error("Invalid direction " + this.direction);
+      }
+      return {
+        transform: transform,
+        heading_deg: (base.position.heading_deg + rotation) % 360
+      };
+    };
+
+    return Bank;
+
+  })(Movement);
+
+  exportObj.movements.Turn = (function(_super) {
+    __extends(Turn, _super);
+
+    function Turn(args) {
+      Turn.__super__.constructor.call(this, args);
+    }
+
+    Turn.prototype.getBaseTransformAndHeading = function(base) {
+      var d, rotation, transform;
+      switch (this.direction) {
+        case 'left':
+          d = exportObj.TURN_INSIDE_RADII[this.speed] + (exportObj.TEMPLATE_WIDTH / 2);
+          rotation = 270;
+          transform = base.getFrontNubTransform().translate(-d, 0).rotate(-Math.PI / 2).translate(d, -base.width / 2);
+          break;
+        case 'right':
+          d = exportObj.TURN_INSIDE_RADII[this.speed] + (exportObj.TEMPLATE_WIDTH / 2);
+          rotation = 90;
+          transform = base.getFrontNubTransform().translate(d, 0).rotate(Math.PI / 2).translate(-d, -base.width / 2);
+          break;
+        default:
+          throw new Error("Invalid direction " + this.direction);
+      }
+      return {
+        transform: transform,
+        heading_deg: (base.position.heading_deg + rotation) % 360
+      };
+    };
+
+    return Turn;
+
+  })(Movement);
+
+  exportObj.movements.BarrelRoll = (function(_super) {
+    __extends(BarrelRoll, _super);
+
+    function BarrelRoll(args) {
+      BarrelRoll.__super__.constructor.call(this, args);
+      if (args.start_distance_from_front == null) {
+        throw new Error('Missing argument start_distance_from_front');
+      }
+      this.start_distance_from_front = args.start_distance_from_front;
+      if (args.end_distance_from_front == null) {
+        throw new Error('Missing argument end_distance_from_front');
+      }
+      this.end_distance_from_front = args.end_distance_from_front;
+    }
+
+    BarrelRoll.prototype.getBaseTransformAndHeading = function(base) {
+      var rotation, transform, x_offset;
+      x_offset = base.width + (this.speed * exportObj.SMALL_BASE_WIDTH);
+      switch (this.direction) {
+        case 'left':
+          rotation = 0;
+          transform = base.getBarrelRollTransform(this.direction, this.start_distance_from_front).translate(-(this.speed * exportObj.SMALL_BASE_WIDTH) - (base.width / 2), 0);
+          console.log(transform);
+          break;
+        case 'right':
+          t.translate(x_offset, -this.end_speed_from_front + this.start_speed_from_front);
+          break;
+        case 'leftforward':
+          t.translate(-ship.width / 2, this.start_speed_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[this.speed]);
+          t.rotate(Math.PI / 4);
+          t.translate(-ship.width / 2, -this.end_speed_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[this.speed]);
+          break;
+        case 'leftback':
+          t.translate(-ship.width / 2, this.start_speed_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[this.speed]);
+          t.rotate(-Math.PI / 4);
+          t.translate(-ship.width / 2, -exportObj.BANK_INSIDE_RADII[this.speed] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - this.end_speed_from_front);
+          break;
+        case 'rightforward':
+          t.translate(ship.width / 2, this.start_speed_from_front - (ship.width / 2) - exportObj.BANK_INSIDE_RADII[this.speed]);
+          t.rotate(-Math.PI / 4);
+          t.translate(ship.width / 2, -this.end_speed_from_front + (ship.width / 2) + exportObj.BANK_INSIDE_RADII[this.speed]);
+          break;
+        case 'rightback':
+          t.translate(ship.width / 2, this.start_speed_from_front - (ship.width / 2) + exportObj.TEMPLATE_WIDTH + exportObj.BANK_INSIDE_RADII[this.speed]);
+          t.rotate(Math.PI / 4);
+          t.translate(ship.width / 2, -exportObj.BANK_INSIDE_RADII[this.speed] - exportObj.TEMPLATE_WIDTH + (ship.width / 2) - this.end_speed_from_front);
+          break;
+        default:
+          throw new Error("Invalid direction " + this.direction);
+      }
+      return {
+        transform: transform,
+        heading_deg: (base.position.heading_deg + rotation) % 360
+      };
+    };
+
+    return BarrelRoll;
 
   })(Movement);
 
