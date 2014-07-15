@@ -94,7 +94,7 @@ class exportObj.templates.Bank extends Template
             else
               throw new Error("Invalid direction #{dir}")
           ctx.closePath()
-          ctx.strokeShape this
+          ctx.fillStrokeShape this
 
 class exportObj.templates.Turn extends Template
   constructor: (args) ->
