@@ -19,11 +19,18 @@ class exportObj.Ship
     turn.execute()
     @turns = [turn]
 
-    @layer = new Kinetic.Layer {draggable: true}
+    @layer = new Kinetic.Layer
+      draggable: true
+      x: @start_position.x
+      y: @start_position.y
+      offset: @start_position
+
     @layer.on 'mouseenter', (e) ->
       document.body.style.cursor = 'move'
-    @layer.on 'mouseleave', (e) ->
+    .on 'mouseleave', (e) ->
       document.body.style.cursor = 'default'
+    .on 'click', (e) =>
+      $(exportObj).trigger 'xwm:shipSelected', this
     @stage.add @layer
 
   addTurn: (args) ->
@@ -49,6 +56,13 @@ class exportObj.Ship
 
   draw: ->
     @layer.clear()
+
+    @layer.add new Kinetic.Circle
+      x: 0
+      y: 0
+      radius: 4
+      fill: 'red'
+
     for turn_idx in @draw_options.turns ? [0...@turns.length]
       if turn_idx < @turns.length
         if @draw_options.final_positions_only

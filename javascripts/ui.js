@@ -10,6 +10,7 @@
       this.stage = args.stage;
       this.panel = $(args.panel);
       this.ships = [];
+      this.selected_ship = null;
       this.colorpicker = $(args.colorpicker).ColorPicker({
         flat: true,
         color: '000000',
@@ -17,12 +18,43 @@
           return _this.selectedColor = hex;
         }
       });
+      this.headinginput = $(this.panel.find('.heading'));
+      this.headinginput.change(function(e) {
+        if (_this.headinginput.val() < 0) {
+          _this.headinginput.val(0);
+        }
+        if (_this.headinginput.val() > 359) {
+          _this.headinginput.val(359);
+        }
+        if (_this.headinginput.val() !== _this.headingslider.slider('value')) {
+          _this.headingslider.slider('value', parseInt(_this.headinginput.val()));
+          if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation() !== _this.headingslider.slider('value')) {
+            return $(exportObj).trigger('xwm:shipRotated', _this.headingslider.slider('value'));
+          }
+        }
+      });
+      this.headingslider = this.panel.find('.heading-slider').slider({
+        min: 0,
+        max: 359,
+        change: function(e, ui) {
+          if (parseInt(_this.headinginput.val()) !== _this.headingslider.slider('value')) {
+            _this.headinginput.val(_this.headingslider.slider('value'));
+            return $(exportObj).trigger('xwm:shipRotated', _this.headingslider.slider('value'));
+          }
+        },
+        slide: function(e, ui) {
+          if (_this.headinginput.val() !== ui.value) {
+            _this.headinginput.val(ui.value);
+            return $(exportObj).trigger('xwm:shipRotated', _this.headingslider.slider('value'));
+          }
+        }
+      });
       this.shipnameinput = $(this.panel.find('.shipname'));
       this.islargecheckbox = $(this.panel.find('.isLarge'));
-      this.shiplistselect = $(this.panel.find('.shiplist'));
+      this.shiplist = $(this.panel.find('.shiplist'));
       this.addshipbtn = $(this.panel.find('.addship'));
       this.addshipbtn.click(function(e) {
-        var opt, ship;
+        var btn, li, ship;
         ship = new Ship({
           stage: stage,
           name: _this.shipnameinput.val(),
@@ -38,10 +70,20 @@
         });
         ship.draw();
         _this.ships.push(ship);
-        opt = $(document.createElement('OPTION'));
-        opt.data('ship', ship);
-        opt.text(ship.name !== "" ? ship.name : "Unnamed Ship");
-        return _this.shiplistselect.find('optgroup').append(opt);
+        li = $(document.createElement('li'));
+        li.addClass('shipbutton');
+        btn = $(document.createElement('BUTTON'));
+        btn.data('ship', ship);
+        ship.button = btn;
+        btn.text(ship.name !== "" ? ship.name : "Unnamed Ship");
+        btn.addClass('btn');
+        (function(ship) {
+          return btn.click(function(e) {
+            return $(exportObj).trigger('xwm:shipSelected', ship);
+          });
+        })(ship);
+        li.append(btn);
+        return _this.shiplist.append(li);
       });
       $(exportObj).on('xwm:drawOptionsChanged', function(e, options) {
         var ship, _i, _len, _ref, _results;
@@ -53,6 +95,34 @@
           _results.push(ship.draw());
         }
         return _results;
+      }).on('xwm:shipSelected', function(e, ship) {
+        if (_this.selected_ship !== ship) {
+          if (_this.selected_ship != null) {
+            _this.selected_ship.setDrawOptions({
+              kinetic_draw_args: {
+                fill: ''
+              }
+            });
+            _this.selected_ship.draw();
+            _this.selected_ship.button.removeClass('btn-primary');
+          }
+          _this.selected_ship = ship;
+          if (_this.selected_ship != null) {
+            _this.selected_ship.setDrawOptions({
+              kinetic_draw_args: {
+                fill: '#ddd'
+              }
+            });
+            _this.selected_ship.draw();
+            _this.selected_ship.button.addClass('btn-primary');
+            return _this.headingslider.slider('value', _this.selected_ship.layer.rotation());
+          }
+        }
+      }).on('xwm:shipRotated', function(e, heading_deg) {
+        if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation !== _this.headingslider.slider('value')) {
+          _this.selected_ship.layer.rotation(_this.headingslider.slider('value'));
+          return _this.selected_ship.draw();
+        }
       });
     }
 

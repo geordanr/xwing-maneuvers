@@ -47,6 +47,7 @@ class Template
     layer.add @shape
     @shape.stroke args.stroke ? 'black'
     @shape.strokeWidth args.strokeWidth ? 1
+    @shape.fill args.fill ? ''
     @shape.draw()
 
   makeShape: ->

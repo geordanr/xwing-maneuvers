@@ -73,6 +73,7 @@ class exportObj.Base
     for child in @group.children
       child.stroke args.stroke ? 'black'
       child.strokeWidth args.strokeWidth ? 1
+      child.fill args.fill ? ''
       child.draw()
 
   getRotation: ->

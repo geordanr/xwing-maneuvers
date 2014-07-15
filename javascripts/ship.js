@@ -6,7 +6,8 @@
 
   exportObj.Ship = (function() {
     function Ship(args) {
-      var turn;
+      var turn,
+        _this = this;
       this.stage = args.stage;
       this.name = args.name;
       this.size = args.size;
@@ -23,13 +24,17 @@
       turn.execute();
       this.turns = [turn];
       this.layer = new Kinetic.Layer({
-        draggable: true
+        draggable: true,
+        x: this.start_position.x,
+        y: this.start_position.y,
+        offset: this.start_position
       });
       this.layer.on('mouseenter', function(e) {
         return document.body.style.cursor = 'move';
-      });
-      this.layer.on('mouseleave', function(e) {
+      }).on('mouseleave', function(e) {
         return document.body.style.cursor = 'default';
+      }).on('click', function(e) {
+        return $(exportObj).trigger('xwm:shipSelected', _this);
       });
       this.stage.add(this.layer);
     }
@@ -57,6 +62,12 @@
     Ship.prototype.draw = function() {
       var turn_idx, _i, _j, _len, _ref, _ref1, _ref2, _results, _results1;
       this.layer.clear();
+      this.layer.add(new Kinetic.Circle({
+        x: 0,
+        y: 0,
+        radius: 4,
+        fill: 'red'
+      }));
       _ref2 = (_ref = this.draw_options.turns) != null ? _ref : (function() {
         _results1 = [];
         for (var _j = 0, _ref1 = this.turns.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; 0 <= _ref1 ? _j++ : _j--){ _results1.push(_j); }

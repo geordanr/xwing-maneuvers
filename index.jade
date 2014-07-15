@@ -8,6 +8,7 @@ html
     link(rel="stylesheet", href="stylesheets/main.css")
     link(rel="stylesheet", href="bootstrap/css/bootstrap.min.css")
     link(rel="stylesheet", href="jQuery-ColorPicker-master/css/colorpicker.min.css")
+    link(rel="stylesheet", href="jquery-ui/jquery-ui.min.css")
     
     
   body
@@ -15,6 +16,7 @@ html
     script(src="bootstrap/js/bootstrap.min.js")
     script(src="javascripts/kinetic-v5.1.0.min.js")
     script(src="jQuery-ColorPicker-master/colorpicker.min.js")
+    script(src="jquery-ui/jquery-ui.min.js")
 
     script(src="javascripts/constants.js")
     script(src="javascripts/position.js")
@@ -61,6 +63,12 @@ html
             .col-xs-4
             button.btn.btn-primary.addship Add Ship
           .row
-            .col-xs-12
-              select.shiplist(size="10", placeholder="Added ships will appear here")
-                optgroup(label="Ships")
+            .col-xs-6
+              ul.shiplist.list-unstyled
+            .col-xs-6
+              .row
+                .col-xs-6 Heading
+                .col-xs-6
+                  input.form-control.heading(value="0", type="number")
+              .row
+                .col-xs-12.heading-slider

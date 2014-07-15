@@ -72,7 +72,7 @@
     }
 
     Base.prototype.draw = function(layer, args) {
-      var child, _i, _len, _ref, _ref1, _ref2, _results;
+      var child, _i, _len, _ref, _ref1, _ref2, _ref3, _results;
       layer.add(this.group);
       _ref = this.group.children;
       _results = [];
@@ -80,6 +80,7 @@
         child = _ref[_i];
         child.stroke((_ref1 = args.stroke) != null ? _ref1 : 'black');
         child.strokeWidth((_ref2 = args.strokeWidth) != null ? _ref2 : 1);
+        child.fill((_ref3 = args.fill) != null ? _ref3 : '');
         _results.push(child.draw());
       }
       return _results;

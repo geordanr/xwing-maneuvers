@@ -58,10 +58,11 @@
     }
 
     Template.prototype.draw = function(layer, args) {
-      var _ref, _ref1;
+      var _ref, _ref1, _ref2;
       layer.add(this.shape);
       this.shape.stroke((_ref = args.stroke) != null ? _ref : 'black');
       this.shape.strokeWidth((_ref1 = args.strokeWidth) != null ? _ref1 : 1);
+      this.shape.fill((_ref2 = args.fill) != null ? _ref2 : '');
       return this.shape.draw();
     };
 
