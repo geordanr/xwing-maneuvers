@@ -15,6 +15,7 @@
         center_y: args.y,
         heading_deg: args.heading_deg
       });
+      this.draw_options = {};
       turn = new Turn({
         ship: this,
         start_position: this.start_position
@@ -46,21 +47,33 @@
       return this.turns.push(turn);
     };
 
-    Ship.prototype.drawTurnMovement = function(i, args) {
-      return this.turns[i].drawMovements(this.layer, args);
+    Ship.prototype.setDrawOptions = function(args) {
+      var _ref, _ref1, _ref2;
+      this.draw_options.turns = (_ref = args.turns) != null ? _ref : null;
+      this.draw_options.kinetic_draw_args = (_ref1 = args.kinetic_draw_args) != null ? _ref1 : null;
+      return this.draw_options.final_positions_only = Boolean((_ref2 = args.final_positions_only) != null ? _ref2 : false);
     };
 
-    Ship.prototype.drawTurnFinalPosition = function(i, args) {
-      return this.turns[i].drawFinalPositionOnly(this.layer, args);
-    };
-
-    Ship.prototype.drawAllTurnMovements = function(args) {
-      var turn, _i, _len, _ref, _results;
-      _ref = this.turns;
+    Ship.prototype.draw = function() {
+      var turn_idx, _i, _j, _len, _ref, _ref1, _ref2, _results, _results1;
+      this.layer.clear();
+      _ref2 = (_ref = this.draw_options.turns) != null ? _ref : (function() {
+        _results1 = [];
+        for (var _j = 0, _ref1 = this.turns.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; 0 <= _ref1 ? _j++ : _j--){ _results1.push(_j); }
+        return _results1;
+      }).apply(this);
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        turn = _ref[_i];
-        _results.push(turn.drawMovements(this.layer, args));
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        turn_idx = _ref2[_i];
+        if (turn_idx < this.turns.length) {
+          if (this.draw_options.final_positions_only) {
+            _results.push(this.turns[turn_idx].drawFinalPositionOnly(this.layer, this.draw_options.kinetic_draw_args));
+          } else {
+            _results.push(this.turns[turn_idx].drawMovements(this.layer, this.draw_options.kinetic_draw_args));
+          }
+        } else {
+          _results.push(void 0);
+        }
       }
       return _results;
     };

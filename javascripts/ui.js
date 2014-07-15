@@ -31,14 +31,28 @@
           y: _this.stage.height() / 2,
           heading_deg: 0
         });
-        ship.drawAllTurnMovements({
-          stroke: _this.selectedColor
+        ship.setDrawOptions({
+          kinetic_draw_args: {
+            stroke: _this.selectedColor
+          }
         });
+        ship.draw();
         _this.ships.push(ship);
         opt = $(document.createElement('OPTION'));
         opt.data('ship', ship);
         opt.text(ship.name !== "" ? ship.name : "Unnamed Ship");
-        return _this.shiplistselect.append(opt);
+        return _this.shiplistselect.find('optgroup').append(opt);
+      });
+      $(exportObj).on('xwm:drawOptionsChanged', function(e, options) {
+        var ship, _i, _len, _ref, _results;
+        _ref = _this.ships;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          ship = _ref[_i];
+          ship.setDrawOptions(options);
+          _results.push(ship.draw());
+        }
+        return _results;
       });
     }
 

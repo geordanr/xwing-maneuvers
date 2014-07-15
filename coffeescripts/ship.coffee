@@ -10,6 +10,8 @@ class exportObj.Ship
       center_y: args.y
       heading_deg: args.heading_deg
 
+    @draw_options = {}
+
     # Turn 0
     turn = new Turn
       ship: this
@@ -17,7 +19,7 @@ class exportObj.Ship
     turn.execute()
     @turns = [turn]
 
-    @layer = new Kinetic.Layer({draggable:true})
+    @layer = new Kinetic.Layer {draggable: true}
     @layer.on 'mouseenter', (e) ->
       document.body.style.cursor = 'move'
     @layer.on 'mouseleave', (e) ->
@@ -34,15 +36,25 @@ class exportObj.Ship
     turn.execute()
     @turns.push turn
 
-  drawTurnMovement: (i, args) ->
-    @turns[i].drawMovements @layer, args
+  setDrawOptions: (args) ->
+    # Default draws all turns; otherwise, takes a list of ints
+    # (can be a CoffeeScript range [0..10])
+    @draw_options.turns = args.turns ? null
 
-  drawTurnFinalPosition: (i, args) ->
-    @turns[i].drawFinalPositionOnly @layer, args
+    # e.g. {stroke: 'blue', strokeWidth: 3}
+    @draw_options.kinetic_draw_args = args.kinetic_draw_args ? null
 
-  drawAllTurnMovements: (args) ->
-    for turn in @turns
-      turn.drawMovements @layer, args
+    # If set, draws only the final position for each turn
+    @draw_options.final_positions_only = Boolean(args.final_positions_only ? false)
+
+  draw: ->
+    @layer.clear()
+    for turn_idx in @draw_options.turns ? [0...@turns.length]
+      if turn_idx < @turns.length
+        if @draw_options.final_positions_only
+          @turns[turn_idx].drawFinalPositionOnly @layer, @draw_options.kinetic_draw_args
+        else
+          @turns[turn_idx].drawMovements @layer, @draw_options.kinetic_draw_args
 
 class Turn
   constructor: (args) ->

@@ -27,10 +27,18 @@ class exportObj.ManeuversUI
         y: @stage.height() / 2
         heading_deg: 0
 
-      ship.drawAllTurnMovements {stroke: @selectedColor}
+      ship.setDrawOptions
+        kinetic_draw_args:
+          stroke: @selectedColor
+      ship.draw()
 
       @ships.push ship
       opt = $ document.createElement('OPTION')
       opt.data 'ship', ship
       opt.text(if ship.name != "" then ship.name else "Unnamed Ship")
-      @shiplistselect.append opt
+      @shiplistselect.find('optgroup').append opt
+
+    $(exportObj).on 'xwm:drawOptionsChanged', (e, options) =>
+      for ship in @ships
+        ship.setDrawOptions options
+        ship.draw()
