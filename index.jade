@@ -1,12 +1,21 @@
 doctype html
 html
   head
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible", content="IE=edge")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     title X-Wing Maneuvers
     link(rel="stylesheet", href="stylesheets/main.css")
+    link(rel="stylesheet", href="bootstrap/css/bootstrap.min.css")
+    link(rel="stylesheet", href="jQuery-ColorPicker-master/css/colorpicker.min.css")
+    
+    
   body
-    div#stage
     script(src="javascripts/jquery-2.1.1.min.js")
+    script(src="bootstrap/js/bootstrap.min.js")
     script(src="javascripts/kinetic-v5.1.0.min.js")
+    script(src="jQuery-ColorPicker-master/colorpicker.min.js")
+
     script(src="javascripts/constants.js")
     script(src="javascripts/position.js")
     script(src="javascripts/base.js")
@@ -15,13 +24,42 @@ html
     script(src="javascripts/ship.js")
     script(src="javascripts/demo.js")
     script(src="javascripts/grid.js")
+    script(src="javascripts/ui.js")
+
     script(defer="defer")
       :coffee
-        window.stage = new Kinetic.Stage
-          container: 'stage'
-          width: 914
-          height: 914
+        $(document).ready ->
 
-        drawGridOn stage
+          window.stage = new Kinetic.Stage
+            container: 'stage'
+            width: 914
+            height: 914
 
-        demo stage
+          drawGridOn stage
+
+          window.ui = new ManeuversUI
+            stage: stage
+            panel: '.ui-panel'
+            colorpicker: '.colorpickerholder'
+
+        #demo stage
+
+    .container-fluid
+      .row
+        .col-sm-8.col-xs-12#stage Canvas support is required
+        .col-sm-4.col-xs-12.ui-panel
+          .row
+            .col-xs-12.colorpickerholder
+          .row
+            .col-xs-6
+              input.form-control.shipname(placeholder="Ship name (optional)")
+            .col-xs-6.checkbox
+              label
+                input.isLarge(type="checkbox")
+                | Large Base
+          .row
+            .col-xs-4
+            button.btn.btn-primary.addship Add Ship
+          .row
+            .col-xs-12
+              select.shiplist(size="10", placeholder="Added ships will appear here")

@@ -12,7 +12,7 @@
       name: 'Phantom',
       size: 'small',
       x: 100,
-      y: 200,
+      y: 300,
       heading_deg: 112
     });
     falcon = new Ship({
@@ -66,11 +66,23 @@
         direction: 'left'
       })
     });
-    falcon.drawTurns({
+    falcon.drawTurnFinalPosition(0, {
+      stroke: 'black'
+    });
+    falcon.drawTurnFinalPosition(1, {
+      stroke: 'green'
+    });
+    falcon.drawTurnMovement(2, {
       stroke: 'red'
     });
-    return phantom.drawTurns({
+    phantom.drawTurnMovement(0, {
+      stroke: 'black'
+    });
+    phantom.drawTurnMovement(1, {
       stroke: 'blue'
+    });
+    return phantom.drawTurnFinalPosition(2, {
+      stroke: 'purple'
     });
   };
 

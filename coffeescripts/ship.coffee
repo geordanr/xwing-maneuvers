@@ -18,6 +18,10 @@ class exportObj.Ship
     @turns = [turn]
 
     @layer = new Kinetic.Layer({draggable:true})
+    @layer.on 'mouseenter', (e) ->
+      document.body.style.cursor = 'move'
+    @layer.on 'mouseleave', (e) ->
+      document.body.style.cursor = 'default'
     @stage.add @layer
 
   addTurn: (args) ->
@@ -30,9 +34,15 @@ class exportObj.Ship
     turn.execute()
     @turns.push turn
 
-  drawTurns: (args) ->
+  drawTurnMovement: (i, args) ->
+    @turns[i].drawMovements @layer, args
+
+  drawTurnFinalPosition: (i, args) ->
+    @turns[i].drawFinalPositionOnly @layer, args
+
+  drawAllTurnMovements: (args) ->
     for turn in @turns
-      turn.draw @layer, args
+      turn.drawMovements @layer, args
 
 class Turn
   constructor: (args) ->
@@ -51,7 +61,7 @@ class Turn
 
   execute: ->
     # Creates bases and templates, but does not draw them.
-    @bases = [@base_at_start]
+    @bases = []
     @templates = []
     cur_base = @base_at_start
     for movement in [@before, @during, @after]
@@ -60,10 +70,18 @@ class Turn
         new_base = cur_base.newBaseFromMovement movement
         @bases.push new_base
         cur_base = new_base
-    @final_position = @bases[@bases.length - 1].position
+    if @bases.length > 0
+      @final_position = @bases[@bases.length - 1].position
+    else
+      # no movement (e.g. 0 stop)
+      @bases = [@base_at_start]
+      @final_position = @base_at_start.position
 
-  draw: (layer, args={}) ->
+  drawMovements: (layer, args={}) ->
     for base in @bases
       base.draw layer, args
     for template in @templates
       template.draw layer, args
+
+  drawFinalPositionOnly: (layer, args={}) ->
+    @bases[@bases.length - 1].draw layer, args

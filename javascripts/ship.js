@@ -24,6 +24,12 @@
       this.layer = new Kinetic.Layer({
         draggable: true
       });
+      this.layer.on('mouseenter', function(e) {
+        return document.body.style.cursor = 'move';
+      });
+      this.layer.on('mouseleave', function(e) {
+        return document.body.style.cursor = 'default';
+      });
       this.stage.add(this.layer);
     }
 
@@ -40,13 +46,21 @@
       return this.turns.push(turn);
     };
 
-    Ship.prototype.drawTurns = function(args) {
+    Ship.prototype.drawTurnMovement = function(i, args) {
+      return this.turns[i].drawMovements(this.layer, args);
+    };
+
+    Ship.prototype.drawTurnFinalPosition = function(i, args) {
+      return this.turns[i].drawFinalPositionOnly(this.layer, args);
+    };
+
+    Ship.prototype.drawAllTurnMovements = function(args) {
       var turn, _i, _len, _ref, _results;
       _ref = this.turns;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         turn = _ref[_i];
-        _results.push(turn.draw(this.layer, args));
+        _results.push(turn.drawMovements(this.layer, args));
       }
       return _results;
     };
@@ -72,7 +86,7 @@
 
     Turn.prototype.execute = function() {
       var cur_base, movement, new_base, _i, _len, _ref;
-      this.bases = [this.base_at_start];
+      this.bases = [];
       this.templates = [];
       cur_base = this.base_at_start;
       _ref = [this.before, this.during, this.after];
@@ -85,10 +99,15 @@
           cur_base = new_base;
         }
       }
-      return this.final_position = this.bases[this.bases.length - 1].position;
+      if (this.bases.length > 0) {
+        return this.final_position = this.bases[this.bases.length - 1].position;
+      } else {
+        this.bases = [this.base_at_start];
+        return this.final_position = this.base_at_start.position;
+      }
     };
 
-    Turn.prototype.draw = function(layer, args) {
+    Turn.prototype.drawMovements = function(layer, args) {
       var base, template, _i, _j, _len, _len1, _ref, _ref1, _results;
       if (args == null) {
         args = {};
@@ -105,6 +124,13 @@
         _results.push(template.draw(layer, args));
       }
       return _results;
+    };
+
+    Turn.prototype.drawFinalPositionOnly = function(layer, args) {
+      if (args == null) {
+        args = {};
+      }
+      return this.bases[this.bases.length - 1].draw(layer, args);
     };
 
     return Turn;

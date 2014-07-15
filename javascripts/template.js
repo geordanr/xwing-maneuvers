@@ -142,7 +142,7 @@
                 throw new Error("Invalid direction " + dir);
             }
             ctx.closePath();
-            return ctx.strokeShape(this);
+            return ctx.fillStrokeShape(this);
           }
         });
       })(dir, dist);

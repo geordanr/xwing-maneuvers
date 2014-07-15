@@ -8,7 +8,7 @@ exportObj.demo = (stage) ->
     name: 'Phantom'
     size: 'small'
     x: 100
-    y: 200
+    y: 300
     heading_deg: 112
 
   falcon = new Ship
@@ -54,8 +54,26 @@ exportObj.demo = (stage) ->
       speed: 2
       direction: 'left'
 
-  falcon.drawTurns
+  # falcon.drawAllTurnMovements
+  #   stroke: 'red'
+  #
+  # phantom.drawAllTurnMovements
+  #   stroke: 'blue'
+
+  falcon.drawTurnFinalPosition 0,
+    stroke: 'black'
+
+  falcon.drawTurnFinalPosition 1,
+    stroke: 'green'
+
+  falcon.drawTurnMovement 2,
     stroke: 'red'
 
-  phantom.drawTurns
+  phantom.drawTurnMovement 0,
+    stroke: 'black'
+
+  phantom.drawTurnMovement 1,
     stroke: 'blue'
+
+  phantom.drawTurnFinalPosition 2,
+    stroke: 'purple'
