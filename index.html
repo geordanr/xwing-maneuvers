@@ -1,91 +1,17 @@
-<!DOCTYPE html><html><head><title>X-Wing Maneuvers</title><link rel="stylesheet" href="stylesheets/main.css"></head><body><canvas id="playarea" width="914" height="914">You need a canvas-capable browser.</canvas><script src="javascripts/jquery-2.1.1.min.js"></script><script src="javascripts/canvas.js"></script><script src="javascripts/ship.js"></script><script>(function() {
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><title>X-Wing Maneuvers</title><link rel="stylesheet" href="stylesheets/main.css"><link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"><link rel="stylesheet" href="jQuery-ColorPicker-master/css/colorpicker.min.css"></head><body><script src="javascripts/jquery-2.1.1.min.js"></script><script src="bootstrap/js/bootstrap.min.js"></script><script src="javascripts/kinetic-v5.1.0.min.js"></script><script src="jQuery-ColorPicker-master/colorpicker.min.js"></script><script src="javascripts/constants.js"></script><script src="javascripts/position.js"></script><script src="javascripts/base.js"></script><script src="javascripts/template.js"></script><script src="javascripts/movement.js"></script><script src="javascripts/ship.js"></script><script src="javascripts/demo.js"></script><script src="javascripts/grid.js"></script><script src="javascripts/ui.js"></script><script defer="defer">(function() {
   $(document).ready(function() {
-    var canvas, ctx, ship1;
-    canvas = document.getElementById('playarea');
-    if (canvas.getContext != null) {
-      ctx = canvas.getContext('2d');
-      init(ctx);
-      ship1 = new Ship({
-        name: 'test',
-        size: 'large',
-        ctx: ctx,
-        center_x: 40,
-        center_y: 800,
-        heading_radians: (NORTH + EAST) / 2
-      });
-      ship1.addMove(new Movement({
-        template: new Template({
-          type: 'straight',
-          distance: 4
-        }),
-        after: new BarrelRoll({
-          direction: 'right',
-          start_distance_from_front: 10,
-          end_distance_from_front: 55
-        })
-      }));
-      ship1.addMove(new Movement({
-        template: new Template({
-          type: 'bank',
-          distance: 3,
-          direction: 'right'
-        }),
-        after: new BarrelRoll({
-          direction: 'rightforward',
-          distance: 1
-        })
-      }));
-      ship1.addMove(new Movement({
-        template: new Template({
-          type: 'turn',
-          distance: 3,
-          direction: 'left'
-        })
-      }));
-      ship1.addMove(new Movement({
-        template: new Template({
-          type: 'koiogran',
-          distance: 4
-        })
-      }));
-      ship1.addMove(new Movement({
-        template: new Template({
-          type: 'turn',
-          distance: 2,
-          direction: 'right'
-        }),
-        after: new BarrelRoll({
-          direction: 'leftforward',
-          start_distance_from_front: 55,
-          end_distance_from_front: 10
-        })
-      }));
-      ship1.addMove(new Movement({
-        template: new Template({
-          type: 'turn',
-          distance: 3,
-          direction: 'right'
-        }),
-        after: new BarrelRoll({
-          direction: 'rightback',
-          start_distance_from_front: 55,
-          end_distance_from_front: 10
-        })
-      }));
-      ship1.addMove(new Movement({
-        template: new Template({
-          type: 'straight',
-          distance: 5
-        }),
-        after: new BarrelRoll({
-          direction: 'leftback',
-          start_distance_from_front: 55,
-          end_distance_from_front: 10
-        })
-      }));
-      return ship1.drawMovements();
-    }
+    window.stage = new Kinetic.Stage({
+      container: 'stage',
+      width: 914,
+      height: 914
+    });
+    drawGridOn(stage);
+    return window.ui = new ManeuversUI({
+      stage: stage,
+      panel: '.ui-panel',
+      colorpicker: '.colorpickerholder'
+    });
   });
 
 }).call(this);
-</script></body></html>
+</script><div class="container-fluid"><div class="row"><div id="stage" class="col-sm-8 col-xs-12">Canvas support is required</div><div class="col-sm-4 col-xs-12 ui-panel"><div class="row"><div class="col-xs-12 colorpickerholder"></div></div><div class="row"><div class="col-xs-6"><input placeholder="Ship name (optional)" class="form-control shipname"></div><div class="col-xs-6 checkbox"><label><input type="checkbox" class="isLarge">Large Base</label></div></div><div class="row"><div class="col-xs-4"></div><button class="btn btn-primary addship">Add Ship</button></div><div class="row"><div class="col-xs-12"><select size="10" placeholder="Added ships will appear here" class="shiplist"></select></div></div></div></div></div></body></html>

@@ -1,85 +1,65 @@
 doctype html
 html
   head
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible", content="IE=edge")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     title X-Wing Maneuvers
     link(rel="stylesheet", href="stylesheets/main.css")
+    link(rel="stylesheet", href="bootstrap/css/bootstrap.min.css")
+    link(rel="stylesheet", href="jQuery-ColorPicker-master/css/colorpicker.min.css")
+    
+    
   body
-    canvas#playarea(width=914, height=914) You need a canvas-capable browser.
     script(src="javascripts/jquery-2.1.1.min.js")
-    script(src="javascripts/canvas.js")
+    script(src="bootstrap/js/bootstrap.min.js")
+    script(src="javascripts/kinetic-v5.1.0.min.js")
+    script(src="jQuery-ColorPicker-master/colorpicker.min.js")
+
+    script(src="javascripts/constants.js")
+    script(src="javascripts/position.js")
+    script(src="javascripts/base.js")
+    script(src="javascripts/template.js")
+    script(src="javascripts/movement.js")
     script(src="javascripts/ship.js")
-    script
+    script(src="javascripts/demo.js")
+    script(src="javascripts/grid.js")
+    script(src="javascripts/ui.js")
+
+    script(defer="defer")
       :coffee
         $(document).ready ->
-          canvas = document.getElementById('playarea')
-          if canvas.getContext?
-            ctx = canvas.getContext '2d'
-            init ctx
 
-            ship1 = new Ship
-                name: 'test'
-                size: 'large'
-                ctx: ctx
-                center_x: 40
-                center_y: 800
-                heading_radians: (NORTH + EAST) / 2
+          window.stage = new Kinetic.Stage
+            container: 'stage'
+            width: 914
+            height: 914
 
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'straight'
-                  distance: 4
-                after: new BarrelRoll
-                  direction: 'right'
-                  start_distance_from_front: 10
-                  end_distance_from_front: 55
+          drawGridOn stage
 
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'bank'
-                  distance: 3
-                  direction: 'right'
-                after: new BarrelRoll
-                  direction: 'rightforward'
-                  distance: 1
+          window.ui = new ManeuversUI
+            stage: stage
+            panel: '.ui-panel'
+            colorpicker: '.colorpickerholder'
 
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'turn'
-                  distance: 3
-                  direction: 'left'
+        #demo stage
 
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'koiogran'
-                  distance: 4
-
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'turn'
-                  distance: 2
-                  direction: 'right'
-                after: new BarrelRoll
-                  direction: 'leftforward'
-                  start_distance_from_front: 55
-                  end_distance_from_front: 10
-
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'turn'
-                  distance: 3
-                  direction: 'right'
-                after: new BarrelRoll
-                  direction: 'rightback'
-                  start_distance_from_front: 55
-                  end_distance_from_front: 10
-
-            ship1.addMove new Movement
-                template: new Template
-                  type: 'straight'
-                  distance: 5
-                after: new BarrelRoll
-                  direction: 'leftback'
-                  start_distance_from_front: 55
-                  end_distance_from_front: 10
-
-            ship1.drawMovements()
+    .container-fluid
+      .row
+        .col-sm-8.col-xs-12#stage Canvas support is required
+        .col-sm-4.col-xs-12.ui-panel
+          .row
+            .col-xs-12.colorpickerholder
+          .row
+            .col-xs-6
+              input.form-control.shipname(placeholder="Ship name (optional)")
+            .col-xs-6.checkbox
+              label
+                input.isLarge(type="checkbox")
+                | Large Base
+          .row
+            .col-xs-4
+            button.btn.btn-primary.addship Add Ship
+          .row
+            .col-xs-12
+              select.shiplist(size="10", placeholder="Added ships will appear here")
