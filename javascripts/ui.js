@@ -55,6 +55,7 @@
       this.addshipbtn = $(this.panel.find('.addship'));
       this.addshipbtn.click(function(e) {
         var btn, li, ship;
+        e.preventDefault();
         ship = new Ship({
           stage: stage,
           name: _this.shipnameinput.val(),
@@ -76,14 +77,16 @@
         btn.data('ship', ship);
         ship.button = btn;
         btn.text(ship.name !== "" ? ship.name : "Unnamed Ship");
-        btn.addClass('btn');
+        btn.addClass('btn btn-block');
         (function(ship) {
           return btn.click(function(e) {
+            e.preventDefault();
             return $(exportObj).trigger('xwm:shipSelected', ship);
           });
         })(ship);
         li.append(btn);
-        return _this.shiplist.append(li);
+        _this.shiplist.append(li);
+        return $(exportObj).trigger('xwm:shipSelected', ship);
       });
       $(exportObj).on('xwm:drawOptionsChanged', function(e, options) {
         var ship, _i, _len, _ref, _results;
@@ -127,6 +130,80 @@
     }
 
     return ManeuversUI;
+
+  })();
+
+  exportObj.ManeuverGrid = (function() {
+    function ManeuverGrid(args) {
+      this.container = $(args.container);
+      this.makeManeuverGrid();
+      this.setupHandlers();
+    }
+
+    ManeuverGrid.prototype.makeManeuverIcon = function(template, color) {
+      var linePath, outlineColor, svg, transform, trianglePath;
+      if (color == null) {
+        color = 'white';
+      }
+      if (template === 'stop') {
+        svg = "<rect x=\"50\" y=\"50\" width=\"100\" height=\"100\" style=\"fill:" + color + "\" />";
+      } else {
+        outlineColor = "black";
+        transform = "";
+        switch (template) {
+          case 'turnleft':
+            linePath = "M160,180 L160,70 80,70";
+            trianglePath = "M80,100 V40 L30,70 Z";
+            break;
+          case 'bankleft':
+            linePath = "M150,180 S150,120 80,60";
+            trianglePath = "M80,100 V40 L30,70 Z";
+            transform = "transform='translate(-5 -15) rotate(45 70 90)' ";
+            break;
+          case 'straight':
+            linePath = "M100,180 L100,100 100,80";
+            trianglePath = "M70,80 H130 L100,30 Z";
+            break;
+          case 'bankright':
+            linePath = "M50,180 S50,120 120,60";
+            trianglePath = "M120,100 V40 L170,70 Z";
+            transform = "transform='translate(5 -15) rotate(-45 130 90)' ";
+            break;
+          case 'turnright':
+            linePath = "M40,180 L40,70 120,70";
+            trianglePath = "M120,100 V40 L170,70 Z";
+            break;
+          case 'kturn':
+            linePath = "M50,180 L50,100 C50,10 140,10 140,100 L140,120";
+            trianglePath = "M170,120 H110 L140,180 Z";
+        }
+        svg = $.trim("<path d='" + trianglePath + "' fill='" + color + "' stroke-width='5' stroke='" + outlineColor + "' " + transform + "/>\n<path stroke-width='25' fill='none' stroke='" + outlineColor + "' d='" + linePath + "' />\n<path stroke-width='15' fill='none' stroke='" + color + "' d='" + linePath + "' />");
+      }
+      return "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"30px\" height=\"30px\" viewBox=\"0 0 200 200\">" + svg + "</svg>";
+    };
+
+    ManeuverGrid.prototype.makeManeuverGrid = function() {
+      var speed, table, _i;
+      table = '<table class="maneuvergrid">';
+      for (speed = _i = 5; _i >= 0; speed = --_i) {
+        table += "<tr>";
+        table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"turnleft\">" + (this.makeManeuverIcon('turnleft')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"bankleft\">" + (this.makeManeuverIcon('bankleft')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
+        table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"straight\">" + (this.makeManeuverIcon('straight')) + "</td>") : $.trim("<td data-speed=\"0\" data-direction=\"stop\">" + (this.makeManeuverIcon('stop')) + "</td>");
+        table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"bankright\">" + (this.makeManeuverIcon('bankright')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"turnright\">" + (this.makeManeuverIcon('turnright')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
+        table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"koiogran\">" + (this.makeManeuverIcon('kturn')) + "</td>") : "<td>&nbsp;</td>";
+      }
+      table += "</table>";
+      return this.container.append(table);
+    };
+
+    ManeuverGrid.prototype.setupHandlers = function() {
+      return this.container.find('td').click(function(e) {
+        console.log("" + ($(e.target).data('direction')) + " " + ($(e.target).data('speed')));
+        return console.log("" + ($(e.delegateTarget).data('direction')) + " " + ($(e.delegateTarget).data('speed')));
+      });
+    };
+
+    return ManeuverGrid;
 
   })();
 

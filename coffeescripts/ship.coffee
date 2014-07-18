@@ -37,9 +37,6 @@ class exportObj.Ship
     turn = new Turn
       ship: this
       start_position: @turns[@turns.length - 1].final_position
-      before: args.before
-      during: args.during
-      after: args.after
     turn.execute()
     @turns.push turn
 
@@ -56,13 +53,6 @@ class exportObj.Ship
 
   draw: ->
     @layer.clear()
-
-    @layer.add new Kinetic.Circle
-      x: 0
-      y: 0
-      radius: 4
-      fill: 'red'
-
     for turn_idx in @draw_options.turns ? [0...@turns.length]
       if turn_idx < @turns.length
         if @draw_options.final_positions_only
@@ -76,10 +66,8 @@ class Turn
     @base_at_start = new exportObj.Base
       size: @ship.size
       position: args.start_position
-    @before = args.before
-    @during = args.during
-    @after = args.after
 
+    @movements = []
     @bases = []
     @templates = []
 
@@ -90,7 +78,7 @@ class Turn
     @bases = []
     @templates = []
     cur_base = @base_at_start
-    for movement in [@before, @during, @after]
+    for movement in @movements
       if movement?
         @templates.push movement.getTemplateForBase cur_base
         new_base = cur_base.newBaseFromMovement movement
@@ -111,3 +99,7 @@ class Turn
 
   drawFinalPositionOnly: (layer, args={}) ->
     @bases[@bases.length - 1].draw layer, args
+
+  addMovement: (movement) ->
+    @movements.push movement
+    # should I @execute() here?

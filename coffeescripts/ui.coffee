@@ -40,6 +40,7 @@ class exportObj.ManeuversUI
 
     @addshipbtn = $ @panel.find('.addship')
     @addshipbtn.click (e) =>
+      e.preventDefault()
       ship = new Ship
         stage: stage
         name: @shipnameinput.val()
@@ -61,12 +62,15 @@ class exportObj.ManeuversUI
       btn.data 'ship', ship
       ship.button = btn
       btn.text(if ship.name != "" then ship.name else "Unnamed Ship")
-      btn.addClass 'btn'
+      btn.addClass 'btn btn-block'
       do (ship) ->
         btn.click (e) ->
+          e.preventDefault()
           $(exportObj).trigger 'xwm:shipSelected', ship
       li.append btn
       @shiplist.append li
+
+      $(exportObj).trigger 'xwm:shipSelected', ship
 
     $(exportObj).on 'xwm:drawOptionsChanged', (e, options) =>
       for ship in @ships
@@ -94,3 +98,101 @@ class exportObj.ManeuversUI
       if @selected_ship? and @selected_ship.layer.rotation != @headingslider.slider('value')
         @selected_ship.layer.rotation @headingslider.slider('value')
         @selected_ship.draw()
+
+class exportObj.ManeuverGrid
+  constructor: (args) ->
+    @container = $ args.container
+
+    @makeManeuverGrid()
+    @setupHandlers()
+
+  # Stolen and modified from hpanderson's SVG maneuvers for the squad builder
+  makeManeuverIcon: (template, color='white') ->
+    if template == 'stop'
+      svg = """<rect x="50" y="50" width="100" height="100" style="fill:#{color}" />"""
+    else
+      outlineColor = "black"
+
+      transform = ""
+      switch template
+        when 'turnleft'
+          # turn left
+          linePath = "M160,180 L160,70 80,70"
+          trianglePath = "M80,100 V40 L30,70 Z"
+
+        when 'bankleft'
+          # bank left
+          linePath = "M150,180 S150,120 80,60"
+          trianglePath = "M80,100 V40 L30,70 Z"
+          transform = "transform='translate(-5 -15) rotate(45 70 90)' "
+
+        when 'straight'
+          # straight
+          linePath = "M100,180 L100,100 100,80"
+          trianglePath = "M70,80 H130 L100,30 Z"
+
+        when 'bankright'
+          # bank right
+          linePath = "M50,180 S50,120 120,60"
+          trianglePath = "M120,100 V40 L170,70 Z"
+          transform = "transform='translate(5 -15) rotate(-45 130 90)' "
+
+        when 'turnright'
+          # turn right
+          linePath = "M40,180 L40,70 120,70"
+          trianglePath = "M120,100 V40 L170,70 Z"
+
+        when 'kturn'
+          # k-turn/u-turn
+          linePath = "M50,180 L50,100 C50,10 140,10 140,100 L140,120"
+          trianglePath = "M170,120 H110 L140,180 Z"
+
+      svg = $.trim """
+        <path d='#{trianglePath}' fill='#{color}' stroke-width='5' stroke='#{outlineColor}' #{transform}/>
+        <path stroke-width='25' fill='none' stroke='#{outlineColor}' d='#{linePath}' />
+        <path stroke-width='15' fill='none' stroke='#{color}' d='#{linePath}' />
+      """
+
+    """<svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 200 200">#{svg}</svg>"""
+
+  makeManeuverGrid: ->
+    # TODO - customize per ship
+    table = '<table class="maneuvergrid">'
+    for speed in [5..0]
+      table += "<tr>"
+
+      table += if speed > 0 and speed < 4
+        $.trim """
+          <td data-speed="#{speed}" data-direction="turnleft">#{@makeManeuverIcon 'turnleft'}</td>
+          <td data-speed="#{speed}" data-direction="bankleft">#{@makeManeuverIcon 'bankleft'}</td>
+        """
+      else
+        "<td>&nbsp;</td><td>&nbsp;</td>"
+
+      table += if speed > 0
+        $.trim """<td data-speed="#{speed}" data-direction="straight">#{@makeManeuverIcon 'straight'}</td>"""
+      else
+        $.trim """<td data-speed="0" data-direction="stop">#{@makeManeuverIcon 'stop'}</td>"""
+
+      table += if speed > 0 and speed < 4
+        $.trim """
+          <td data-speed="#{speed}" data-direction="bankright">#{@makeManeuverIcon 'bankright'}</td>
+          <td data-speed="#{speed}" data-direction="turnright">#{@makeManeuverIcon 'turnright'}</td>
+        """
+      else
+        "<td>&nbsp;</td><td>&nbsp;</td>"
+
+      table += if speed > 0
+        $.trim """<td data-speed="#{speed}" data-direction="koiogran">#{@makeManeuverIcon 'kturn'}</td>"""
+      else
+        "<td>&nbsp;</td>"
+
+    table += "</table>"
+
+    @container.append table
+
+  setupHandlers: ->
+    @container.find('td').click (e) ->
+      $(exportObj).trigger 'xwm:movementClicked',
+        direction: $(e.delegateTarget).data 'direction'
+        speed: $(e.delegateTarget).data 'speed'

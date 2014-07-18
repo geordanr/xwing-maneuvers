@@ -44,6 +44,9 @@ html
             panel: '.ui-panel'
             colorpicker: '.colorpickerholder'
 
+          window.maneuvergrid = new ManeuverGrid
+            container: '.maneuvers'
+
         #demo stage
 
     .container-fluid
@@ -55,20 +58,65 @@ html
           .row
             .col-xs-6
               input.form-control.shipname(placeholder="Ship name (optional)")
-            .col-xs-6.checkbox
+            .col-xs-3.checkbox
               label
                 input.isLarge(type="checkbox")
                 | Large Base
-          .row
-            .col-xs-4
-            button.btn.btn-primary.addship Add Ship
+            .col-xs-3
+              button.btn.btn-primary.addship Add Ship
+          hr
           .row
             .col-xs-6
               ul.shiplist.list-unstyled
-            .col-xs-6
+            .col-xs-6.ship-controls
               .row
-                .col-xs-6 Heading
+                .col-xs-6 Start Heading
                 .col-xs-6
                   input.form-control.heading(value="0", type="number")
               .row
                 .col-xs-12.heading-slider
+              .row
+                .col-xs-12
+                  h4 Turns
+                  ol
+                    li
+                      .row
+                        button.close.pull-right
+                          span(aria-hidden="true") &times;
+                          span.sr-only Close
+                        .col-xs-11
+                          select.form-control
+                            option &lt;Nothing&gt;
+                          select.form-control
+                            option Straight 5
+                          select.form-control
+                            option Bank Left 2
+
+                    li
+                      .row
+                        button.close.pull-right
+                          span(aria-hidden="true") &times;
+                          span.sr-only Close
+                        .col-xs-11
+                          select.form-control
+                            option &lt;Nothing&gt;
+                          select.form-control
+                            option Turn Left 3
+                          select.form-control
+                            option &lt;Nothing&gt;
+
+                    li
+                      .row
+                        button.close.pull-right
+                          span(aria-hidden="true") &times;
+                          span.sr-only Close
+                        .col-xs-11
+                          select.form-control
+                            option Barrel Roll Left
+                          select.form-control
+                            option Straight 1
+                          select.form-control
+                            option Boost Right
+                  button.btn Add Turn
+              .row
+                .col-xs-12.maneuvers

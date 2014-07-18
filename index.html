@@ -6,12 +6,15 @@
       height: 914
     });
     drawGridOn(stage);
-    return window.ui = new ManeuversUI({
+    window.ui = new ManeuversUI({
       stage: stage,
       panel: '.ui-panel',
       colorpicker: '.colorpickerholder'
     });
+    return window.maneuvergrid = new ManeuverGrid({
+      container: '.maneuvers'
+    });
   });
 
 }).call(this);
-</script><div class="container-fluid"><div class="row"><div id="stage" class="col-sm-8 col-xs-12">Canvas support is required</div><div class="col-sm-4 col-xs-12 ui-panel"><div class="row"><div class="col-xs-12 colorpickerholder"></div></div><div class="row"><div class="col-xs-6"><input placeholder="Ship name (optional)" class="form-control shipname"></div><div class="col-xs-6 checkbox"><label><input type="checkbox" class="isLarge">Large Base</label></div></div><div class="row"><div class="col-xs-4"></div><button class="btn btn-primary addship">Add Ship</button></div><div class="row"><div class="col-xs-6"><ul class="shiplist list-unstyled"></ul></div><div class="col-xs-6"><div class="row"><div class="col-xs-6">Heading</div><div class="col-xs-6"><input value="0" type="number" class="form-control heading"></div></div><div class="row"><div class="col-xs-12 heading-slider"></div></div></div></div></div></div></div></body></html>
+</script><div class="container-fluid"><div class="row"><div id="stage" class="col-sm-8 col-xs-12">Canvas support is required</div><div class="col-sm-4 col-xs-12 ui-panel"><div class="row"><div class="col-xs-12 colorpickerholder"></div></div><div class="row"><div class="col-xs-6"><input placeholder="Ship name (optional)" class="form-control shipname"></div><div class="col-xs-3 checkbox"><label><input type="checkbox" class="isLarge">Large Base</label></div><div class="col-xs-3"><button class="btn btn-primary addship">Add Ship</button></div></div><hr><div class="row"><div class="col-xs-6"><ul class="shiplist list-unstyled"></ul></div><div class="col-xs-6 ship-controls"><div class="row"><div class="col-xs-6">Start Heading</div><div class="col-xs-6"><input value="0" type="number" class="form-control heading"></div></div><div class="row"><div class="col-xs-12 heading-slider"></div></div><div class="row"><div class="col-xs-12"><h4>Turns</h4><ol><li><div class="row"><button class="close pull-right"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><div class="col-xs-11"><select class="form-control"><option>&lt;Nothing&gt;</option></select><select class="form-control"><option>Straight 5</option></select><select class="form-control"><option>Bank Left 2</option></select></div></div></li><li><div class="row"><button class="close pull-right"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><div class="col-xs-11"><select class="form-control"><option>&lt;Nothing&gt;</option></select><select class="form-control"><option>Turn Left 3</option></select><select class="form-control"><option>&lt;Nothing&gt;</option></select></div></div></li><li><div class="row"><button class="close pull-right"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><div class="col-xs-11"><select class="form-control"><option>Barrel Roll Left</option></select><select class="form-control"><option>Straight 1</option></select><select class="form-control"><option>Boost Right</option></select></div></div></li></ol><button class="btn">Add Turn</button></div></div><div class="row"><div class="col-xs-12 maneuvers"></div></div></div></div></div></div></div></body></html>
