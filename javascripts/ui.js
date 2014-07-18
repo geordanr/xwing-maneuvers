@@ -227,11 +227,13 @@
       this.setupHandlers();
     }
 
-    ManeuverGrid.prototype.makeManeuverIcon = function(template, color) {
-      var linePath, outlineColor, svg, transform, trianglePath;
-      if (color == null) {
-        color = 'black';
+    ManeuverGrid.prototype.makeManeuverIcon = function(template, args) {
+      var color, linePath, outlineColor, rotate, svg, transform, trianglePath, _ref, _ref1;
+      if (args == null) {
+        args = {};
       }
+      color = (_ref = args.color) != null ? _ref : 'black';
+      rotate = (_ref1 = args.rotate) != null ? _ref1 : null;
       if (template === 'stop') {
         svg = "<rect x=\"50\" y=\"50\" width=\"100\" height=\"100\" style=\"fill:" + color + "\" />";
       } else {
@@ -266,6 +268,9 @@
         }
         svg = $.trim("<path d='" + trianglePath + "' fill='" + color + "' stroke-width='5' stroke='" + outlineColor + "' " + transform + "/>\n<path stroke-width='25' fill='none' stroke='" + outlineColor + "' d='" + linePath + "' />\n<path stroke-width='15' fill='none' stroke='" + color + "' d='" + linePath + "' />");
       }
+      if (rotate != null) {
+        svg = $.trim("<g transform=\"rotate(" + (parseInt(rotate)) + " 100 100)\">" + svg + "</g>");
+      }
       return "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"30px\" height=\"30px\" viewBox=\"0 0 200 200\">" + svg + "</svg>";
     };
 
@@ -273,13 +278,37 @@
       var speed, table, _i;
       table = '<table class="maneuvergrid">';
       for (speed = _i = 5; _i >= 0; speed = --_i) {
-        table += "<tr>";
+        table += "<tr class=\"speed-" + speed + "\">";
         table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"turnleft\">" + (this.makeManeuverIcon('turnleft')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"bankleft\">" + (this.makeManeuverIcon('bankleft')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
         table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"straight\">" + (this.makeManeuverIcon('straight')) + "</td>") : $.trim("<td data-direction=\"stop\">" + (this.makeManeuverIcon('stop')) + "</td>");
         table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"bankright\">" + (this.makeManeuverIcon('bankright')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"turnright\">" + (this.makeManeuverIcon('turnright')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
         table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"koiogran\">" + (this.makeManeuverIcon('kturn')) + "</td>") : "<td>&nbsp;</td>";
       }
-      table += $.trim("<tr>\n  <td data-direction=\"decloak-leftforward\">DC LF</td>\n  <td data-direction=\"barrelroll-leftforward\">BR LF</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-rightforward\">BR RF</td>\n  <td data-direction=\"decloak-rightforward\">DC RF</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr>\n  <td data-direction=\"decloak-left\">DC left</td>\n  <td data-direction=\"barrelroll-left\">BR left</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-right\">BR right</td>\n  <td data-direction=\"decloak-right\">DC right</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr>\n  <td data-speed=\"2\" data-direction=\"decloak-leftbackward\">DC LB</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-leftbackward\">BR LB</td>\n  <td>&nbsp;</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-rightbackward\">BR RB</td>\n  <td data-speed=\"2\" data-direction=\"decloak-rightbackward\">DC RB</td>\n  <td>&nbsp;</td>\n</tr>");
+      table += $.trim("<tr class=\"nonmaneuver\">\n  <td>&nbsp;</td>\n  <td data-speed=\"2\" data-direction=\"bankleft\">DC " + (this.makeManeuverIcon('bankleft')) + "</td>\n  <td>&nbsp;</td>\n  <td data-speed=\"2\" data-direction=\"bankright\">DC " + (this.makeManeuverIcon('bankright')) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-speed=\"1\" data-direction=\"turnleft\">DD " + (this.makeManeuverIcon('turnleft')) + "</td>\n  <td data-speed=\"1\" data-direction=\"bankleft\">B " + (this.makeManeuverIcon('bankleft')) + "</td>\n  <td data-speed=\"1\" data-direction=\"straight\">B " + (this.makeManeuverIcon('straight')) + "</td>\n  <td data-speed=\"1\" data-direction=\"bankright\">B " + (this.makeManeuverIcon('bankright')) + "</td>\n  <td data-speed=\"1\" data-direction=\"turnright\">DD " + (this.makeManeuverIcon('turnright')) + "</td>\n  <td>&nbsp;</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-direction=\"decloak-leftforward\">DC " + (this.makeManeuverIcon('bankright', {
+        rotate: -90
+      })) + "</td>\n  <td data-direction=\"barrelroll-leftforward\">BR " + (this.makeManeuverIcon('bankright', {
+        rotate: -90
+      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-rightforward\">BR " + (this.makeManeuverIcon('bankleft', {
+        rotate: 90
+      })) + "</td>\n  <td data-direction=\"decloak-rightforward\">DC " + (this.makeManeuverIcon('bankleft', {
+        rotate: 90
+      })) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-direction=\"decloak-left\">DC " + (this.makeManeuverIcon('straight', {
+        rotate: -90
+      })) + "</td>\n  <td data-direction=\"barrelroll-left\">BR " + (this.makeManeuverIcon('straight', {
+        rotate: -90
+      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-right\">BR " + (this.makeManeuverIcon('straight', {
+        rotate: 90
+      })) + "</td>\n  <td data-direction=\"decloak-right\">DC " + (this.makeManeuverIcon('straight', {
+        rotate: 90
+      })) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-speed=\"2\" data-direction=\"decloak-leftbackward\">DC " + (this.makeManeuverIcon('bankleft', {
+        rotate: -90
+      })) + "</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-leftbackward\">BR " + (this.makeManeuverIcon('bankleft', {
+        rotate: -90
+      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-rightbackward\">BR " + (this.makeManeuverIcon('bankright', {
+        rotate: 90
+      })) + "</td>\n  <td data-speed=\"2\" data-direction=\"decloak-rightbackward\">DC " + (this.makeManeuverIcon('bankright', {
+        rotate: 90
+      })) + "</td>\n  <td>&nbsp;</td>\n</tr>");
       table += "</table>";
       return this.container.append(table);
     };

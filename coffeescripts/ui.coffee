@@ -154,7 +154,10 @@ class exportObj.ManeuverGrid
     @setupHandlers()
 
   # Stolen and modified from hpanderson's SVG maneuvers for the squad builder
-  makeManeuverIcon: (template, color='black') ->
+  makeManeuverIcon: (template, args={}) ->
+    color = args.color ? 'black'
+    rotate = args.rotate ? null
+
     if template == 'stop'
       svg = """<rect x="50" y="50" width="100" height="100" style="fill:#{color}" />"""
     else
@@ -200,13 +203,16 @@ class exportObj.ManeuverGrid
         <path stroke-width='15' fill='none' stroke='#{color}' d='#{linePath}' />
       """
 
+    if rotate?
+      svg = $.trim """<g transform="rotate(#{parseInt rotate} 100 100)">#{svg}</g>"""
+
     """<svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 200 200">#{svg}</svg>"""
 
   makeManeuverGrid: ->
     # TODO - customize per ship
     table = '<table class="maneuvergrid">'
     for speed in [5..0]
-      table += "<tr>"
+      table += """<tr class="speed-#{speed}">"""
 
       table += if speed > 0 and speed < 4
         $.trim """
@@ -235,30 +241,49 @@ class exportObj.ManeuverGrid
         "<td>&nbsp;</td>"
 
     table += $.trim """
-      <tr>
-        <td data-direction="decloak-leftforward">DC LF</td>
-        <td data-direction="barrelroll-leftforward">BR LF</td>
+
+      <tr class="nonmaneuver">
         <td>&nbsp;</td>
-        <td data-direction="barrelroll-rightforward">BR RF</td>
-        <td data-direction="decloak-rightforward">DC RF</td>
+        <td data-speed="2" data-direction="bankleft">DC #{@makeManeuverIcon 'bankleft'}</td>
+        <td>&nbsp;</td>
+        <td data-speed="2" data-direction="bankright">DC #{@makeManeuverIcon 'bankright'}</td>
         <td>&nbsp;</td>
       </tr>
 
-      <tr>
-        <td data-direction="decloak-left">DC left</td>
-        <td data-direction="barrelroll-left">BR left</td>
+      <tr class="nonmaneuver">
+        <td data-speed="1" data-direction="turnleft">DD #{@makeManeuverIcon 'turnleft'}</td>
+        <td data-speed="1" data-direction="bankleft">B #{@makeManeuverIcon 'bankleft'}</td>
+        <td data-speed="1" data-direction="straight">B #{@makeManeuverIcon 'straight'}</td>
+        <td data-speed="1" data-direction="bankright">B #{@makeManeuverIcon 'bankright'}</td>
+        <td data-speed="1" data-direction="turnright">DD #{@makeManeuverIcon 'turnright'}</td>
         <td>&nbsp;</td>
-        <td data-direction="barrelroll-right">BR right</td>
-        <td data-direction="decloak-right">DC right</td>
         <td>&nbsp;</td>
       </tr>
 
-      <tr>
-        <td data-speed="2" data-direction="decloak-leftbackward">DC LB</td>
-        <td data-speed="1" data-direction="barrelroll-leftbackward">BR LB</td>
+      <tr class="nonmaneuver">
+        <td data-direction="decloak-leftforward">DC #{@makeManeuverIcon 'bankright', {rotate: -90}}</td>
+        <td data-direction="barrelroll-leftforward">BR #{@makeManeuverIcon 'bankright', {rotate: -90}}</td>
         <td>&nbsp;</td>
-        <td data-speed="1" data-direction="barrelroll-rightbackward">BR RB</td>
-        <td data-speed="2" data-direction="decloak-rightbackward">DC RB</td>
+        <td data-direction="barrelroll-rightforward">BR #{@makeManeuverIcon 'bankleft', {rotate: 90}}</td>
+        <td data-direction="decloak-rightforward">DC #{@makeManeuverIcon 'bankleft', {rotate: 90}}</td>
+        <td>&nbsp;</td>
+      </tr>
+
+      <tr class="nonmaneuver">
+        <td data-direction="decloak-left">DC #{@makeManeuverIcon 'straight', {rotate: -90}}</td>
+        <td data-direction="barrelroll-left">BR #{@makeManeuverIcon 'straight', {rotate: -90}}</td>
+        <td>&nbsp;</td>
+        <td data-direction="barrelroll-right">BR #{@makeManeuverIcon 'straight', {rotate: 90}}</td>
+        <td data-direction="decloak-right">DC #{@makeManeuverIcon 'straight', {rotate: 90}}</td>
+        <td>&nbsp;</td>
+      </tr>
+
+      <tr class="nonmaneuver">
+        <td data-speed="2" data-direction="decloak-leftbackward">DC #{@makeManeuverIcon 'bankleft', {rotate: -90}}</td>
+        <td data-speed="1" data-direction="barrelroll-leftbackward">BR #{@makeManeuverIcon 'bankleft', {rotate: -90}}</td>
+        <td>&nbsp;</td>
+        <td data-speed="1" data-direction="barrelroll-rightbackward">BR #{@makeManeuverIcon 'bankright', {rotate: 90}}</td>
+        <td data-speed="2" data-direction="decloak-rightbackward">DC #{@makeManeuverIcon 'bankright', {rotate: 90}}</td>
         <td>&nbsp;</td>
       </tr>
     """
