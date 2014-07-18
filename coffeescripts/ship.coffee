@@ -39,6 +39,7 @@ class exportObj.Ship
       start_position: @turns[@turns.length - 1].final_position
     turn.execute()
     @turns.push turn
+    turn
 
   setDrawOptions: (args) ->
     # Default draws all turns; otherwise, takes a list of ints
@@ -59,6 +60,9 @@ class exportObj.Ship
           @turns[turn_idx].drawFinalPositionOnly @layer, @draw_options.kinetic_draw_args
         else
           @turns[turn_idx].drawMovements @layer, @draw_options.kinetic_draw_args
+
+  moveToTop: ->
+    @layer.moveToTop()
 
 class Turn
   constructor: (args) ->
@@ -103,3 +107,4 @@ class Turn
   addMovement: (movement) ->
     @movements.push movement
     # should I @execute() here?
+    @execute()

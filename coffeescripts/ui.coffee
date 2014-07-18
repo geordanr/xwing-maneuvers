@@ -91,6 +91,7 @@ class exportObj.ManeuversUI
           @selected_ship.setDrawOptions
             kinetic_draw_args:
               fill: '#ddd'
+          @selected_ship.moveToTop()
           @selected_ship.draw()
           @selected_ship.button.addClass 'btn-primary'
           @headingslider.slider 'value', @selected_ship.layer.rotation()
@@ -98,7 +99,53 @@ class exportObj.ManeuversUI
       if @selected_ship? and @selected_ship.layer.rotation != @headingslider.slider('value')
         @selected_ship.layer.rotation @headingslider.slider('value')
         @selected_ship.draw()
+    .on 'xwm:movementClicked', (e, args) =>
+      return unless @selected_ship?
 
+      switch args.direction
+        when 'stop'
+          # do nothing? should mark it somehow
+          ''
+        when 'straight'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Straight {speed: args.speed}
+        when 'bankleft'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Bank
+            speed: args.speed
+            direction: 'left'
+        when 'bankright'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Bank
+            speed: args.speed
+            direction: 'right'
+        when 'turnleft'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Turn
+            speed: args.speed
+            direction: 'left'
+        when 'turnright'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Turn
+            speed: args.speed
+            direction: 'right'
+        when 'koiogran'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Koiogran {speed: args.speed}
+        when 'barrelroll-left'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Straight {speed: args.speed}
+        when 'barrelroll-right'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Straight {speed: args.speed}
+        when 'barrelroll-leftforward'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Straight {speed: args.speed}
+        when 'barrelroll-leftbackward'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Straight {speed: args.speed}
+        when 'decloak-left'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Straight {speed: args.speed}
+        when 'decloak-right'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Straight {speed: args.speed}
+        when 'decloak-leftforward'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Straight {speed: args.speed}
+        when 'decloak-leftbackward'
+          @selected_ship.addTurn().addMovement new exportObj.movements.Straight {speed: args.speed}
+        else
+          throw new Error("Bad direction #{args.direction}")
+
+      @selected_ship.draw()
 class exportObj.ManeuverGrid
   constructor: (args) ->
     @container = $ args.container
@@ -107,7 +154,7 @@ class exportObj.ManeuverGrid
     @setupHandlers()
 
   # Stolen and modified from hpanderson's SVG maneuvers for the squad builder
-  makeManeuverIcon: (template, color='white') ->
+  makeManeuverIcon: (template, color='black') ->
     if template == 'stop'
       svg = """<rect x="50" y="50" width="100" height="100" style="fill:#{color}" />"""
     else
@@ -172,7 +219,7 @@ class exportObj.ManeuverGrid
       table += if speed > 0
         $.trim """<td data-speed="#{speed}" data-direction="straight">#{@makeManeuverIcon 'straight'}</td>"""
       else
-        $.trim """<td data-speed="0" data-direction="stop">#{@makeManeuverIcon 'stop'}</td>"""
+        $.trim """<td data-direction="stop">#{@makeManeuverIcon 'stop'}</td>"""
 
       table += if speed > 0 and speed < 4
         $.trim """
@@ -187,12 +234,42 @@ class exportObj.ManeuverGrid
       else
         "<td>&nbsp;</td>"
 
+    table += $.trim """
+      <tr>
+        <td data-direction="decloak-leftforward">DC LF</td>
+        <td data-direction="barrelroll-leftforward">BR LF</td>
+        <td>&nbsp;</td>
+        <td data-direction="barrelroll-rightforward">BR RF</td>
+        <td data-direction="decloak-rightforward">DC RF</td>
+        <td>&nbsp;</td>
+      </tr>
+
+      <tr>
+        <td data-direction="decloak-left">DC left</td>
+        <td data-direction="barrelroll-left">BR left</td>
+        <td>&nbsp;</td>
+        <td data-direction="barrelroll-right">BR right</td>
+        <td data-direction="decloak-right">DC right</td>
+        <td>&nbsp;</td>
+      </tr>
+
+      <tr>
+        <td data-speed="2" data-direction="decloak-leftbackward">DC LB</td>
+        <td data-speed="1" data-direction="barrelroll-leftbackward">BR LB</td>
+        <td>&nbsp;</td>
+        <td data-speed="1" data-direction="barrelroll-rightbackward">BR RB</td>
+        <td data-speed="2" data-direction="decloak-rightbackward">DC RB</td>
+        <td>&nbsp;</td>
+      </tr>
+    """
+
     table += "</table>"
 
     @container.append table
 
   setupHandlers: ->
     @container.find('td').click (e) ->
+      e.preventDefault()
       $(exportObj).trigger 'xwm:movementClicked',
         direction: $(e.delegateTarget).data 'direction'
         speed: $(e.delegateTarget).data 'speed'

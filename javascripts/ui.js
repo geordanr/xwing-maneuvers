@@ -116,6 +116,7 @@
                 fill: '#ddd'
               }
             });
+            _this.selected_ship.moveToTop();
             _this.selected_ship.draw();
             _this.selected_ship.button.addClass('btn-primary');
             return _this.headingslider.slider('value', _this.selected_ship.layer.rotation());
@@ -126,6 +127,92 @@
           _this.selected_ship.layer.rotation(_this.headingslider.slider('value'));
           return _this.selected_ship.draw();
         }
+      }).on('xwm:movementClicked', function(e, args) {
+        if (_this.selected_ship == null) {
+          return;
+        }
+        switch (args.direction) {
+          case 'stop':
+            '';
+            break;
+          case 'straight':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
+              speed: args.speed
+            }));
+            break;
+          case 'bankleft':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Bank({
+              speed: args.speed,
+              direction: 'left'
+            }));
+            break;
+          case 'bankright':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Bank({
+              speed: args.speed,
+              direction: 'right'
+            }));
+            break;
+          case 'turnleft':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Turn({
+              speed: args.speed,
+              direction: 'left'
+            }));
+            break;
+          case 'turnright':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Turn({
+              speed: args.speed,
+              direction: 'right'
+            }));
+            break;
+          case 'koiogran':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Koiogran({
+              speed: args.speed
+            }));
+            break;
+          case 'barrelroll-left':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
+              speed: args.speed
+            }));
+            break;
+          case 'barrelroll-right':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
+              speed: args.speed
+            }));
+            break;
+          case 'barrelroll-leftforward':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
+              speed: args.speed
+            }));
+            break;
+          case 'barrelroll-leftbackward':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
+              speed: args.speed
+            }));
+            break;
+          case 'decloak-left':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
+              speed: args.speed
+            }));
+            break;
+          case 'decloak-right':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
+              speed: args.speed
+            }));
+            break;
+          case 'decloak-leftforward':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
+              speed: args.speed
+            }));
+            break;
+          case 'decloak-leftbackward':
+            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
+              speed: args.speed
+            }));
+            break;
+          default:
+            throw new Error("Bad direction " + args.direction);
+        }
+        return _this.selected_ship.draw();
       });
     }
 
@@ -143,7 +230,7 @@
     ManeuverGrid.prototype.makeManeuverIcon = function(template, color) {
       var linePath, outlineColor, svg, transform, trianglePath;
       if (color == null) {
-        color = 'white';
+        color = 'black';
       }
       if (template === 'stop') {
         svg = "<rect x=\"50\" y=\"50\" width=\"100\" height=\"100\" style=\"fill:" + color + "\" />";
@@ -188,18 +275,22 @@
       for (speed = _i = 5; _i >= 0; speed = --_i) {
         table += "<tr>";
         table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"turnleft\">" + (this.makeManeuverIcon('turnleft')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"bankleft\">" + (this.makeManeuverIcon('bankleft')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
-        table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"straight\">" + (this.makeManeuverIcon('straight')) + "</td>") : $.trim("<td data-speed=\"0\" data-direction=\"stop\">" + (this.makeManeuverIcon('stop')) + "</td>");
+        table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"straight\">" + (this.makeManeuverIcon('straight')) + "</td>") : $.trim("<td data-direction=\"stop\">" + (this.makeManeuverIcon('stop')) + "</td>");
         table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"bankright\">" + (this.makeManeuverIcon('bankright')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"turnright\">" + (this.makeManeuverIcon('turnright')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
         table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"koiogran\">" + (this.makeManeuverIcon('kturn')) + "</td>") : "<td>&nbsp;</td>";
       }
+      table += $.trim("<tr>\n  <td data-direction=\"decloak-leftforward\">DC LF</td>\n  <td data-direction=\"barrelroll-leftforward\">BR LF</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-rightforward\">BR RF</td>\n  <td data-direction=\"decloak-rightforward\">DC RF</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr>\n  <td data-direction=\"decloak-left\">DC left</td>\n  <td data-direction=\"barrelroll-left\">BR left</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-right\">BR right</td>\n  <td data-direction=\"decloak-right\">DC right</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr>\n  <td data-speed=\"2\" data-direction=\"decloak-leftbackward\">DC LB</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-leftbackward\">BR LB</td>\n  <td>&nbsp;</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-rightbackward\">BR RB</td>\n  <td data-speed=\"2\" data-direction=\"decloak-rightbackward\">DC RB</td>\n  <td>&nbsp;</td>\n</tr>");
       table += "</table>";
       return this.container.append(table);
     };
 
     ManeuverGrid.prototype.setupHandlers = function() {
       return this.container.find('td').click(function(e) {
-        console.log("" + ($(e.target).data('direction')) + " " + ($(e.target).data('speed')));
-        return console.log("" + ($(e.delegateTarget).data('direction')) + " " + ($(e.delegateTarget).data('speed')));
+        e.preventDefault();
+        return $(exportObj).trigger('xwm:movementClicked', {
+          direction: $(e.delegateTarget).data('direction'),
+          speed: $(e.delegateTarget).data('speed')
+        });
       });
     };
 

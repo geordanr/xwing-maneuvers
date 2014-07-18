@@ -46,7 +46,8 @@
         start_position: this.turns[this.turns.length - 1].final_position
       });
       turn.execute();
-      return this.turns.push(turn);
+      this.turns.push(turn);
+      return turn;
     };
 
     Ship.prototype.setDrawOptions = function(args) {
@@ -78,6 +79,10 @@
         }
       }
       return _results;
+    };
+
+    Ship.prototype.moveToTop = function() {
+      return this.layer.moveToTop();
     };
 
     return Ship;
@@ -147,7 +152,8 @@
     };
 
     Turn.prototype.addMovement = function(movement) {
-      return this.movements.push(movement);
+      this.movements.push(movement);
+      return this.execute();
     };
 
     return Turn;

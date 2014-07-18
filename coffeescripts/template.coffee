@@ -125,4 +125,4 @@ class exportObj.templates.Turn extends Template
               throw new Error("Invalid direction #{dir}")
 
           ctx.closePath()
-          ctx.strokeShape this
+          ctx.fillStrokeShape this
