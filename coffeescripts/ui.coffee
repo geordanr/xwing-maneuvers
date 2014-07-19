@@ -6,10 +6,18 @@ class exportObj.ManeuversUI
     @panel = $ args.panel
 
     # for temporarily rendering barrel rolls to drag around
-    @barrelroll_layer = new Kinetic.Layer
-      name: 'barrelroll'
+    @barrelroll_template_layer = new Kinetic.Layer
+      name: 'barrelroll_template'
       draggable: true
-    @stage.add @barrelroll_layer
+    @stage.add @barrelroll_template_layer
+    # for temporarily rendering where the barrel rolling base ends up
+    @barrelroll_base_layer = new Kinetic.Layer
+      name: 'barrelroll_base'
+      draggable: true
+    @stage.add @barrelroll_base_layer
+    # stores barrel roll info that is being decided
+    @barrelroll_movement = null
+    @barrelroll_start_base = null
 
     @ships = []
     @selected_ship = null
@@ -78,6 +86,15 @@ class exportObj.ManeuversUI
 
       $(exportObj).trigger 'xwm:shipSelected', ship
 
+    @panel.find('.lock-template').click (e) ->
+      # finalize barrel roll position, but still need to get final base position
+      e.preventDefault()
+      $(exportObj).trigger 'xwm:finalizeBarrelRollTemplate'
+
+    @panel.find('.lock-base').click (e) ->
+      e.preventDefault()
+      $(exportObj).trigger 'xwm:finalizeBarrelRoll'
+
     $(exportObj).on 'xwm:drawOptionsChanged', (e, options) =>
       for ship in @ships
         ship.setDrawOptions options
@@ -108,16 +125,11 @@ class exportObj.ManeuversUI
     .on 'xwm:movementClicked', (e, args) =>
       return unless @selected_ship?
 
+      @reset_barrelroll_data()
       # TODO: figure out what base we are modifying
       # for now, use final position
       tmp_bases = @selected_ship.turns[@selected_ship.turns.length-1].bases
-      tmp_base = tmp_bases[tmp_bases.length-1]
-
-      @barrelroll_layer.x 0
-      @barrelroll_layer.y 0
-      @barrelroll_layer.clear()
-      @barrelroll_layer.destroyChildren()
-      @barrelroll_layer.moveToTop()
+      @barrelroll_start_base = tmp_bases[tmp_bases.length-1]
 
       switch args.direction
         when 'stop'
@@ -144,155 +156,184 @@ class exportObj.ManeuversUI
         when 'koiogran'
           @selected_ship.addTurn().addMovement new exportObj.movements.Koiogran {speed: args.speed}
         when 'barrelroll-left'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'left', 0)
-          movement = new exportObj.movements.BarrelRoll
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+          @barrelroll_movement = new exportObj.movements.BarrelRoll
+            base: @barrelroll_start_base
             where: 'left'
             direction: 'left'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         when 'barrelroll-leftforward'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'left', 0)
-          movement = new exportObj.movements.BarrelRoll
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+          @barrelroll_movement = new exportObj.movements.BarrelRoll
+            base: @barrelroll_start_base
             where: 'left'
             direction: 'leftforward'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         when 'barrelroll-leftbackward'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'left', 0)
-          movement = new exportObj.movements.BarrelRoll
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+          @barrelroll_movement = new exportObj.movements.BarrelRoll
+            base: @barrelroll_start_base
             where: 'left'
             direction: 'leftbackward'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         when 'barrelroll-right'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'right', 0)
-          movement = new exportObj.movements.BarrelRoll
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+          @barrelroll_movement = new exportObj.movements.BarrelRoll
+            base: @barrelroll_start_base
             where: 'right'
             direction: 'right'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         when 'barrelroll-rightforward'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'right', 0)
-          movement = new exportObj.movements.BarrelRoll
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+          @barrelroll_movement = new exportObj.movements.BarrelRoll
+            base: @barrelroll_start_base
             where: 'right'
             direction: 'rightforward'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         when 'barrelroll-rightbackward'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'right', 0)
-          movement = new exportObj.movements.BarrelRoll
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+          @barrelroll_movement = new exportObj.movements.BarrelRoll
+            base: @barrelroll_start_base
             where: 'right'
             direction: 'rightbackward'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         when 'decloak-left'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'left', 0)
-          movement = new exportObj.movements.Decloak
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+          @barrelroll_movement = new exportObj.movements.Decloak
+            base: @barrelroll_start_base
             where: 'left'
             direction: 'left'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         when 'decloak-leftforward'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'left', 0)
-          movement = new exportObj.movements.Decloak
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+          @barrelroll_movement = new exportObj.movements.Decloak
+            base: @barrelroll_start_base
             where: 'left'
             direction: 'leftforward'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         when 'decloak-leftbackward'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'left', 0)
-          movement = new exportObj.movements.Decloak
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+          @barrelroll_movement = new exportObj.movements.Decloak
+            base: @barrelroll_start_base
             where: 'left'
             direction: 'leftbackward'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         when 'decloak-right'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'right', 0)
-          movement = new exportObj.movements.Decloak
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+          @barrelroll_movement = new exportObj.movements.Decloak
+            base: @barrelroll_start_base
             where: 'right'
             direction: 'right'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         when 'decloak-rightforward'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'right', 0)
-          movement = new exportObj.movements.Decloak
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+          @barrelroll_movement = new exportObj.movements.Decloak
+            base: @barrelroll_start_base
             where: 'right'
             direction: 'rightforward'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         when 'decloak-rightbackward'
-          @barrelroll_layer.dragBoundFunc @makeBarrelRollDragBoundFunc(tmp_base, 'right', 0)
-          movement = new exportObj.movements.Decloak
-            base: tmp_base
+          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+          @barrelroll_movement = new exportObj.movements.Decloak
+            base: @barrelroll_start_base
             where: 'right'
             direction: 'rightbackward'
             start_distance_from_front: 0
             end_distance_from_front: 0
-          template = movement.getTemplateForBase(tmp_base)
-          template.draw @barrelroll_layer
 
         else
           throw new Error("Bad direction #{args.direction}")
 
+      if @barrelroll_movement?
+        template = @barrelroll_movement.getTemplateForBase @barrelroll_start_base
+
+        template.draw @barrelroll_template_layer,
+          kinetic_draw_args:
+            fill: '#666'
+
       @selected_ship.draw()
 
-  makeBarrelRollDragBoundFunc: (base, direction, distance_from_front) ->
+    .on 'xwm:barrelRollTemplateOffsetChanged', (e, offset) =>
+      @barrelroll_start_offset = offset
+    .on 'xwm:barrelRollEndBaseOffsetChanged', (e, offset) =>
+      @barrelroll_end_offset = offset
+    .on 'xwm:finalizeBarrelRollTemplate', (e) =>
+      @barrelroll_template_layer.draggable false
+      @barrelroll_movement.start_distance_from_front = @barrelroll_start_offset
+      barrelroll_end_base = @barrelroll_start_base.newBaseFromMovement @barrelroll_movement
+      barrelroll_end_base.draw @barrelroll_base_layer
+      @barrelroll_base_layer.dragBoundFunc @makeBarrelRollBaseDragBoundFunc(0)
+    .on 'xwm:finalizeBarrelRoll', (e) =>
+      @barrelroll_movement.end_distance_from_front = @barrelroll_end_offset
+      @selected_ship.addTurn().addMovement @barrelroll_movement
+      @selected_ship.draw()
+      @reset_barrelroll_data()
+
+  reset_barrelroll_data: ->
+    for layer in [@barrelroll_base_layer, @barrelroll_template_layer]
+      layer.draggable true
+      layer.x 0
+      layer.y 0
+      layer.clear()
+      layer.destroyChildren()
+      layer.moveToTop()
+    @barrelroll_movement = null
+    @barrelroll_start_base = null
+    @barrelroll_start_offset = null
+    @barrelroll_end_offset = null
+
+  makeBarrelRollTemplateDragBoundFunc: (base, direction, distance_from_front) ->
     (pos) ->
       pos.y = Math.min pos.y, base.width - exportObj.TEMPLATE_WIDTH
       pos.y = Math.max pos.y, 0
-      xform = base.getBarrelRollTransform direction, distance_from_front
-      drag_pos = xform.point pos
-      new_pos = xform.point
+      $(exportObj).trigger 'xwm:barrelRollTemplateOffsetChanged', pos.y
+      transform = base.getBarrelRollTransform direction, distance_from_front
+      drag_pos = transform.point pos
+      new_pos = transform.point
         x: pos.x
         y: 0
       {
         x: drag_pos.x - new_pos.x
         y: drag_pos.y - new_pos.y
       }
+
+  makeBarrelRollBaseDragBoundFunc: (distance_from_front) ->
+    {transform, heading_deg} = @barrelroll_movement.getBaseTransformAndHeading @barrelroll_start_base
+    do (transform) =>
+      (pos) =>
+        pos.y = Math.min pos.y, 0
+        pos.y = Math.max pos.y, -(@barrelroll_start_base.width - exportObj.TEMPLATE_WIDTH)
+        $(exportObj).trigger 'xwm:barrelRollEndBaseOffsetChanged', Math.abs(pos.y)
+        drag_pos = transform.point pos
+        new_pos = transform.point
+          x: pos.x
+          y: 0
+        {
+          x: drag_pos.x - new_pos.x
+          y: drag_pos.y - new_pos.y
+        }
 
 class exportObj.ManeuverGrid
   constructor: (args) ->

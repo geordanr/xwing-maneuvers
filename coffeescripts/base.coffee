@@ -17,6 +17,7 @@ class exportObj.Base
     throw new Error("Position required") unless @position instanceof exportObj.Position
 
     @group = new Kinetic.Group
+      name: 'baseGroup'
       x: @position.center_x
       y: @position.center_y
       offsetX: @width / 2
@@ -68,7 +69,7 @@ class exportObj.Base
       width: 1
       height: 2
 
-  draw: (layer, args) ->
+  draw: (layer, args={}) ->
     layer.add @group
     for child in @group.children
       child.stroke args.stroke ? 'black'
@@ -78,10 +79,9 @@ class exportObj.Base
 
   getRotation: ->
     # We may not have been assigned to a layer yet
-    if @group.getLayer()?
-      (@group.getLayer().rotation() + @group.rotation()) % 360
-    else
-      @group.rotation()
+    rot = if @group.getLayer()? then @group.getLayer().rotation() else 0
+    rot += @group.rotation()
+    rot % 360
 
   getFrontNubTransform: ->
     @group.getAbsoluteTransform().copy().translate(@width / 2, 0)

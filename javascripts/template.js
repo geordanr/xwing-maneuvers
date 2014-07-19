@@ -86,6 +86,7 @@
 
     Straight.prototype.makeShape = function() {
       return new Kinetic.Rect({
+        name: 'template',
         offsetX: exportObj.TEMPLATE_WIDTH / 2,
         offsetY: 0,
         width: exportObj.TEMPLATE_WIDTH,
@@ -121,6 +122,7 @@
       dist = this.speed;
       return (function(dir, dist) {
         return new Kinetic.Shape({
+          name: 'template',
           drawFunc: function(ctx) {
             var angle, radius;
             radius = exportObj.BANK_INSIDE_RADII[dist];
@@ -169,6 +171,7 @@
       dist = this.speed;
       return (function(dir, dist) {
         return new Kinetic.Shape({
+          name: 'template',
           drawFunc: function(ctx) {
             var angle, radius;
             angle = -Math.PI / 2;

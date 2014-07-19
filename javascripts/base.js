@@ -23,6 +23,7 @@
         throw new Error("Position required");
       }
       this.group = new Kinetic.Group({
+        name: 'baseGroup',
         x: this.position.center_x,
         y: this.position.center_y,
         offsetX: this.width / 2,
@@ -73,6 +74,9 @@
 
     Base.prototype.draw = function(layer, args) {
       var child, _i, _len, _ref, _ref1, _ref2, _ref3, _results;
+      if (args == null) {
+        args = {};
+      }
       layer.add(this.group);
       _ref = this.group.children;
       _results = [];
@@ -87,11 +91,10 @@
     };
 
     Base.prototype.getRotation = function() {
-      if (this.group.getLayer() != null) {
-        return (this.group.getLayer().rotation() + this.group.rotation()) % 360;
-      } else {
-        return this.group.rotation();
-      }
+      var rot;
+      rot = this.group.getLayer() != null ? this.group.getLayer().rotation() : 0;
+      rot += this.group.rotation();
+      return rot % 360;
     };
 
     Base.prototype.getFrontNubTransform = function() {

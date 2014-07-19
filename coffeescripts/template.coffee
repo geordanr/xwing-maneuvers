@@ -59,6 +59,7 @@ class exportObj.templates.Straight extends Template
 
   makeShape: ->
     new Kinetic.Rect
+      name: 'template'
       offsetX: exportObj.TEMPLATE_WIDTH / 2
       offsetY: 0
       width: exportObj.TEMPLATE_WIDTH
@@ -77,6 +78,7 @@ class exportObj.templates.Bank extends Template
     dist = @speed
     do (dir, dist) ->
       new Kinetic.Shape
+        name: 'template'
         drawFunc: (ctx) ->
           radius = exportObj.BANK_INSIDE_RADII[dist]
 
@@ -106,6 +108,7 @@ class exportObj.templates.Turn extends Template
     dist = @speed
     do (dir, dist) ->
       new Kinetic.Shape
+        name: 'template'
         drawFunc: (ctx) ->
           angle = -Math.PI / 2
           radius = exportObj.TURN_INSIDE_RADII[dist]

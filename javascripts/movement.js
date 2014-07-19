@@ -220,7 +220,7 @@
       }
       return {
         transform: transform,
-        heading_deg: (base.position.heading_deg + rotation) % 360
+        heading_deg: (base.getRotation() + rotation) % 360
       };
     };
 
