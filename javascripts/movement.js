@@ -26,6 +26,10 @@
       throw new Error('Base class; implement me!');
     };
 
+    Movement.prototype.toHTML = function() {
+      throw new Error('Base class; implement me!');
+    };
+
     return Movement;
 
   })();
@@ -53,6 +57,10 @@
       });
     };
 
+    Straight.prototype.toHTML = function() {
+      return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon('straight')) + "&nbsp;" + this.speed + "</span>";
+    };
+
     return Straight;
 
   })(Movement);
@@ -78,6 +86,10 @@
         base: base,
         where: 'front_nubs'
       });
+    };
+
+    Koiogran.prototype.toHTML = function() {
+      return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon('koiogran')) + "&nbsp;" + this.speed + "</span>";
     };
 
     return Koiogran;
@@ -122,6 +134,10 @@
       });
     };
 
+    Bank.prototype.toHTML = function() {
+      return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("bank" + this.direction)) + "&nbsp;" + this.speed + "</span>";
+    };
+
     return Bank;
 
   })(Movement);
@@ -162,6 +178,10 @@
         base: base,
         where: 'front_nubs'
       });
+    };
+
+    Turn.prototype.toHTML = function() {
+      return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("turn" + this.direction)) + "&nbsp;" + this.speed + "</span>";
     };
 
     return Turn;
@@ -249,6 +269,37 @@
             direction: this.direction,
             distance_from_front: this.start_distance_from_front
           });
+        default:
+          throw new Error("Invalid direction " + this.direction);
+      }
+    };
+
+    BarrelRoll.prototype.toHTML = function() {
+      switch (this.direction) {
+        case 'left':
+          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("straight", {
+            rotate: -90
+          })) + "nbsp;" + this.speed + "</span>";
+        case 'right':
+          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("straight", {
+            rotate: 90
+          })) + "nbsp;" + this.speed + "</span>";
+        case 'leftforward':
+          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("bankright", {
+            rotate: -90
+          })) + "&nbsp;" + this.speed + "</span>";
+        case 'leftbackward':
+          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("bankleft", {
+            rotate: -90
+          })) + "&nbsp;" + this.speed + "</span>";
+        case 'rightforward':
+          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("bankleft", {
+            rotate: 90
+          })) + "&nbsp;" + this.speed + "</span>";
+        case 'rightbackward':
+          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("bankleft", {
+            rotate: -90
+          })) + "&nbsp;" + this.speed + "</span>";
         default:
           throw new Error("Invalid direction " + this.direction);
       }

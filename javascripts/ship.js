@@ -6,17 +6,31 @@
 
   exportObj.Ship = (function() {
     function Ship(args) {
-      var turn,
+      var turn, _ref,
         _this = this;
       this.stage = args.stage;
-      this.name = args.name;
+      this.name = $.trim((_ref = args.name) != null ? _ref : "");
       this.size = args.size;
       this.start_position = new exportObj.Position({
         center_x: args.x,
         center_y: args.y,
         heading_deg: args.heading_deg
       });
-      this.list_element = args.list_element;
+      if (this.name === "") {
+        this.name = "Unnamed Ship";
+      }
+      this.list_element = $(document.createElement('li'));
+      this.list_element.addClass('shipbutton');
+      this.select_ship_button = $(document.createElement('BUTTON'));
+      this.select_ship_button.data('ship', this);
+      this.select_ship_button.text(this.name);
+      this.select_ship_button.addClass('btn btn-block');
+      this.select_ship_button.click(function(e) {
+        e.preventDefault();
+        return $(exportObj).trigger('xwm:shipSelected', _this);
+      });
+      this.list_element.append(this.select_ship_button);
+      this.turnlist_element = $(document.createElement('ol'));
       this.draw_options = {};
       turn = new Turn({
         ship: this,
@@ -45,6 +59,9 @@
       if (this.list_element != null) {
         this.list_element.remove();
       }
+      if (this.turnlist_element != null) {
+        this.turnlist_element.remove();
+      }
       this.layer.destroyChildren();
       return this.layer.destroy();
     };
@@ -57,6 +74,7 @@
       });
       turn.execute();
       this.turns.push(turn);
+      this.turnlist_element.append(turn.list_element);
       return turn;
     };
 
@@ -106,11 +124,11 @@
         size: this.ship.size,
         position: args.start_position
       });
-      this.list_element = args.list_element;
       this.movements = [];
       this.bases = [];
       this.templates = [];
       this.final_position = null;
+      this.list_element = $(document.createElement('LI'));
     }
 
     Turn.prototype.destroy = function() {
@@ -191,7 +209,29 @@
 
     Turn.prototype.addMovement = function(movement) {
       this.movements.push(movement);
+      this.updateListElement();
       return this.execute();
+    };
+
+    Turn.prototype.removeMovement = function(movement) {
+      var idx;
+      idx = this.movements.indexOf(movement);
+      if (idx !== -1) {
+        this.movements.splice(idx, 0);
+        this.updateListElement();
+        return execute();
+      }
+    };
+
+    Turn.prototype.updateListElement = function() {
+      var movement, _i, _len, _ref;
+      this.list_element.text('');
+      _ref = this.movements;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        movement = _ref[_i];
+        this.list_element.append(movement.toHTML());
+      }
+      return console.log("turn list element is now " + (this.list_element.html()));
     };
 
     return Turn;

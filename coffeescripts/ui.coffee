@@ -50,7 +50,7 @@ class exportObj.ManeuversUI
 
     @shipnameinput = $ @panel.find('.shipname')
     @islargecheckbox = $ @panel.find('.isLarge')
-    @shiplist = $ @panel.find('.shiplist')
+    @shiplist_element = $ @panel.find('.shiplist')
 
     @addshipbtn = $ @panel.find('.addship')
     @addshipbtn.click (e) =>
@@ -69,21 +69,7 @@ class exportObj.ManeuversUI
       ship.draw()
 
       @ships.push ship
-
-      li = $ document.createElement('li')
-      li.addClass 'shipbutton'
-      btn = $ document.createElement('BUTTON')
-      btn.data 'ship', ship
-      ship.button = btn
-      btn.text(if ship.name != "" then ship.name else "Unnamed Ship")
-      btn.addClass 'btn btn-block'
-      do (ship) ->
-        btn.click (e) ->
-          e.preventDefault()
-          $(exportObj).trigger 'xwm:shipSelected', ship
-      li.append btn
-      @shiplist.append li
-      ship.list_element = li
+      @shiplist_element.append ship.list_element
 
       $(exportObj).trigger 'xwm:shipSelected', ship
 
@@ -125,8 +111,10 @@ class exportObj.ManeuversUI
               fill: '#ddd'
           @selected_ship.moveToTop()
           @selected_ship.draw()
-          @selected_ship.button.addClass 'btn-primary'
+          @selected_ship.select_ship_button.addClass 'btn-primary'
           @headingslider.slider 'value', @selected_ship.layer.rotation()
+          @panel.find('.turnlist').text ''
+          @panel.find('.turnlist').append @selected_ship.turnlist_element
     .on 'xwm:shipRotated', (e, heading_deg) =>
       if @selected_ship? and @selected_ship.layer.rotation != @headingslider.slider('value')
         @selected_ship.layer.rotation @headingslider.slider('value')
@@ -352,7 +340,7 @@ class exportObj.ManeuverGrid
     @setupHandlers()
 
   # Stolen and modified from hpanderson's SVG maneuvers for the squad builder
-  makeManeuverIcon: (template, args={}) ->
+  @makeManeuverIcon: (template, args={}) ->
     color = args.color ? 'black'
     rotate = args.rotate ? null
 
@@ -390,10 +378,13 @@ class exportObj.ManeuverGrid
           linePath = "M40,180 L40,70 120,70"
           trianglePath = "M120,100 V40 L170,70 Z"
 
-        when 'kturn'
+        when 'kturn', 'koiogran', 'uturn'
           # k-turn/u-turn
           linePath = "M50,180 L50,100 C50,10 140,10 140,100 L140,120"
           trianglePath = "M170,120 H110 L140,180 Z"
+
+        else
+          throw new Error("Invalid movement icon #{template}")
 
       svg = $.trim """
         <path d='#{trianglePath}' fill='#{color}' stroke-width='5' stroke='#{outlineColor}' #{transform}/>
@@ -414,27 +405,27 @@ class exportObj.ManeuverGrid
 
       table += if speed > 0 and speed < 4
         $.trim """
-          <td data-speed="#{speed}" data-direction="turnleft">#{@makeManeuverIcon 'turnleft'}</td>
-          <td data-speed="#{speed}" data-direction="bankleft">#{@makeManeuverIcon 'bankleft'}</td>
+          <td data-speed="#{speed}" data-direction="turnleft">#{exportObj.ManeuverGrid.makeManeuverIcon 'turnleft'}</td>
+          <td data-speed="#{speed}" data-direction="bankleft">#{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft'}</td>
         """
       else
         "<td>&nbsp;</td><td>&nbsp;</td>"
 
       table += if speed > 0
-        $.trim """<td data-speed="#{speed}" data-direction="straight">#{@makeManeuverIcon 'straight'}</td>"""
+        $.trim """<td data-speed="#{speed}" data-direction="straight">#{exportObj.ManeuverGrid.makeManeuverIcon 'straight'}</td>"""
       else
-        $.trim """<td data-direction="stop">#{@makeManeuverIcon 'stop'}</td>"""
+        $.trim """<td data-direction="stop">#{exportObj.ManeuverGrid.makeManeuverIcon 'stop'}</td>"""
 
       table += if speed > 0 and speed < 4
         $.trim """
-          <td data-speed="#{speed}" data-direction="bankright">#{@makeManeuverIcon 'bankright'}</td>
-          <td data-speed="#{speed}" data-direction="turnright">#{@makeManeuverIcon 'turnright'}</td>
+          <td data-speed="#{speed}" data-direction="bankright">#{exportObj.ManeuverGrid.makeManeuverIcon 'bankright'}</td>
+          <td data-speed="#{speed}" data-direction="turnright">#{exportObj.ManeuverGrid.makeManeuverIcon 'turnright'}</td>
         """
       else
         "<td>&nbsp;</td><td>&nbsp;</td>"
 
       table += if speed > 0
-        $.trim """<td data-speed="#{speed}" data-direction="koiogran">#{@makeManeuverIcon 'kturn'}</td>"""
+        $.trim """<td data-speed="#{speed}" data-direction="koiogran">#{exportObj.ManeuverGrid.makeManeuverIcon 'kturn'}</td>"""
       else
         "<td>&nbsp;</td>"
 
@@ -442,46 +433,46 @@ class exportObj.ManeuverGrid
 
       <tr class="nonmaneuver">
         <td>&nbsp;</td>
-        <td data-speed="2" data-direction="bankleft">DC #{@makeManeuverIcon 'bankleft'}</td>
+        <td data-speed="2" data-direction="bankleft">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft'}</td>
         <td>&nbsp;</td>
-        <td data-speed="2" data-direction="bankright">DC #{@makeManeuverIcon 'bankright'}</td>
-        <td>&nbsp;</td>
-      </tr>
-
-      <tr class="nonmaneuver">
-        <td data-speed="1" data-direction="turnleft">DD #{@makeManeuverIcon 'turnleft'}</td>
-        <td data-speed="1" data-direction="bankleft">B #{@makeManeuverIcon 'bankleft'}</td>
-        <td data-speed="1" data-direction="straight">B #{@makeManeuverIcon 'straight'}</td>
-        <td data-speed="1" data-direction="bankright">B #{@makeManeuverIcon 'bankright'}</td>
-        <td data-speed="1" data-direction="turnright">DD #{@makeManeuverIcon 'turnright'}</td>
-        <td>&nbsp;</td>
+        <td data-speed="2" data-direction="bankright">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright'}</td>
         <td>&nbsp;</td>
       </tr>
 
       <tr class="nonmaneuver">
-        <td data-direction="decloak-leftforward">DC #{@makeManeuverIcon 'bankright', {rotate: -90}}</td>
-        <td data-direction="barrelroll-leftforward">BR #{@makeManeuverIcon 'bankright', {rotate: -90}}</td>
+        <td data-speed="1" data-direction="turnleft">DD #{exportObj.ManeuverGrid.makeManeuverIcon 'turnleft'}</td>
+        <td data-speed="1" data-direction="bankleft">B #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft'}</td>
+        <td data-speed="1" data-direction="straight">B #{exportObj.ManeuverGrid.makeManeuverIcon 'straight'}</td>
+        <td data-speed="1" data-direction="bankright">B #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright'}</td>
+        <td data-speed="1" data-direction="turnright">DD #{exportObj.ManeuverGrid.makeManeuverIcon 'turnright'}</td>
         <td>&nbsp;</td>
-        <td data-direction="barrelroll-rightforward">BR #{@makeManeuverIcon 'bankleft', {rotate: 90}}</td>
-        <td data-direction="decloak-rightforward">DC #{@makeManeuverIcon 'bankleft', {rotate: 90}}</td>
-        <td>&nbsp;</td>
-      </tr>
-
-      <tr class="nonmaneuver">
-        <td data-direction="decloak-left">DC #{@makeManeuverIcon 'straight', {rotate: -90}}</td>
-        <td data-direction="barrelroll-left">BR #{@makeManeuverIcon 'straight', {rotate: -90}}</td>
-        <td>&nbsp;</td>
-        <td data-direction="barrelroll-right">BR #{@makeManeuverIcon 'straight', {rotate: 90}}</td>
-        <td data-direction="decloak-right">DC #{@makeManeuverIcon 'straight', {rotate: 90}}</td>
         <td>&nbsp;</td>
       </tr>
 
       <tr class="nonmaneuver">
-        <td data-speed="2" data-direction="decloak-leftbackward">DC #{@makeManeuverIcon 'bankleft', {rotate: -90}}</td>
-        <td data-speed="1" data-direction="barrelroll-leftbackward">BR #{@makeManeuverIcon 'bankleft', {rotate: -90}}</td>
+        <td data-direction="decloak-leftforward">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright', {rotate: -90}}</td>
+        <td data-direction="barrelroll-leftforward">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright', {rotate: -90}}</td>
         <td>&nbsp;</td>
-        <td data-speed="1" data-direction="barrelroll-rightbackward">BR #{@makeManeuverIcon 'bankright', {rotate: 90}}</td>
-        <td data-speed="2" data-direction="decloak-rightbackward">DC #{@makeManeuverIcon 'bankright', {rotate: 90}}</td>
+        <td data-direction="barrelroll-rightforward">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft', {rotate: 90}}</td>
+        <td data-direction="decloak-rightforward">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft', {rotate: 90}}</td>
+        <td>&nbsp;</td>
+      </tr>
+
+      <tr class="nonmaneuver">
+        <td data-direction="decloak-left">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'straight', {rotate: -90}}</td>
+        <td data-direction="barrelroll-left">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'straight', {rotate: -90}}</td>
+        <td>&nbsp;</td>
+        <td data-direction="barrelroll-right">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'straight', {rotate: 90}}</td>
+        <td data-direction="decloak-right">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'straight', {rotate: 90}}</td>
+        <td>&nbsp;</td>
+      </tr>
+
+      <tr class="nonmaneuver">
+        <td data-speed="2" data-direction="decloak-leftbackward">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft', {rotate: -90}}</td>
+        <td data-speed="1" data-direction="barrelroll-leftbackward">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft', {rotate: -90}}</td>
+        <td>&nbsp;</td>
+        <td data-speed="1" data-direction="barrelroll-rightbackward">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright', {rotate: 90}}</td>
+        <td data-speed="2" data-direction="decloak-rightbackward">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright', {rotate: 90}}</td>
         <td>&nbsp;</td>
       </tr>
     """

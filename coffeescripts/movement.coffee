@@ -17,6 +17,9 @@ class Movement
   getTemplateForBase: (base) ->
     throw new Error('Base class; implement me!')
 
+  toHTML: ->
+    throw new Error('Base class; implement me!')
+
 class exportObj.movements.Straight extends Movement
   # Movement when a straight template is placed on the front nubs
   constructor: (args) ->
@@ -33,6 +36,9 @@ class exportObj.movements.Straight extends Movement
       base: base
       where: 'front_nubs'
 
+  toHTML: ->
+    """<span>#{exportObj.ManeuverGrid.makeManeuverIcon 'straight'}&nbsp;#{@speed}</span>"""
+
 class exportObj.movements.Koiogran extends Movement
   # K-turn from the front nubs
   constructor: (args) ->
@@ -48,6 +54,9 @@ class exportObj.movements.Koiogran extends Movement
       direction: @direction
       base: base
       where: 'front_nubs'
+
+  toHTML: ->
+    """<span>#{exportObj.ManeuverGrid.makeManeuverIcon 'koiogran'}&nbsp;#{@speed}</span>"""
 
 class exportObj.movements.Bank extends Movement
   # Bank from the front nubs
@@ -85,6 +94,9 @@ class exportObj.movements.Bank extends Movement
       base: base
       where: 'front_nubs'
 
+  toHTML: ->
+    """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "bank#{@direction}"}&nbsp;#{@speed}</span>"""
+
 class exportObj.movements.Turn extends Movement
   # Turn from the front nubs
   constructor: (args) ->
@@ -120,6 +132,9 @@ class exportObj.movements.Turn extends Movement
       direction: @direction
       base: base
       where: 'front_nubs'
+
+  toHTML: ->
+    """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "turn#{@direction}"}&nbsp;#{@speed}</span>"""
 
 class exportObj.movements.BarrelRoll extends Movement
   # Template aligned on the sides
@@ -205,6 +220,23 @@ class exportObj.movements.BarrelRoll extends Movement
           direction: @direction
           distance_from_front: @start_distance_from_front
 
+      else
+        throw new Error("Invalid direction #{@direction}")
+
+  toHTML: ->
+    switch @direction
+      when 'left'
+        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "straight", {rotate: -90}}nbsp;#{@speed}</span>"""
+      when 'right'
+        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "straight", {rotate: 90}}nbsp;#{@speed}</span>"""
+      when 'leftforward'
+        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "bankright", {rotate: -90}}&nbsp;#{@speed}</span>"""
+      when 'leftbackward'
+        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "bankleft", {rotate: -90}}&nbsp;#{@speed}</span>"""
+      when 'rightforward'
+        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "bankleft", {rotate: 90}}&nbsp;#{@speed}</span>"""
+      when 'rightbackward'
+        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "bankright", {rotate: -90}}&nbsp;#{@speed}</span>"""
       else
         throw new Error("Invalid direction #{@direction}")
 

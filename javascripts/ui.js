@@ -63,10 +63,10 @@
       });
       this.shipnameinput = $(this.panel.find('.shipname'));
       this.islargecheckbox = $(this.panel.find('.isLarge'));
-      this.shiplist = $(this.panel.find('.shiplist'));
+      this.shiplist_element = $(this.panel.find('.shiplist'));
       this.addshipbtn = $(this.panel.find('.addship'));
       this.addshipbtn.click(function(e) {
-        var btn, li, ship;
+        var ship;
         e.preventDefault();
         ship = new Ship({
           stage: stage,
@@ -83,22 +83,7 @@
         });
         ship.draw();
         _this.ships.push(ship);
-        li = $(document.createElement('li'));
-        li.addClass('shipbutton');
-        btn = $(document.createElement('BUTTON'));
-        btn.data('ship', ship);
-        ship.button = btn;
-        btn.text(ship.name !== "" ? ship.name : "Unnamed Ship");
-        btn.addClass('btn btn-block');
-        (function(ship) {
-          return btn.click(function(e) {
-            e.preventDefault();
-            return $(exportObj).trigger('xwm:shipSelected', ship);
-          });
-        })(ship);
-        li.append(btn);
-        _this.shiplist.append(li);
-        ship.list_element = li;
+        _this.shiplist_element.append(ship.list_element);
         return $(exportObj).trigger('xwm:shipSelected', ship);
       });
       this.panel.find('.lock-template').click(function(e) {
@@ -146,8 +131,10 @@
             });
             _this.selected_ship.moveToTop();
             _this.selected_ship.draw();
-            _this.selected_ship.button.addClass('btn-primary');
-            return _this.headingslider.slider('value', _this.selected_ship.layer.rotation());
+            _this.selected_ship.select_ship_button.addClass('btn-primary');
+            _this.headingslider.slider('value', _this.selected_ship.layer.rotation());
+            _this.panel.find('.turnlist').text('');
+            return _this.panel.find('.turnlist').append(_this.selected_ship.turnlist_element);
           }
         }
       }).on('xwm:shipRotated', function(e, heading_deg) {
@@ -423,7 +410,7 @@
       this.setupHandlers();
     }
 
-    ManeuverGrid.prototype.makeManeuverIcon = function(template, args) {
+    ManeuverGrid.makeManeuverIcon = function(template, args) {
       var color, linePath, outlineColor, rotate, svg, transform, trianglePath, _ref, _ref1;
       if (args == null) {
         args = {};
@@ -459,8 +446,13 @@
             trianglePath = "M120,100 V40 L170,70 Z";
             break;
           case 'kturn':
+          case 'koiogran':
+          case 'uturn':
             linePath = "M50,180 L50,100 C50,10 140,10 140,100 L140,120";
             trianglePath = "M170,120 H110 L140,180 Z";
+            break;
+          default:
+            throw new Error("Invalid movement icon " + template);
         }
         svg = $.trim("<path d='" + trianglePath + "' fill='" + color + "' stroke-width='5' stroke='" + outlineColor + "' " + transform + "/>\n<path stroke-width='25' fill='none' stroke='" + outlineColor + "' d='" + linePath + "' />\n<path stroke-width='15' fill='none' stroke='" + color + "' d='" + linePath + "' />");
       }
@@ -475,34 +467,34 @@
       table = '<table class="maneuvergrid">';
       for (speed = _i = 5; _i >= 0; speed = --_i) {
         table += "<tr class=\"speed-" + speed + "\">";
-        table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"turnleft\">" + (this.makeManeuverIcon('turnleft')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"bankleft\">" + (this.makeManeuverIcon('bankleft')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
-        table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"straight\">" + (this.makeManeuverIcon('straight')) + "</td>") : $.trim("<td data-direction=\"stop\">" + (this.makeManeuverIcon('stop')) + "</td>");
-        table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"bankright\">" + (this.makeManeuverIcon('bankright')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"turnright\">" + (this.makeManeuverIcon('turnright')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
-        table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"koiogran\">" + (this.makeManeuverIcon('kturn')) + "</td>") : "<td>&nbsp;</td>";
+        table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"turnleft\">" + (exportObj.ManeuverGrid.makeManeuverIcon('turnleft')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"bankleft\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
+        table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"straight\">" + (exportObj.ManeuverGrid.makeManeuverIcon('straight')) + "</td>") : $.trim("<td data-direction=\"stop\">" + (exportObj.ManeuverGrid.makeManeuverIcon('stop')) + "</td>");
+        table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"bankright\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"turnright\">" + (exportObj.ManeuverGrid.makeManeuverIcon('turnright')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
+        table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"koiogran\">" + (exportObj.ManeuverGrid.makeManeuverIcon('kturn')) + "</td>") : "<td>&nbsp;</td>";
       }
-      table += $.trim("<tr class=\"nonmaneuver\">\n  <td>&nbsp;</td>\n  <td data-speed=\"2\" data-direction=\"bankleft\">DC " + (this.makeManeuverIcon('bankleft')) + "</td>\n  <td>&nbsp;</td>\n  <td data-speed=\"2\" data-direction=\"bankright\">DC " + (this.makeManeuverIcon('bankright')) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-speed=\"1\" data-direction=\"turnleft\">DD " + (this.makeManeuverIcon('turnleft')) + "</td>\n  <td data-speed=\"1\" data-direction=\"bankleft\">B " + (this.makeManeuverIcon('bankleft')) + "</td>\n  <td data-speed=\"1\" data-direction=\"straight\">B " + (this.makeManeuverIcon('straight')) + "</td>\n  <td data-speed=\"1\" data-direction=\"bankright\">B " + (this.makeManeuverIcon('bankright')) + "</td>\n  <td data-speed=\"1\" data-direction=\"turnright\">DD " + (this.makeManeuverIcon('turnright')) + "</td>\n  <td>&nbsp;</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-direction=\"decloak-leftforward\">DC " + (this.makeManeuverIcon('bankright', {
+      table += $.trim("<tr class=\"nonmaneuver\">\n  <td>&nbsp;</td>\n  <td data-speed=\"2\" data-direction=\"bankleft\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>\n  <td>&nbsp;</td>\n  <td data-speed=\"2\" data-direction=\"bankright\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-speed=\"1\" data-direction=\"turnleft\">DD " + (exportObj.ManeuverGrid.makeManeuverIcon('turnleft')) + "</td>\n  <td data-speed=\"1\" data-direction=\"bankleft\">B " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>\n  <td data-speed=\"1\" data-direction=\"straight\">B " + (exportObj.ManeuverGrid.makeManeuverIcon('straight')) + "</td>\n  <td data-speed=\"1\" data-direction=\"bankright\">B " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n  <td data-speed=\"1\" data-direction=\"turnright\">DD " + (exportObj.ManeuverGrid.makeManeuverIcon('turnright')) + "</td>\n  <td>&nbsp;</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-direction=\"decloak-leftforward\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
         rotate: -90
-      })) + "</td>\n  <td data-direction=\"barrelroll-leftforward\">BR " + (this.makeManeuverIcon('bankright', {
+      })) + "</td>\n  <td data-direction=\"barrelroll-leftforward\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
         rotate: -90
-      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-rightforward\">BR " + (this.makeManeuverIcon('bankleft', {
+      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-rightforward\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
         rotate: 90
-      })) + "</td>\n  <td data-direction=\"decloak-rightforward\">DC " + (this.makeManeuverIcon('bankleft', {
+      })) + "</td>\n  <td data-direction=\"decloak-rightforward\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
         rotate: 90
-      })) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-direction=\"decloak-left\">DC " + (this.makeManeuverIcon('straight', {
+      })) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-direction=\"decloak-left\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
         rotate: -90
-      })) + "</td>\n  <td data-direction=\"barrelroll-left\">BR " + (this.makeManeuverIcon('straight', {
+      })) + "</td>\n  <td data-direction=\"barrelroll-left\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
         rotate: -90
-      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-right\">BR " + (this.makeManeuverIcon('straight', {
+      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-right\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
         rotate: 90
-      })) + "</td>\n  <td data-direction=\"decloak-right\">DC " + (this.makeManeuverIcon('straight', {
+      })) + "</td>\n  <td data-direction=\"decloak-right\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
         rotate: 90
-      })) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-speed=\"2\" data-direction=\"decloak-leftbackward\">DC " + (this.makeManeuverIcon('bankleft', {
+      })) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-speed=\"2\" data-direction=\"decloak-leftbackward\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
         rotate: -90
-      })) + "</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-leftbackward\">BR " + (this.makeManeuverIcon('bankleft', {
+      })) + "</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-leftbackward\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
         rotate: -90
-      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-rightbackward\">BR " + (this.makeManeuverIcon('bankright', {
+      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-rightbackward\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
         rotate: 90
-      })) + "</td>\n  <td data-speed=\"2\" data-direction=\"decloak-rightbackward\">DC " + (this.makeManeuverIcon('bankright', {
+      })) + "</td>\n  <td data-speed=\"2\" data-direction=\"decloak-rightbackward\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
         rotate: 90
       })) + "</td>\n  <td>&nbsp;</td>\n</tr>");
       table += "</table>";

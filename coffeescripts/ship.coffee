@@ -3,13 +3,27 @@ exportObj = exports ? this
 class exportObj.Ship
   constructor: (args) ->
     @stage = args.stage
-    @name = args.name
+    @name = $.trim(args.name ? "")
     @size = args.size
     @start_position = new exportObj.Position
       center_x: args.x
       center_y: args.y
       heading_deg: args.heading_deg
-    @list_element = args.list_element
+
+    @name = "Unnamed Ship" if @name == ""
+
+    @list_element = $ document.createElement('li')
+    @list_element.addClass 'shipbutton'
+    @select_ship_button = $ document.createElement('BUTTON')
+    @select_ship_button.data 'ship', this
+    @select_ship_button.text @name
+    @select_ship_button.addClass 'btn btn-block'
+    @select_ship_button.click (e) =>
+      e.preventDefault()
+      $(exportObj).trigger 'xwm:shipSelected', this
+    @list_element.append @select_ship_button
+
+    @turnlist_element = $ document.createElement('ol')
 
     @draw_options = {}
 
@@ -37,6 +51,7 @@ class exportObj.Ship
 
   destroy: ->
     @list_element.remove() if @list_element?
+    @turnlist_element.remove() if @turnlist_element?
     @layer.destroyChildren() # dunno if destroy() does this, so just in case
     @layer.destroy()
 
@@ -46,6 +61,7 @@ class exportObj.Ship
       start_position: @turns[@turns.length - 1].final_position
     turn.execute()
     @turns.push turn
+    @turnlist_element.append turn.list_element
     turn
 
   setDrawOptions: (args) ->
@@ -77,13 +93,14 @@ class Turn
     @base_at_start = new exportObj.Base
       size: @ship.size
       position: args.start_position
-    @list_element = args.list_element
 
     @movements = []
     @bases = []
     @templates = []
 
     @final_position = null
+
+    @list_element = $ document.createElement('LI')
 
   destroy: ->
     @base_at_start = null
@@ -127,5 +144,17 @@ class Turn
 
   addMovement: (movement) ->
     @movements.push movement
-    # should I @execute() here?
+    @updateListElement()
     @execute()
+
+  removeMovement: (movement) ->
+    idx = @movements.indexOf movement
+    if idx != -1
+      @movements.splice idx, 0
+      @updateListElement()
+      execute()
+
+  updateListElement: ->
+    @list_element.text ''
+    for movement in @movements
+      @list_element.append movement.toHTML()
