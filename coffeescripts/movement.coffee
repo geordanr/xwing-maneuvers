@@ -10,7 +10,7 @@ class Movement
   getBaseTransformAndHeading: (base) ->
     throw new Error('Base class; implement me!')
 
-  getTemplate: ->
+  getTemplateForBase: (base) ->
     throw new Error('Base class; implement me!')
 
 class exportObj.movements.Straight extends Movement

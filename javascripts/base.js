@@ -87,7 +87,11 @@
     };
 
     Base.prototype.getRotation = function() {
-      return this.group.rotation();
+      if (this.group.getLayer() != null) {
+        return (this.group.getLayer().rotation() + this.group.rotation()) % 360;
+      } else {
+        return this.group.rotation();
+      }
     };
 
     Base.prototype.getFrontNubTransform = function() {

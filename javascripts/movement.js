@@ -18,7 +18,7 @@
       throw new Error('Base class; implement me!');
     };
 
-    Movement.prototype.getTemplate = function() {
+    Movement.prototype.getTemplateForBase = function(base) {
       throw new Error('Base class; implement me!');
     };
 

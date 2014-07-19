@@ -24,6 +24,7 @@
       turn.execute();
       this.turns = [turn];
       this.layer = new Kinetic.Layer({
+        name: "ship",
         draggable: true,
         x: this.start_position.x,
         y: this.start_position.y,

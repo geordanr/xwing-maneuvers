@@ -77,7 +77,11 @@ class exportObj.Base
       child.draw()
 
   getRotation: ->
-    @group.rotation()
+    # We may not have been assigned to a layer yet
+    if @group.getLayer()?
+      (@group.getLayer().rotation() + @group.rotation()) % 360
+    else
+      @group.rotation()
 
   getFrontNubTransform: ->
     @group.getAbsoluteTransform().copy().translate(@width / 2, 0)

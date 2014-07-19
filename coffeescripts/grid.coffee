@@ -1,7 +1,8 @@
 exportObj = exports ? this
 
 exportObj.drawGridOn = (stage) ->
-  gridlayer = new Kinetic.Layer()
+  gridlayer = new Kinetic.Layer
+    name: 'grid'
   for x in [0..stage.width()] by 25
     strokeWidth = if x % 100 == 0 then 3 else 1
     gridlayer.add new Kinetic.Line

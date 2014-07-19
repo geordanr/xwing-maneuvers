@@ -6,7 +6,9 @@
 
   exportObj.drawGridOn = function(stage) {
     var gridlayer, strokeWidth, x, y, _i, _j, _ref, _ref1;
-    gridlayer = new Kinetic.Layer();
+    gridlayer = new Kinetic.Layer({
+      name: 'grid'
+    });
     for (x = _i = 0, _ref = stage.width(); _i <= _ref; x = _i += 25) {
       strokeWidth = x % 100 === 0 ? 3 : 1;
       gridlayer.add(new Kinetic.Line({

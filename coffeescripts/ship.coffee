@@ -20,6 +20,7 @@ class exportObj.Ship
     @turns = [turn]
 
     @layer = new Kinetic.Layer
+      name: "ship"
       draggable: true
       x: @start_position.x
       y: @start_position.y

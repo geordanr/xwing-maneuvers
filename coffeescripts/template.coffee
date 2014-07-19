@@ -43,7 +43,7 @@ class Template
     @shape.y origin.y
     @shape.rotation origin_rotation_deg
 
-  draw: (layer, args) ->
+  draw: (layer, args={}) ->
     layer.add @shape
     @shape.stroke args.stroke ? 'black'
     @shape.strokeWidth args.strokeWidth ? 1

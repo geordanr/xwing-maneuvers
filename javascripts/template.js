@@ -59,6 +59,9 @@
 
     Template.prototype.draw = function(layer, args) {
       var _ref, _ref1, _ref2;
+      if (args == null) {
+        args = {};
+      }
       layer.add(this.shape);
       this.shape.stroke((_ref = args.stroke) != null ? _ref : 'black');
       this.shape.strokeWidth((_ref1 = args.strokeWidth) != null ? _ref1 : 1);

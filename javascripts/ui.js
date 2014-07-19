@@ -9,6 +9,11 @@
       var _this = this;
       this.stage = args.stage;
       this.panel = $(args.panel);
+      this.barrelroll_layer = new Kinetic.Layer({
+        name: 'barrelroll',
+        draggable: true
+      });
+      this.stage.add(this.barrelroll_layer);
       this.ships = [];
       this.selected_ship = null;
       this.colorpicker = $(args.colorpicker).ColorPicker({
@@ -128,9 +133,17 @@
           return _this.selected_ship.draw();
         }
       }).on('xwm:movementClicked', function(e, args) {
+        var movement, template, tmp_base, tmp_bases;
         if (_this.selected_ship == null) {
           return;
         }
+        tmp_bases = _this.selected_ship.turns[_this.selected_ship.turns.length - 1].bases;
+        tmp_base = tmp_bases[tmp_bases.length - 1];
+        _this.barrelroll_layer.x(0);
+        _this.barrelroll_layer.y(0);
+        _this.barrelroll_layer.clear();
+        _this.barrelroll_layer.destroyChildren();
+        _this.barrelroll_layer.moveToTop();
         switch (args.direction) {
           case 'stop':
             '';
@@ -170,44 +183,148 @@
             }));
             break;
           case 'barrelroll-left':
-            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
-              speed: args.speed
-            }));
-            break;
-          case 'barrelroll-right':
-            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
-              speed: args.speed
-            }));
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'left', 0));
+            movement = new exportObj.movements.BarrelRoll({
+              base: tmp_base,
+              where: 'left',
+              direction: 'left',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
             break;
           case 'barrelroll-leftforward':
-            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
-              speed: args.speed
-            }));
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'left', 0));
+            movement = new exportObj.movements.BarrelRoll({
+              base: tmp_base,
+              where: 'left',
+              direction: 'leftforward',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
             break;
           case 'barrelroll-leftbackward':
-            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
-              speed: args.speed
-            }));
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'left', 0));
+            movement = new exportObj.movements.BarrelRoll({
+              base: tmp_base,
+              where: 'left',
+              direction: 'leftbackward',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
+            break;
+          case 'barrelroll-right':
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'right', 0));
+            movement = new exportObj.movements.BarrelRoll({
+              base: tmp_base,
+              where: 'right',
+              direction: 'right',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
+            break;
+          case 'barrelroll-rightforward':
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'right', 0));
+            movement = new exportObj.movements.BarrelRoll({
+              base: tmp_base,
+              where: 'right',
+              direction: 'rightforward',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
+            break;
+          case 'barrelroll-rightbackward':
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'right', 0));
+            movement = new exportObj.movements.BarrelRoll({
+              base: tmp_base,
+              where: 'right',
+              direction: 'rightbackward',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
             break;
           case 'decloak-left':
-            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
-              speed: args.speed
-            }));
-            break;
-          case 'decloak-right':
-            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
-              speed: args.speed
-            }));
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'left', 0));
+            movement = new exportObj.movements.Decloak({
+              base: tmp_base,
+              where: 'left',
+              direction: 'left',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
             break;
           case 'decloak-leftforward':
-            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
-              speed: args.speed
-            }));
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'left', 0));
+            movement = new exportObj.movements.Decloak({
+              base: tmp_base,
+              where: 'left',
+              direction: 'leftforward',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
             break;
           case 'decloak-leftbackward':
-            _this.selected_ship.addTurn().addMovement(new exportObj.movements.Straight({
-              speed: args.speed
-            }));
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'left', 0));
+            movement = new exportObj.movements.Decloak({
+              base: tmp_base,
+              where: 'left',
+              direction: 'leftbackward',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
+            break;
+          case 'decloak-right':
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'right', 0));
+            movement = new exportObj.movements.Decloak({
+              base: tmp_base,
+              where: 'right',
+              direction: 'right',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
+            break;
+          case 'decloak-rightforward':
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'right', 0));
+            movement = new exportObj.movements.Decloak({
+              base: tmp_base,
+              where: 'right',
+              direction: 'rightforward',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
+            break;
+          case 'decloak-rightbackward':
+            _this.barrelroll_layer.dragBoundFunc(_this.makeBarrelRollDragBoundFunc(tmp_base, 'right', 0));
+            movement = new exportObj.movements.Decloak({
+              base: tmp_base,
+              where: 'right',
+              direction: 'rightbackward',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+            template = movement.getTemplateForBase(tmp_base);
+            template.draw(_this.barrelroll_layer);
             break;
           default:
             throw new Error("Bad direction " + args.direction);
@@ -215,6 +332,24 @@
         return _this.selected_ship.draw();
       });
     }
+
+    ManeuversUI.prototype.makeBarrelRollDragBoundFunc = function(base, direction, distance_from_front) {
+      return function(pos) {
+        var drag_pos, new_pos, xform;
+        pos.y = Math.min(pos.y, base.width - exportObj.TEMPLATE_WIDTH);
+        pos.y = Math.max(pos.y, 0);
+        xform = base.getBarrelRollTransform(direction, distance_from_front);
+        drag_pos = xform.point(pos);
+        new_pos = xform.point({
+          x: pos.x,
+          y: 0
+        });
+        return {
+          x: drag_pos.x - new_pos.x,
+          y: drag_pos.y - new_pos.y
+        };
+      };
+    };
 
     return ManeuversUI;
 
