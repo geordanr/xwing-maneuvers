@@ -98,6 +98,7 @@
         })(ship);
         li.append(btn);
         _this.shiplist.append(li);
+        ship.list_element = li;
         return $(exportObj).trigger('xwm:shipSelected', ship);
       });
       this.panel.find('.lock-template').click(function(e) {
@@ -107,6 +108,13 @@
       this.panel.find('.lock-base').click(function(e) {
         e.preventDefault();
         return $(exportObj).trigger('xwm:finalizeBarrelRoll');
+      });
+      this.panel.find('.delete-ship').click(function(e) {
+        e.preventDefault();
+        if (_this.selected_ship != null) {
+          _this.selected_ship.destroy();
+          return _this.selected_ship = null;
+        }
       });
       $(exportObj).on('xwm:drawOptionsChanged', function(e, options) {
         var ship, _i, _len, _ref, _results;

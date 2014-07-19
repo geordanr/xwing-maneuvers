@@ -83,6 +83,7 @@ class exportObj.ManeuversUI
           $(exportObj).trigger 'xwm:shipSelected', ship
       li.append btn
       @shiplist.append li
+      ship.list_element = li
 
       $(exportObj).trigger 'xwm:shipSelected', ship
 
@@ -94,6 +95,14 @@ class exportObj.ManeuversUI
     @panel.find('.lock-base').click (e) ->
       e.preventDefault()
       $(exportObj).trigger 'xwm:finalizeBarrelRoll'
+
+    @panel.find('.delete-ship').click (e) =>
+      e.preventDefault()
+      if @selected_ship?
+        @selected_ship.destroy()
+        @selected_ship = null
+
+    # events
 
     $(exportObj).on 'xwm:drawOptionsChanged', (e, options) =>
       for ship in @ships

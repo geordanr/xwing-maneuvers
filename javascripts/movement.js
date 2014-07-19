@@ -14,6 +14,10 @@
       this.direction = args.direction;
     }
 
+    Movement.prototype.destroy = function() {
+      return '';
+    };
+
     Movement.prototype.getBaseTransformAndHeading = function(base) {
       throw new Error('Base class; implement me!');
     };

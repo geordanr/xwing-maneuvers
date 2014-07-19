@@ -72,6 +72,11 @@
       }));
     }
 
+    Base.prototype.destroy = function() {
+      this.group.destroyChildren();
+      return this.group.destroy();
+    };
+
     Base.prototype.draw = function(layer, args) {
       var child, _i, _len, _ref, _ref1, _ref2, _ref3, _results;
       if (args == null) {

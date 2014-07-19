@@ -16,6 +16,7 @@
         center_y: args.y,
         heading_deg: args.heading_deg
       });
+      this.list_element = args.list_element;
       this.draw_options = {};
       turn = new Turn({
         ship: this,
@@ -39,6 +40,14 @@
       });
       this.stage.add(this.layer);
     }
+
+    Ship.prototype.destroy = function() {
+      if (this.list_element != null) {
+        this.list_element.remove();
+      }
+      this.layer.destroyChildren();
+      return this.layer.destroy();
+    };
 
     Ship.prototype.addTurn = function(args) {
       var turn;
@@ -97,11 +106,39 @@
         size: this.ship.size,
         position: args.start_position
       });
+      this.list_element = args.list_element;
       this.movements = [];
       this.bases = [];
       this.templates = [];
       this.final_position = null;
     }
+
+    Turn.prototype.destroy = function() {
+      var base, idx, movement, template, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      this.base_at_start = null;
+      _ref = this.bases;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        base = _ref[_i];
+        base.destroy();
+      }
+      _ref1 = this.templates;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        template = _ref1[_j];
+        template.destroy();
+      }
+      _ref2 = this.movements;
+      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+        movement = _ref2[_k];
+        movement.destroy();
+      }
+      if (this.list_element != null) {
+        this.list_element.remove();
+      }
+      idx = this.ship.turns.indexOf(this);
+      if (idx !== -1) {
+        return this.ship.turns.splice(idx, 0);
+      }
+    };
 
     Turn.prototype.execute = function() {
       var cur_base, movement, new_base, _i, _len, _ref;

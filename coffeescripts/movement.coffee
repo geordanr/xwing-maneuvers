@@ -7,6 +7,10 @@ class Movement
     @speed = args.speed
     @direction = args.direction
 
+  destroy: ->
+    # not much to do
+    ''
+
   getBaseTransformAndHeading: (base) ->
     throw new Error('Base class; implement me!')
 

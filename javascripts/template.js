@@ -57,6 +57,11 @@
       this.shape.rotation(origin_rotation_deg);
     }
 
+    Template.prototype.destroy = function() {
+      this.base.destroy();
+      return this.shape.destroy();
+    };
+
     Template.prototype.draw = function(layer, args) {
       var _ref, _ref1, _ref2;
       if (args == null) {

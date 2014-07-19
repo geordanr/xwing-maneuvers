@@ -69,6 +69,10 @@ class exportObj.Base
       width: 1
       height: 2
 
+  destroy: ->
+    @group.destroyChildren()
+    @group.destroy()
+
   draw: (layer, args={}) ->
     layer.add @group
     for child in @group.children

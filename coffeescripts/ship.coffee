@@ -9,6 +9,7 @@ class exportObj.Ship
       center_x: args.x
       center_y: args.y
       heading_deg: args.heading_deg
+    @list_element = args.list_element
 
     @draw_options = {}
 
@@ -33,6 +34,11 @@ class exportObj.Ship
     .on 'click', (e) =>
       $(exportObj).trigger 'xwm:shipSelected', this
     @stage.add @layer
+
+  destroy: ->
+    @list_element.remove() if @list_element?
+    @layer.destroyChildren() # dunno if destroy() does this, so just in case
+    @layer.destroy()
 
   addTurn: (args) ->
     turn = new Turn
@@ -71,12 +77,26 @@ class Turn
     @base_at_start = new exportObj.Base
       size: @ship.size
       position: args.start_position
+    @list_element = args.list_element
 
     @movements = []
     @bases = []
     @templates = []
 
     @final_position = null
+
+  destroy: ->
+    @base_at_start = null
+    for base in @bases
+      base.destroy()
+    for template in @templates
+      template.destroy()
+    for movement in @movements
+      movement.destroy()
+    @list_element.remove() if @list_element?
+    idx = @ship.turns.indexOf this
+    if idx != -1
+      @ship.turns.splice idx, 0
 
   execute: ->
     # Creates bases and templates, but does not draw them.

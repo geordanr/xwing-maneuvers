@@ -43,6 +43,10 @@ class Template
     @shape.y origin.y
     @shape.rotation origin_rotation_deg
 
+  destroy: ->
+    @base.destroy()
+    @shape.destroy()
+
   draw: (layer, args={}) ->
     layer.add @shape
     @shape.stroke args.stroke ? 'black'

@@ -52,6 +52,7 @@ html
     .container-fluid
       .row
         .col-sm-8.col-xs-12#stage Canvas support is required
+
         .col-sm-4.col-xs-12.ui-panel
           .row
             .col-xs-12.colorpickerholder
@@ -64,7 +65,9 @@ html
                 | Large Base
             .col-xs-3
               button.btn.btn-primary.addship Add Ship
+
           hr
+
           .row
             .col-xs-6
               ul.shiplist.list-unstyled
@@ -79,5 +82,16 @@ html
                 .col-xs-12.maneuvers
               .row
                 .col-xs-12
-                  button.btn.lock-template Lock Barrel Roll
-                  button.btn.lock-base Lock Base
+                  button.btn.btn-primary.btn-block.lock-template Lock Barrel Roll
+                  button.btn.btn-primary.btn-block.lock-base Lock Base
+              .row
+                .col-xs-12.btn-group
+                  button.btn.add-turn Previous Turn
+                  button.btn.add-turn Next Turn
+              .row
+                .col-xs-12.btn-group
+                  button.btn.btn-danger.add-turn Remove Turn
+                  button.btn.btn-primary.add-turn Add Turn
+              .row
+                .col-xs-12
+                  button.btn.btn-danger.btn-block.delete-ship Remove Ship
