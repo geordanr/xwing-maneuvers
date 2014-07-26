@@ -6,6 +6,7 @@ class Movement
   constructor: (args) ->
     @speed = args.speed
     @direction = args.direction
+    @element = $.parseHTML @toHTML()
 
   destroy: ->
     # not much to do
@@ -37,7 +38,7 @@ class exportObj.movements.Straight extends Movement
       where: 'front_nubs'
 
   toHTML: ->
-    """<span>#{exportObj.ManeuverGrid.makeManeuverIcon 'straight'}&nbsp;#{@speed}</span>"""
+    """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon 'straight'}&nbsp;#{@speed}</span>"""
 
 class exportObj.movements.Koiogran extends Movement
   # K-turn from the front nubs
@@ -56,7 +57,7 @@ class exportObj.movements.Koiogran extends Movement
       where: 'front_nubs'
 
   toHTML: ->
-    """<span>#{exportObj.ManeuverGrid.makeManeuverIcon 'koiogran'}&nbsp;#{@speed}</span>"""
+    """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon 'koiogran'}&nbsp;#{@speed}</span>"""
 
 class exportObj.movements.Bank extends Movement
   # Bank from the front nubs
@@ -95,7 +96,7 @@ class exportObj.movements.Bank extends Movement
       where: 'front_nubs'
 
   toHTML: ->
-    """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "bank#{@direction}"}&nbsp;#{@speed}</span>"""
+    """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "bank#{@direction}"}&nbsp;#{@speed}</span>"""
 
 class exportObj.movements.Turn extends Movement
   # Turn from the front nubs
@@ -134,7 +135,7 @@ class exportObj.movements.Turn extends Movement
       where: 'front_nubs'
 
   toHTML: ->
-    """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "turn#{@direction}"}&nbsp;#{@speed}</span>"""
+    """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "turn#{@direction}"}&nbsp;#{@speed}</span>"""
 
 class exportObj.movements.BarrelRoll extends Movement
   # Template aligned on the sides
@@ -226,17 +227,17 @@ class exportObj.movements.BarrelRoll extends Movement
   toHTML: ->
     switch @direction
       when 'left'
-        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "straight", {rotate: -90}}nbsp;#{@speed}</span>"""
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "straight", {rotate: -90}}&nbsp;#{@speed}</span>"""
       when 'right'
-        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "straight", {rotate: 90}}nbsp;#{@speed}</span>"""
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "straight", {rotate: 90}}&nbsp;#{@speed}</span>"""
       when 'leftforward'
-        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "bankright", {rotate: -90}}&nbsp;#{@speed}</span>"""
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "bankright", {rotate: -90}}&nbsp;#{@speed}</span>"""
       when 'leftbackward'
-        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "bankleft", {rotate: -90}}&nbsp;#{@speed}</span>"""
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "bankleft", {rotate: -90}}&nbsp;#{@speed}</span>"""
       when 'rightforward'
-        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "bankleft", {rotate: 90}}&nbsp;#{@speed}</span>"""
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "bankleft", {rotate: 90}}&nbsp;#{@speed}</span>"""
       when 'rightbackward'
-        """<span>#{exportObj.ManeuverGrid.makeManeuverIcon "bankright", {rotate: -90}}&nbsp;#{@speed}</span>"""
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "bankright", {rotate: -90}}&nbsp;#{@speed}</span>"""
       else
         throw new Error("Invalid direction #{@direction}")
 

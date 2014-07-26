@@ -24,9 +24,11 @@ html
     script(src="javascripts/template.js")
     script(src="javascripts/movement.js")
     script(src="javascripts/ship.js")
+    script(src="javascripts/ui.js")
+    script(src="javascripts/maneuvergrid.js")
+
     script(src="javascripts/demo.js")
     script(src="javascripts/grid.js")
-    script(src="javascripts/ui.js")
 
     script(defer="defer")
       :coffee
@@ -70,7 +72,7 @@ html
 
           .row
             .col-xs-6
-              ul.list-unstyled.shiplist
+              .list-group.shiplist
             .col-xs-6.ship-controls
               .row
                 .col-xs-6 Start Heading
@@ -96,4 +98,4 @@ html
                 .col-xs-12
                   button.btn.btn-danger.btn-block.delete-ship Remove Ship
               .row
-                .col-xs-12.turnlist
+                .col-xs-12.list-group.turnlist

@@ -19,18 +19,18 @@
       if (this.name === "") {
         this.name = "Unnamed Ship";
       }
-      this.list_element = $(document.createElement('li'));
-      this.list_element.addClass('shipbutton');
-      this.select_ship_button = $(document.createElement('BUTTON'));
-      this.select_ship_button.data('ship', this);
-      this.select_ship_button.text(this.name);
-      this.select_ship_button.addClass('btn btn-block');
-      this.select_ship_button.click(function(e) {
+      this.selected_turn = null;
+      this.shiplist_element = $(document.createElement('A'));
+      this.shiplist_element.addClass('list-group-item');
+      this.shiplist_element.data('ship', this);
+      this.shiplist_element.text(this.name);
+      this.shiplist_element.click(function(e) {
         e.preventDefault();
         return $(exportObj).trigger('xwm:shipSelected', _this);
       });
-      this.list_element.append(this.select_ship_button);
-      this.turnlist_element = $(document.createElement('ol'));
+      this.turnlist_element = $(document.createElement('DIV'));
+      this.turnlist_element.addClass('list-group');
+      this.turnlist_element.hide();
       this.draw_options = {};
       turn = new Turn({
         ship: this,
@@ -53,14 +53,22 @@
         return $(exportObj).trigger('xwm:shipSelected', _this);
       });
       this.stage.add(this.layer);
+      $(exportObj).on('xwm:shipSelected', function(e, ship) {
+        return _this.turnlist_element.toggle(ship === _this);
+      });
     }
 
+    Ship.prototype.select = function() {
+      return this.shiplist_element.addClass('active');
+    };
+
+    Ship.prototype.deselect = function() {
+      return this.shiplist_element.removeClass('active');
+    };
+
     Ship.prototype.destroy = function() {
-      if (this.list_element != null) {
-        this.list_element.remove();
-      }
-      if (this.turnlist_element != null) {
-        this.turnlist_element.remove();
+      if (this.shiplist_element != null) {
+        this.shiplist_element.remove();
       }
       this.layer.destroyChildren();
       return this.layer.destroy();
@@ -113,12 +121,25 @@
       return this.layer.moveToTop();
     };
 
+    Ship.prototype.selectTurn = function(turn) {
+      if (turn !== this.selected_turn) {
+        if (this.selected_turn != null) {
+          this.selected_turn.deselect();
+        }
+        this.selected_turn = turn;
+        if (this.selected_turn != null) {
+          return this.selected_turn.select();
+        }
+      }
+    };
+
     return Ship;
 
   })();
 
   Turn = (function() {
     function Turn(args) {
+      var _this = this;
       this.ship = args.ship;
       this.base_at_start = new exportObj.Base({
         size: this.ship.size,
@@ -128,7 +149,15 @@
       this.bases = [];
       this.templates = [];
       this.final_position = null;
-      this.list_element = $(document.createElement('LI'));
+      this.list_element = $(document.createElement('A'));
+      this.list_element.addClass('list-group-item');
+      this.list_element.click(function(e) {
+        e.preventDefault();
+        return $(exportObj).trigger('xwm:turnSelected', _this);
+      });
+      $(exportObj).on('xwm:turnSelected', function(e, turn) {
+        return _this.list_element.toggleClass('active', turn === _this);
+      });
     }
 
     Turn.prototype.destroy = function() {
@@ -209,7 +238,7 @@
 
     Turn.prototype.addMovement = function(movement) {
       this.movements.push(movement);
-      this.updateListElement();
+      this.list_element.append(movement.element);
       return this.execute();
     };
 
@@ -217,21 +246,18 @@
       var idx;
       idx = this.movements.indexOf(movement);
       if (idx !== -1) {
-        this.movements.splice(idx, 0);
-        this.updateListElement();
+        movement = this.movements.splice(idx, 0);
+        movement.element.remove();
         return execute();
       }
     };
 
-    Turn.prototype.updateListElement = function() {
-      var movement, _i, _len, _ref;
-      this.list_element.text('');
-      _ref = this.movements;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        movement = _ref[_i];
-        this.list_element.append(movement.toHTML());
-      }
-      return console.log("turn list element is now " + (this.list_element.html()));
+    Turn.prototype.select = function() {
+      return this.list_element.addClass('active');
+    };
+
+    Turn.prototype.deselect = function() {
+      return this.list_element.removeClass('active');
     };
 
     return Turn;

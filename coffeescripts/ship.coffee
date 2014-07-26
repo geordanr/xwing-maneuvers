@@ -12,18 +12,19 @@ class exportObj.Ship
 
     @name = "Unnamed Ship" if @name == ""
 
-    @list_element = $ document.createElement('li')
-    @list_element.addClass 'shipbutton'
-    @select_ship_button = $ document.createElement('BUTTON')
-    @select_ship_button.data 'ship', this
-    @select_ship_button.text @name
-    @select_ship_button.addClass 'btn btn-block'
-    @select_ship_button.click (e) =>
+    @selected_turn = null
+
+    @shiplist_element = $ document.createElement('A')
+    @shiplist_element.addClass 'list-group-item'
+    @shiplist_element.data 'ship', this
+    @shiplist_element.text @name
+    @shiplist_element.click (e) =>
       e.preventDefault()
       $(exportObj).trigger 'xwm:shipSelected', this
-    @list_element.append @select_ship_button
 
-    @turnlist_element = $ document.createElement('ol')
+    @turnlist_element = $ document.createElement('DIV')
+    @turnlist_element.addClass 'list-group'
+    @turnlist_element.hide()
 
     @draw_options = {}
 
@@ -49,9 +50,17 @@ class exportObj.Ship
       $(exportObj).trigger 'xwm:shipSelected', this
     @stage.add @layer
 
+    $(exportObj).on 'xwm:shipSelected', (e, ship) =>
+      @turnlist_element.toggle(ship == this)
+
+  select: ->
+    @shiplist_element.addClass 'active'
+
+  deselect: ->
+    @shiplist_element.removeClass 'active'
+
   destroy: ->
-    @list_element.remove() if @list_element?
-    @turnlist_element.remove() if @turnlist_element?
+    @shiplist_element.remove() if @shiplist_element?
     @layer.destroyChildren() # dunno if destroy() does this, so just in case
     @layer.destroy()
 
@@ -87,6 +96,13 @@ class exportObj.Ship
   moveToTop: ->
     @layer.moveToTop()
 
+  selectTurn: (turn) ->
+    if turn != @selected_turn
+      @selected_turn.deselect() if @selected_turn?
+
+      @selected_turn = turn
+      @selected_turn.select() if @selected_turn?
+
 class Turn
   constructor: (args) ->
     @ship = args.ship
@@ -99,8 +115,14 @@ class Turn
     @templates = []
 
     @final_position = null
+    @list_element = $ document.createElement('A')
+    @list_element.addClass 'list-group-item'
+    @list_element.click (e) =>
+      e.preventDefault()
+      $(exportObj).trigger 'xwm:turnSelected', this
 
-    @list_element = $ document.createElement('LI')
+    $(exportObj).on 'xwm:turnSelected', (e, turn) =>
+      @list_element.toggleClass('active', turn == this)
 
   destroy: ->
     @base_at_start = null
@@ -144,17 +166,18 @@ class Turn
 
   addMovement: (movement) ->
     @movements.push movement
-    @updateListElement()
+    @list_element.append movement.element
     @execute()
 
   removeMovement: (movement) ->
     idx = @movements.indexOf movement
     if idx != -1
-      @movements.splice idx, 0
-      @updateListElement()
+      movement = @movements.splice idx, 0
+      movement.element.remove()
       execute()
 
-  updateListElement: ->
-    @list_element.text ''
-    for movement in @movements
-      @list_element.append movement.toHTML()
+  select: ->
+    @list_element.addClass 'active'
+
+  deselect: ->
+    @list_element.removeClass 'active'

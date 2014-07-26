@@ -12,6 +12,7 @@
     function Movement(args) {
       this.speed = args.speed;
       this.direction = args.direction;
+      this.element = $.parseHTML(this.toHTML());
     }
 
     Movement.prototype.destroy = function() {
@@ -58,7 +59,7 @@
     };
 
     Straight.prototype.toHTML = function() {
-      return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon('straight')) + "&nbsp;" + this.speed + "</span>";
+      return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon('straight')) + "&nbsp;" + this.speed + "</span>";
     };
 
     return Straight;
@@ -89,7 +90,7 @@
     };
 
     Koiogran.prototype.toHTML = function() {
-      return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon('koiogran')) + "&nbsp;" + this.speed + "</span>";
+      return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon('koiogran')) + "&nbsp;" + this.speed + "</span>";
     };
 
     return Koiogran;
@@ -135,7 +136,7 @@
     };
 
     Bank.prototype.toHTML = function() {
-      return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("bank" + this.direction)) + "&nbsp;" + this.speed + "</span>";
+      return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("bank" + this.direction)) + "&nbsp;" + this.speed + "</span>";
     };
 
     return Bank;
@@ -181,7 +182,7 @@
     };
 
     Turn.prototype.toHTML = function() {
-      return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("turn" + this.direction)) + "&nbsp;" + this.speed + "</span>";
+      return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("turn" + this.direction)) + "&nbsp;" + this.speed + "</span>";
     };
 
     return Turn;
@@ -277,27 +278,27 @@
     BarrelRoll.prototype.toHTML = function() {
       switch (this.direction) {
         case 'left':
-          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("straight", {
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("straight", {
             rotate: -90
-          })) + "nbsp;" + this.speed + "</span>";
+          })) + "&nbsp;" + this.speed + "</span>";
         case 'right':
-          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("straight", {
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("straight", {
             rotate: 90
-          })) + "nbsp;" + this.speed + "</span>";
+          })) + "&nbsp;" + this.speed + "</span>";
         case 'leftforward':
-          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("bankright", {
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("bankright", {
             rotate: -90
           })) + "&nbsp;" + this.speed + "</span>";
         case 'leftbackward':
-          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("bankleft", {
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("bankleft", {
             rotate: -90
           })) + "&nbsp;" + this.speed + "</span>";
         case 'rightforward':
-          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("bankleft", {
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("bankleft", {
             rotate: 90
           })) + "&nbsp;" + this.speed + "</span>";
         case 'rightbackward':
-          return "<span>" + (exportObj.ManeuverGrid.makeManeuverIcon("bankleft", {
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("bankright", {
             rotate: -90
           })) + "&nbsp;" + this.speed + "</span>";
         default:

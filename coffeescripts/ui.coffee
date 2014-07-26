@@ -69,7 +69,8 @@ class exportObj.ManeuversUI
       ship.draw()
 
       @ships.push ship
-      @shiplist_element.append ship.list_element
+      @shiplist_element.append ship.shiplist_element
+      @panel.find('.turnlist').append ship.turnlist_element
 
       $(exportObj).trigger 'xwm:shipSelected', ship
 
@@ -101,7 +102,7 @@ class exportObj.ManeuversUI
             kinetic_draw_args:
               fill: ''
           @selected_ship.draw()
-          @selected_ship.button.removeClass 'btn-primary'
+          @selected_ship.deselect()
 
         @selected_ship = ship
 
@@ -111,167 +112,14 @@ class exportObj.ManeuversUI
               fill: '#ddd'
           @selected_ship.moveToTop()
           @selected_ship.draw()
-          @selected_ship.select_ship_button.addClass 'btn-primary'
+          @selected_ship.select()
           @headingslider.slider 'value', @selected_ship.layer.rotation()
-          @panel.find('.turnlist').text ''
-          @panel.find('.turnlist').append @selected_ship.turnlist_element
     .on 'xwm:shipRotated', (e, heading_deg) =>
       if @selected_ship? and @selected_ship.layer.rotation != @headingslider.slider('value')
         @selected_ship.layer.rotation @headingslider.slider('value')
         @selected_ship.draw()
     .on 'xwm:movementClicked', (e, args) =>
-      return unless @selected_ship?
-
-      @reset_barrelroll_data()
-      # TODO: figure out what base we are modifying
-      # for now, use final position
-      tmp_bases = @selected_ship.turns[@selected_ship.turns.length-1].bases
-      @barrelroll_start_base = tmp_bases[tmp_bases.length-1]
-
-      switch args.direction
-        when 'stop'
-          # do nothing? should mark it somehow
-          ''
-        when 'straight'
-          @selected_ship.addTurn().addMovement new exportObj.movements.Straight {speed: args.speed}
-        when 'bankleft'
-          @selected_ship.addTurn().addMovement new exportObj.movements.Bank
-            speed: args.speed
-            direction: 'left'
-        when 'bankright'
-          @selected_ship.addTurn().addMovement new exportObj.movements.Bank
-            speed: args.speed
-            direction: 'right'
-        when 'turnleft'
-          @selected_ship.addTurn().addMovement new exportObj.movements.Turn
-            speed: args.speed
-            direction: 'left'
-        when 'turnright'
-          @selected_ship.addTurn().addMovement new exportObj.movements.Turn
-            speed: args.speed
-            direction: 'right'
-        when 'koiogran'
-          @selected_ship.addTurn().addMovement new exportObj.movements.Koiogran {speed: args.speed}
-        when 'barrelroll-left'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
-          @barrelroll_movement = new exportObj.movements.BarrelRoll
-            base: @barrelroll_start_base
-            where: 'left'
-            direction: 'left'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        when 'barrelroll-leftforward'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
-          @barrelroll_movement = new exportObj.movements.BarrelRoll
-            base: @barrelroll_start_base
-            where: 'left'
-            direction: 'leftforward'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        when 'barrelroll-leftbackward'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
-          @barrelroll_movement = new exportObj.movements.BarrelRoll
-            base: @barrelroll_start_base
-            where: 'left'
-            direction: 'leftbackward'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        when 'barrelroll-right'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
-          @barrelroll_movement = new exportObj.movements.BarrelRoll
-            base: @barrelroll_start_base
-            where: 'right'
-            direction: 'right'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        when 'barrelroll-rightforward'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
-          @barrelroll_movement = new exportObj.movements.BarrelRoll
-            base: @barrelroll_start_base
-            where: 'right'
-            direction: 'rightforward'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        when 'barrelroll-rightbackward'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
-          @barrelroll_movement = new exportObj.movements.BarrelRoll
-            base: @barrelroll_start_base
-            where: 'right'
-            direction: 'rightbackward'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        when 'decloak-left'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
-          @barrelroll_movement = new exportObj.movements.Decloak
-            base: @barrelroll_start_base
-            where: 'left'
-            direction: 'left'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        when 'decloak-leftforward'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
-          @barrelroll_movement = new exportObj.movements.Decloak
-            base: @barrelroll_start_base
-            where: 'left'
-            direction: 'leftforward'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        when 'decloak-leftbackward'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
-          @barrelroll_movement = new exportObj.movements.Decloak
-            base: @barrelroll_start_base
-            where: 'left'
-            direction: 'leftbackward'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        when 'decloak-right'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
-          @barrelroll_movement = new exportObj.movements.Decloak
-            base: @barrelroll_start_base
-            where: 'right'
-            direction: 'right'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        when 'decloak-rightforward'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
-          @barrelroll_movement = new exportObj.movements.Decloak
-            base: @barrelroll_start_base
-            where: 'right'
-            direction: 'rightforward'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        when 'decloak-rightbackward'
-          @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
-          @barrelroll_movement = new exportObj.movements.Decloak
-            base: @barrelroll_start_base
-            where: 'right'
-            direction: 'rightbackward'
-            start_distance_from_front: 0
-            end_distance_from_front: 0
-
-        else
-          throw new Error("Bad direction #{args.direction}")
-
-      if @barrelroll_movement?
-        template = @barrelroll_movement.getTemplateForBase @barrelroll_start_base
-
-        template.draw @barrelroll_template_layer,
-          kinetic_draw_args:
-            fill: '#666'
-
-      @selected_ship.draw()
-
+      @addMovementToSelectedShipTurn args
     .on 'xwm:barrelRollTemplateOffsetChanged', (e, offset) =>
       @barrelroll_start_offset = offset
     .on 'xwm:barrelRollEndBaseOffsetChanged', (e, offset) =>
@@ -332,158 +180,155 @@ class exportObj.ManeuversUI
           y: drag_pos.y - new_pos.y
         }
 
-class exportObj.ManeuverGrid
-  constructor: (args) ->
-    @container = $ args.container
+  addMovementToSelectedShipTurn: (args) ->
+    return unless @selected_ship?
 
-    @makeManeuverGrid()
-    @setupHandlers()
+    @reset_barrelroll_data()
+    # TODO: figure out what base we are modifying
+    # for now, use final position
+    tmp_bases = @selected_ship.turns[@selected_ship.turns.length-1].bases
+    @barrelroll_start_base = tmp_bases[tmp_bases.length-1]
 
-  # Stolen and modified from hpanderson's SVG maneuvers for the squad builder
-  @makeManeuverIcon: (template, args={}) ->
-    color = args.color ? 'black'
-    rotate = args.rotate ? null
+    switch args.direction
+      when 'stop'
+        # do nothing? should mark it somehow
+        ''
+      when 'straight'
+        @selected_ship.addTurn().addMovement new exportObj.movements.Straight {speed: args.speed}
+      when 'bankleft'
+        @selected_ship.addTurn().addMovement new exportObj.movements.Bank
+          speed: args.speed
+          direction: 'left'
+      when 'bankright'
+        @selected_ship.addTurn().addMovement new exportObj.movements.Bank
+          speed: args.speed
+          direction: 'right'
+      when 'turnleft'
+        @selected_ship.addTurn().addMovement new exportObj.movements.Turn
+          speed: args.speed
+          direction: 'left'
+      when 'turnright'
+        @selected_ship.addTurn().addMovement new exportObj.movements.Turn
+          speed: args.speed
+          direction: 'right'
+      when 'koiogran'
+        @selected_ship.addTurn().addMovement new exportObj.movements.Koiogran {speed: args.speed}
+      when 'barrelroll-left'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+        @barrelroll_movement = new exportObj.movements.BarrelRoll
+          base: @barrelroll_start_base
+          where: 'left'
+          direction: 'left'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-    if template == 'stop'
-      svg = """<rect x="50" y="50" width="100" height="100" style="fill:#{color}" />"""
-    else
-      outlineColor = "black"
+      when 'barrelroll-leftforward'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+        @barrelroll_movement = new exportObj.movements.BarrelRoll
+          base: @barrelroll_start_base
+          where: 'left'
+          direction: 'leftforward'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-      transform = ""
-      switch template
-        when 'turnleft'
-          # turn left
-          linePath = "M160,180 L160,70 80,70"
-          trianglePath = "M80,100 V40 L30,70 Z"
+      when 'barrelroll-leftbackward'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+        @barrelroll_movement = new exportObj.movements.BarrelRoll
+          base: @barrelroll_start_base
+          where: 'left'
+          direction: 'leftbackward'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-        when 'bankleft'
-          # bank left
-          linePath = "M150,180 S150,120 80,60"
-          trianglePath = "M80,100 V40 L30,70 Z"
-          transform = "transform='translate(-5 -15) rotate(45 70 90)' "
+      when 'barrelroll-right'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+        @barrelroll_movement = new exportObj.movements.BarrelRoll
+          base: @barrelroll_start_base
+          where: 'right'
+          direction: 'right'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-        when 'straight'
-          # straight
-          linePath = "M100,180 L100,100 100,80"
-          trianglePath = "M70,80 H130 L100,30 Z"
+      when 'barrelroll-rightforward'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+        @barrelroll_movement = new exportObj.movements.BarrelRoll
+          base: @barrelroll_start_base
+          where: 'right'
+          direction: 'rightforward'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-        when 'bankright'
-          # bank right
-          linePath = "M50,180 S50,120 120,60"
-          trianglePath = "M120,100 V40 L170,70 Z"
-          transform = "transform='translate(5 -15) rotate(-45 130 90)' "
+      when 'barrelroll-rightbackward'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+        @barrelroll_movement = new exportObj.movements.BarrelRoll
+          base: @barrelroll_start_base
+          where: 'right'
+          direction: 'rightbackward'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-        when 'turnright'
-          # turn right
-          linePath = "M40,180 L40,70 120,70"
-          trianglePath = "M120,100 V40 L170,70 Z"
+      when 'decloak-left'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+        @barrelroll_movement = new exportObj.movements.Decloak
+          base: @barrelroll_start_base
+          where: 'left'
+          direction: 'left'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-        when 'kturn', 'koiogran', 'uturn'
-          # k-turn/u-turn
-          linePath = "M50,180 L50,100 C50,10 140,10 140,100 L140,120"
-          trianglePath = "M170,120 H110 L140,180 Z"
+      when 'decloak-leftforward'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+        @barrelroll_movement = new exportObj.movements.Decloak
+          base: @barrelroll_start_base
+          where: 'left'
+          direction: 'leftforward'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-        else
-          throw new Error("Invalid movement icon #{template}")
+      when 'decloak-leftbackward'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'left', 0)
+        @barrelroll_movement = new exportObj.movements.Decloak
+          base: @barrelroll_start_base
+          where: 'left'
+          direction: 'leftbackward'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-      svg = $.trim """
-        <path d='#{trianglePath}' fill='#{color}' stroke-width='5' stroke='#{outlineColor}' #{transform}/>
-        <path stroke-width='25' fill='none' stroke='#{outlineColor}' d='#{linePath}' />
-        <path stroke-width='15' fill='none' stroke='#{color}' d='#{linePath}' />
-      """
+      when 'decloak-right'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+        @barrelroll_movement = new exportObj.movements.Decloak
+          base: @barrelroll_start_base
+          where: 'right'
+          direction: 'right'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-    if rotate?
-      svg = $.trim """<g transform="rotate(#{parseInt rotate} 100 100)">#{svg}</g>"""
+      when 'decloak-rightforward'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+        @barrelroll_movement = new exportObj.movements.Decloak
+          base: @barrelroll_start_base
+          where: 'right'
+          direction: 'rightforward'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-    """<svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 200 200">#{svg}</svg>"""
+      when 'decloak-rightbackward'
+        @barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(@barrelroll_start_base, 'right', 0)
+        @barrelroll_movement = new exportObj.movements.Decloak
+          base: @barrelroll_start_base
+          where: 'right'
+          direction: 'rightbackward'
+          start_distance_from_front: 0
+          end_distance_from_front: 0
 
-  makeManeuverGrid: ->
-    # TODO - customize per ship
-    table = '<table class="maneuvergrid">'
-    for speed in [5..0]
-      table += """<tr class="speed-#{speed}">"""
-
-      table += if speed > 0 and speed < 4
-        $.trim """
-          <td data-speed="#{speed}" data-direction="turnleft">#{exportObj.ManeuverGrid.makeManeuverIcon 'turnleft'}</td>
-          <td data-speed="#{speed}" data-direction="bankleft">#{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft'}</td>
-        """
       else
-        "<td>&nbsp;</td><td>&nbsp;</td>"
+        throw new Error("Bad direction #{args.direction}")
 
-      table += if speed > 0
-        $.trim """<td data-speed="#{speed}" data-direction="straight">#{exportObj.ManeuverGrid.makeManeuverIcon 'straight'}</td>"""
-      else
-        $.trim """<td data-direction="stop">#{exportObj.ManeuverGrid.makeManeuverIcon 'stop'}</td>"""
+    if @barrelroll_movement?
+      template = @barrelroll_movement.getTemplateForBase @barrelroll_start_base
 
-      table += if speed > 0 and speed < 4
-        $.trim """
-          <td data-speed="#{speed}" data-direction="bankright">#{exportObj.ManeuverGrid.makeManeuverIcon 'bankright'}</td>
-          <td data-speed="#{speed}" data-direction="turnright">#{exportObj.ManeuverGrid.makeManeuverIcon 'turnright'}</td>
-        """
-      else
-        "<td>&nbsp;</td><td>&nbsp;</td>"
+      template.draw @barrelroll_template_layer,
+        kinetic_draw_args:
+          fill: '#666'
 
-      table += if speed > 0
-        $.trim """<td data-speed="#{speed}" data-direction="koiogran">#{exportObj.ManeuverGrid.makeManeuverIcon 'kturn'}</td>"""
-      else
-        "<td>&nbsp;</td>"
-
-    table += $.trim """
-
-      <tr class="nonmaneuver">
-        <td>&nbsp;</td>
-        <td data-speed="2" data-direction="bankleft">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft'}</td>
-        <td>&nbsp;</td>
-        <td data-speed="2" data-direction="bankright">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright'}</td>
-        <td>&nbsp;</td>
-      </tr>
-
-      <tr class="nonmaneuver">
-        <td data-speed="1" data-direction="turnleft">DD #{exportObj.ManeuverGrid.makeManeuverIcon 'turnleft'}</td>
-        <td data-speed="1" data-direction="bankleft">B #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft'}</td>
-        <td data-speed="1" data-direction="straight">B #{exportObj.ManeuverGrid.makeManeuverIcon 'straight'}</td>
-        <td data-speed="1" data-direction="bankright">B #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright'}</td>
-        <td data-speed="1" data-direction="turnright">DD #{exportObj.ManeuverGrid.makeManeuverIcon 'turnright'}</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-      </tr>
-
-      <tr class="nonmaneuver">
-        <td data-direction="decloak-leftforward">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright', {rotate: -90}}</td>
-        <td data-direction="barrelroll-leftforward">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright', {rotate: -90}}</td>
-        <td>&nbsp;</td>
-        <td data-direction="barrelroll-rightforward">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft', {rotate: 90}}</td>
-        <td data-direction="decloak-rightforward">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft', {rotate: 90}}</td>
-        <td>&nbsp;</td>
-      </tr>
-
-      <tr class="nonmaneuver">
-        <td data-direction="decloak-left">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'straight', {rotate: -90}}</td>
-        <td data-direction="barrelroll-left">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'straight', {rotate: -90}}</td>
-        <td>&nbsp;</td>
-        <td data-direction="barrelroll-right">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'straight', {rotate: 90}}</td>
-        <td data-direction="decloak-right">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'straight', {rotate: 90}}</td>
-        <td>&nbsp;</td>
-      </tr>
-
-      <tr class="nonmaneuver">
-        <td data-speed="2" data-direction="decloak-leftbackward">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft', {rotate: -90}}</td>
-        <td data-speed="1" data-direction="barrelroll-leftbackward">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft', {rotate: -90}}</td>
-        <td>&nbsp;</td>
-        <td data-speed="1" data-direction="barrelroll-rightbackward">BR #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright', {rotate: 90}}</td>
-        <td data-speed="2" data-direction="decloak-rightbackward">DC #{exportObj.ManeuverGrid.makeManeuverIcon 'bankright', {rotate: 90}}</td>
-        <td>&nbsp;</td>
-      </tr>
-    """
-
-    table += "</table>"
-
-    @container.append table
-
-  setupHandlers: ->
-    @container.find('td').click (e) ->
-      e.preventDefault()
-      $(exportObj).trigger 'xwm:movementClicked',
-        direction: $(e.delegateTarget).data 'direction'
-        speed: $(e.delegateTarget).data 'speed'
+    @selected_ship.draw()
