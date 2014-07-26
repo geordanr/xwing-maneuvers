@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "constants.js",
+  "sourceRoot": "..",
+  "sources": [
+    "coffeescripts/constants.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA;CAAA,KAAA,GAAA;;CAAA,CAAA,CAAY,CAAZ,KAAA;;CAAA,CAIA,CAA6B,MAApB,OAAT;;CAJA,CAKA,CAA6B,MAApB,OAAT;;CALA,CAOA,CAA2B,MAAlB,KAAT,EAA2B;;CAP3B,CASA,CAA8B,MAArB,QAAT;;CATA,CAgBA,CAA8B,MAArB,QAAT;CAhBA"
+}
