@@ -105,6 +105,10 @@ class exportObj.ManeuversUI
     @panel.find('.clone-ship').click (e) =>
       $(exportObj).trigger 'xwm:cloneShip', @selected_ship
 
+    @panel.find('.select-none').hide()
+    @panel.find('.select-none').click (e) ->
+      $(exportObj).trigger 'xwm:shipSelected', null
+
     $(exportObj).on 'xwm:drawOptionsChanged', (e, options) =>
       for ship in @ships
         ship.setDrawOptions options
@@ -129,6 +133,7 @@ class exportObj.ManeuversUI
           @selected_ship.select()
           @headingslider.slider 'value', @selected_ship.layer.rotation()
         @panel.find('.clone-ship').toggle @selected_ship?
+        @panel.find('.select-none').toggle @selected_ship?
     .on 'xwm:shipRotated', (e, heading_deg) =>
       if @selected_ship? and @selected_ship.layer.rotation != @headingslider.slider('value')
         @selected_ship.layer.rotation @headingslider.slider('value')
