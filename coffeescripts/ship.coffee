@@ -103,12 +103,18 @@ class exportObj.Ship
       @selected_turn = turn
       @selected_turn.select() if @selected_turn?
 
+  # resets base at start positions
+  executeTurns: ->
+    start_position = @turns[0].final_position
+    for turn, i in @turns
+      turn.setStartPosition start_position
+      turn.execute()
+      start_position = turn.final_position
+
 class Turn
   constructor: (args) ->
     @ship = args.ship
-    @base_at_start = new exportObj.Base
-      size: @ship.size
-      position: args.start_position
+    @setStartPosition args.start_position
 
     @movements = []
     @bases = []
@@ -117,12 +123,22 @@ class Turn
     @final_position = null
     @list_element = $ document.createElement('A')
     @list_element.addClass 'list-group-item'
+    @list_element.append $.trim """
+      <button type="button" class="close remove-turn"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+    """
     @list_element.click (e) =>
       e.preventDefault()
       $(exportObj).trigger 'xwm:turnSelected', this
+    @list_element.find('.remove-turn').click (e) =>
+      e.preventDefault()
+      $(exportObj).trigger 'xwm:removeTurn', this
 
     $(exportObj).on 'xwm:turnSelected', (e, turn) =>
       @list_element.toggleClass('active', turn == this)
+    .on 'xwm:removeTurn', (e, turn) =>
+      turn.destroy()
+      @ship.executeTurns()
+      @ship.draw()
 
   destroy: ->
     @base_at_start = null
@@ -135,11 +151,15 @@ class Turn
     @list_element.remove() if @list_element?
     idx = @ship.turns.indexOf this
     if idx != -1
-      @ship.turns.splice idx, 0
+      @ship.turns.splice idx, 1
 
   execute: ->
     # Creates bases and templates, but does not draw them.
+    for base in @bases
+      base.destroy()
     @bases = []
+    for template in @templates
+      template.destroy()
     @templates = []
     cur_base = @base_at_start
     for movement in @movements
@@ -172,7 +192,7 @@ class Turn
   removeMovement: (movement) ->
     idx = @movements.indexOf movement
     if idx != -1
-      movement = @movements.splice idx, 0
+      movement = @movements.splice idx, 1
       movement.element.remove()
       execute()
 
@@ -181,3 +201,8 @@ class Turn
 
   deselect: ->
     @list_element.removeClass 'active'
+
+  setStartPosition: (position) ->
+    @base_at_start = new exportObj.Base
+      size: @ship.size
+      position: position

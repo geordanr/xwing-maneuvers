@@ -133,6 +133,20 @@
       }
     };
 
+    Ship.prototype.executeTurns = function() {
+      var i, start_position, turn, _i, _len, _ref, _results;
+      start_position = this.turns[0].final_position;
+      _ref = this.turns;
+      _results = [];
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        turn = _ref[i];
+        turn.setStartPosition(start_position);
+        turn.execute();
+        _results.push(start_position = turn.final_position);
+      }
+      return _results;
+    };
+
     return Ship;
 
   })();
@@ -141,22 +155,28 @@
     function Turn(args) {
       var _this = this;
       this.ship = args.ship;
-      this.base_at_start = new exportObj.Base({
-        size: this.ship.size,
-        position: args.start_position
-      });
+      this.setStartPosition(args.start_position);
       this.movements = [];
       this.bases = [];
       this.templates = [];
       this.final_position = null;
       this.list_element = $(document.createElement('A'));
       this.list_element.addClass('list-group-item');
+      this.list_element.append($.trim("<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
       this.list_element.click(function(e) {
         e.preventDefault();
         return $(exportObj).trigger('xwm:turnSelected', _this);
       });
+      this.list_element.find('.remove-turn').click(function(e) {
+        e.preventDefault();
+        return $(exportObj).trigger('xwm:removeTurn', _this);
+      });
       $(exportObj).on('xwm:turnSelected', function(e, turn) {
         return _this.list_element.toggleClass('active', turn === _this);
+      }).on('xwm:removeTurn', function(e, turn) {
+        turn.destroy();
+        _this.ship.executeTurns();
+        return _this.ship.draw();
       });
     }
 
@@ -183,18 +203,28 @@
       }
       idx = this.ship.turns.indexOf(this);
       if (idx !== -1) {
-        return this.ship.turns.splice(idx, 0);
+        return this.ship.turns.splice(idx, 1);
       }
     };
 
     Turn.prototype.execute = function() {
-      var cur_base, movement, new_base, _i, _len, _ref;
+      var base, cur_base, movement, new_base, template, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      _ref = this.bases;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        base = _ref[_i];
+        base.destroy();
+      }
       this.bases = [];
+      _ref1 = this.templates;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        template = _ref1[_j];
+        template.destroy();
+      }
       this.templates = [];
       cur_base = this.base_at_start;
-      _ref = this.movements;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        movement = _ref[_i];
+      _ref2 = this.movements;
+      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+        movement = _ref2[_k];
         if (movement != null) {
           this.templates.push(movement.getTemplateForBase(cur_base));
           new_base = cur_base.newBaseFromMovement(movement);
@@ -246,7 +276,7 @@
       var idx;
       idx = this.movements.indexOf(movement);
       if (idx !== -1) {
-        movement = this.movements.splice(idx, 0);
+        movement = this.movements.splice(idx, 1);
         movement.element.remove();
         return execute();
       }
@@ -258,6 +288,13 @@
 
     Turn.prototype.deselect = function() {
       return this.list_element.removeClass('active');
+    };
+
+    Turn.prototype.setStartPosition = function(position) {
+      return this.base_at_start = new exportObj.Base({
+        size: this.ship.size,
+        position: position
+      });
     };
 
     return Turn;
