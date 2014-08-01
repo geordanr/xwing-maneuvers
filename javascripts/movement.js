@@ -16,7 +16,9 @@
     }
 
     Movement.prototype.clone = function() {
-      return $.extend({}, this, true);
+      $.extend({}, this, true);
+      this.element = $.parseHTML(this.toHTML());
+      return this;
     };
 
     Movement.prototype.destroy = function() {

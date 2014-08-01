@@ -117,6 +117,10 @@
       this.panel.find('.clone-ship').click(function(e) {
         return $(exportObj).trigger('xwm:cloneShip', _this.selected_ship);
       });
+      this.panel.find('.select-none').hide();
+      this.panel.find('.select-none').click(function(e) {
+        return $(exportObj).trigger('xwm:shipSelected', null);
+      });
       $(exportObj).on('xwm:drawOptionsChanged', function(e, options) {
         var ship, _i, _len, _ref, _results;
         _ref = _this.ships;
@@ -150,7 +154,8 @@
             _this.selected_ship.select();
             _this.headingslider.slider('value', _this.selected_ship.layer.rotation());
           }
-          return _this.panel.find('.clone-ship').toggle(_this.selected_ship != null);
+          _this.panel.find('.clone-ship').toggle(_this.selected_ship != null);
+          return _this.panel.find('.select-none').toggle(_this.selected_ship != null);
         }
       }).on('xwm:shipRotated', function(e, heading_deg) {
         if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation !== _this.headingslider.slider('value')) {
