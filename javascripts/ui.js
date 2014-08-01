@@ -146,7 +146,8 @@
       }).on('xwm:movementClicked', function(e, args) {
         _this.addMovementToSelectedShipTurn(args);
         if (args.direction.indexOf('barrelroll') !== -1 || args.direction.indexOf('decloak-left') !== -1 || args.direction.indexOf('decloak-right') !== -1) {
-          return _this.panel.find('.lock-template').show();
+          _this.panel.find('.lock-template').show();
+          return _this.panel.find('.maneuvers').hide();
         }
       }).on('xwm:barrelRollTemplateOffsetChanged', function(e, offset) {
         return _this.barrelroll_start_offset = offset;
@@ -163,6 +164,7 @@
         return _this.barrelroll_base_layer.dragBoundFunc(_this.makeBarrelRollBaseDragBoundFunc(0));
       }).on('xwm:finalizeBarrelRoll', function(e) {
         _this.panel.find('.lock-base').hide();
+        _this.panel.find('.maneuvers').show();
         _this.barrelroll_movement.end_distance_from_front = _this.barrelroll_end_offset;
         _this.selected_ship.addTurn().addMovement(_this.barrelroll_movement);
         _this.selected_ship.draw();

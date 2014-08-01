@@ -124,6 +124,7 @@ class exportObj.ManeuversUI
       @addMovementToSelectedShipTurn args
       if args.direction.indexOf('barrelroll') != -1 or args.direction.indexOf('decloak-left') != -1 or args.direction.indexOf('decloak-right') != -1
         @panel.find('.lock-template').show()
+        @panel.find('.maneuvers').hide()
     .on 'xwm:barrelRollTemplateOffsetChanged', (e, offset) =>
       @barrelroll_start_offset = offset
     .on 'xwm:barrelRollEndBaseOffsetChanged', (e, offset) =>
@@ -138,6 +139,7 @@ class exportObj.ManeuversUI
       @barrelroll_base_layer.dragBoundFunc @makeBarrelRollBaseDragBoundFunc(0)
     .on 'xwm:finalizeBarrelRoll', (e) =>
       @panel.find('.lock-base').hide()
+      @panel.find('.maneuvers').show()
       @barrelroll_movement.end_distance_from_front = @barrelroll_end_offset
       @selected_ship.addTurn().addMovement @barrelroll_movement
       @selected_ship.draw()
