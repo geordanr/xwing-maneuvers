@@ -92,23 +92,23 @@ html
           .row
             .col-xs-6
               .list-group.shiplist
-              button.btn.clone-ship Clone Selected Ship
-              button.btn.select-none Deselect Ship
+              button.btn.clone-ship.show-when-ship-selected Clone Selected Ship
+              button.btn.select-none.show-when-ship-selected Deselect Ship
             .col-xs-6.ship-controls
-              .row.hide-during-barrel-roll
+              .row.hide-during-barrel-roll.show-when-ship-selected
                 .col-xs-6 Start Heading
                 .col-xs-6
                   input.form-control.heading(value="0", type="number")
-              .row.hide-during-barrel-roll
+              .row.hide-during-barrel-roll.show-when-ship-selected
                 .col-xs-12.heading-slider
-              .row.hide-during-barrel-roll
+              .row.hide-during-barrel-roll.show-when-ship-selected
                 .col-xs-12.maneuvers
               .row
                 .col-xs-12
                   button.btn.btn-primary.btn-block.lock-template Lock Template
                   button.btn.btn-primary.btn-block.lock-base Lock Base
-              .row.hide-during-barrel-roll
+              .row.hide-during-barrel-roll.show-when-ship-selected
                 .col-xs-12.list-group.turnlist
-              .row.hide-during-barrel-roll
+              .row.hide-during-barrel-roll.show-when-ship-selected
                 .col-xs-12.btn-group
                   button.btn.btn-primary.add-turn Add Turn

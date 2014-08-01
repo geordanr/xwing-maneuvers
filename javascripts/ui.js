@@ -82,6 +82,7 @@
         ship.draw();
         return _this.addShip(ship);
       });
+      this.panel.find('.show-when-ship-selected').hide();
       this.panel.find('.lock-template').hide();
       this.panel.find('.lock-template').click(function(e) {
         e.preventDefault();
@@ -111,11 +112,9 @@
         e.preventDefault();
         return _this.stage.find('.grid').visible($(e.target).prop('checked'));
       });
-      this.panel.find('.clone-ship').hide();
       this.panel.find('.clone-ship').click(function(e) {
         return $(exportObj).trigger('xwm:cloneShip', _this.selected_ship);
       });
-      this.panel.find('.select-none').hide();
       this.panel.find('.select-none').click(function(e) {
         return $(exportObj).trigger('xwm:shipSelected', null);
       });
@@ -152,8 +151,7 @@
             _this.selected_ship.select();
             _this.headingslider.slider('value', _this.selected_ship.layer.rotation());
           }
-          _this.panel.find('.clone-ship').toggle(_this.selected_ship != null);
-          return _this.panel.find('.select-none').toggle(_this.selected_ship != null);
+          return _this.panel.find('.show-when-ship-selected').toggle(_this.selected_ship != null);
         }
       }).on('xwm:shipRotated', function(e, heading_deg) {
         if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation() !== heading_deg) {

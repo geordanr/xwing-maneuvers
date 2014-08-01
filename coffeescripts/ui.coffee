@@ -70,6 +70,8 @@ class exportObj.ManeuversUI
 
       @addShip ship
 
+    @panel.find('.show-when-ship-selected').hide()
+
     # events
 
     @panel.find('.lock-template').hide()
@@ -101,11 +103,9 @@ class exportObj.ManeuversUI
       e.preventDefault()
       @stage.find('.grid').visible $(e.target).prop('checked')
 
-    @panel.find('.clone-ship').hide()
     @panel.find('.clone-ship').click (e) =>
       $(exportObj).trigger 'xwm:cloneShip', @selected_ship
 
-    @panel.find('.select-none').hide()
     @panel.find('.select-none').click (e) ->
       $(exportObj).trigger 'xwm:shipSelected', null
 
@@ -132,8 +132,7 @@ class exportObj.ManeuversUI
           @selected_ship.draw()
           @selected_ship.select()
           @headingslider.slider 'value', @selected_ship.layer.rotation()
-        @panel.find('.clone-ship').toggle @selected_ship?
-        @panel.find('.select-none').toggle @selected_ship?
+        @panel.find('.show-when-ship-selected').toggle @selected_ship?
     .on 'xwm:shipRotated', (e, heading_deg) =>
       if @selected_ship? and @selected_ship.layer.rotation() != heading_deg
         @selected_ship.layer.rotation heading_deg
