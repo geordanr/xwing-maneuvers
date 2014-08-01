@@ -12,6 +12,8 @@ class Movement
 
   clone: ->
     $.extend {}, this, true
+    @element = $.parseHTML @toHTML()
+    this
 
   destroy: ->
     # not much to do
