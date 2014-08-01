@@ -3,6 +3,8 @@ exportObj = exports ? this
 exportObj.movements = {}
 
 class Movement
+  # Base class for an actual movement.
+
   constructor: (args) ->
     @speed = args.speed
     @direction = args.direction
@@ -13,12 +15,15 @@ class Movement
     ''
 
   getBaseTransformAndHeading: (base) ->
+    # Returns a transform and heading for the resulting final position of a base, given a starting base.
     throw new Error('Base class; implement me!')
 
   getTemplateForBase: (base) ->
+    # Returns an instance of a template, properly positioned for this movement.
     throw new Error('Base class; implement me!')
 
   toHTML: ->
+    # Returns an HTML representation (a container around SVG) of this movement.
     throw new Error('Base class; implement me!')
 
 class exportObj.movements.Straight extends Movement

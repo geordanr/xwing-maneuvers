@@ -103,8 +103,8 @@ class exportObj.Ship
       @selected_turn = turn
       @selected_turn.select() if @selected_turn?
 
-  # resets base at start positions
   executeTurns: ->
+    # Re-executes all the turns.  Call this after the turn list has been modified.
     start_position = @turns[0].final_position
     for turn, i in @turns
       turn.setStartPosition start_position
@@ -112,6 +112,12 @@ class exportObj.Ship
       start_position = turn.final_position
 
 class Turn
+  # Represents an in-game turn.
+  #
+  # A turn can have an arbitrary number of movements.  In reality, a turn should only have
+  # one actual movement, as well as opportunities for decloaking before movement, as well as
+  # other movements (granted by Advanced Sensors or other pilot abilities) before and after
+  # the actual movement.  These are not modeled or enforced here.
   constructor: (args) ->
     @ship = args.ship
     @setStartPosition args.start_position
