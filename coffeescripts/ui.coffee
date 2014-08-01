@@ -40,7 +40,6 @@ class exportObj.ManeuversUI
       min: 0
       max: 359
       change: (e, ui) =>
-        console.log "change heading #{@headingslider.slider 'value'}, input value is #{@headinginput.val()}"
         if parseInt(@headinginput.val()) != @headingslider.slider('value')
           @headinginput.val(@headingslider.slider 'value')
           @headinginput.change()
@@ -136,7 +135,6 @@ class exportObj.ManeuversUI
         @panel.find('.clone-ship').toggle @selected_ship?
         @panel.find('.select-none').toggle @selected_ship?
     .on 'xwm:shipRotated', (e, heading_deg) =>
-      console.log "request to rotate to #{heading_deg} from #{@selected_ship?.layer?.rotation()}"
       if @selected_ship? and @selected_ship.layer.rotation() != heading_deg
         @selected_ship.layer.rotation heading_deg
         @selected_ship.draw()

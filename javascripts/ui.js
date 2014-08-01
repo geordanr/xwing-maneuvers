@@ -47,7 +47,6 @@
         min: 0,
         max: 359,
         change: function(e, ui) {
-          console.log("change heading " + (_this.headingslider.slider('value')) + ", input value is " + (_this.headinginput.val()));
           if (parseInt(_this.headinginput.val()) !== _this.headingslider.slider('value')) {
             _this.headinginput.val(_this.headingslider.slider('value'));
             return _this.headinginput.change();
@@ -157,8 +156,6 @@
           return _this.panel.find('.select-none').toggle(_this.selected_ship != null);
         }
       }).on('xwm:shipRotated', function(e, heading_deg) {
-        var _ref, _ref1;
-        console.log("request to rotate to " + heading_deg + " from " + ((_ref = _this.selected_ship) != null ? (_ref1 = _ref.layer) != null ? _ref1.rotation() : void 0 : void 0));
         if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation() !== heading_deg) {
           _this.selected_ship.layer.rotation(heading_deg);
           _this.selected_ship.draw();
