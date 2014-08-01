@@ -28,6 +28,11 @@
         e.preventDefault();
         return $(exportObj).trigger('xwm:shipSelected', _this);
       });
+      this.shiplist_element.append($.trim("<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
+      this.shiplist_element.find('.close').click(function(e) {
+        e.preventDefault();
+        return _this.destroy();
+      });
       this.turnlist_element = $(document.createElement('DIV'));
       this.turnlist_element.addClass('list-group');
       this.turnlist_element.hide();
@@ -134,17 +139,42 @@
     };
 
     Ship.prototype.executeTurns = function() {
-      var i, start_position, turn, _i, _len, _ref, _results;
+      var i, start_position, turn, _i, _len, _ref;
       start_position = this.turns[0].final_position;
       _ref = this.turns;
-      _results = [];
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         turn = _ref[i];
         turn.setStartPosition(start_position);
         turn.execute();
-        _results.push(start_position = turn.final_position);
+        start_position = turn.final_position;
       }
-      return _results;
+      return this;
+    };
+
+    Ship.prototype.clone = function() {
+      var i, movement, newship, newturn, start_position, turn, _i, _j, _len, _len1, _ref, _ref1;
+      start_position = this.turns[0].final_position;
+      newship = new exportObj.Ship({
+        stage: this.stage,
+        name: "Copy of " + this.name,
+        size: this.size,
+        x: start_position.center_x,
+        y: start_position.center_y,
+        heading_deg: start_position.heading_deg
+      });
+      _ref = this.turns;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        turn = _ref[i];
+        if (i > 0) {
+          newturn = newship.addTurn();
+          _ref1 = turn.movements;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            movement = _ref1[_j];
+            newturn.addMovement(movement.clone());
+          }
+        }
+      }
+      return newship;
     };
 
     return Ship;

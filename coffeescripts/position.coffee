@@ -9,3 +9,6 @@ class exportObj.Position
     # convenience
     @x = @center_x
     @y = @center_y
+
+  clone: ->
+    $.extend {}, this, true

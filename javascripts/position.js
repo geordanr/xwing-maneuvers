@@ -13,6 +13,10 @@
       this.y = this.center_y;
     }
 
+    Position.prototype.clone = function() {
+      return $.extend({}, this, true);
+    };
+
     return Position;
 
   })();

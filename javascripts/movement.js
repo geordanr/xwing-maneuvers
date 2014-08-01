@@ -15,6 +15,10 @@
       this.element = $.parseHTML(this.toHTML());
     }
 
+    Movement.prototype.clone = function() {
+      return $.extend({}, this, true);
+    };
+
     Movement.prototype.destroy = function() {
       return '';
     };

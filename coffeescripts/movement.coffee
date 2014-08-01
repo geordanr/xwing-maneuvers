@@ -10,6 +10,9 @@ class Movement
     @direction = args.direction
     @element = $.parseHTML @toHTML()
 
+  clone: ->
+    $.extend {}, this, true
+
   destroy: ->
     # not much to do
     ''

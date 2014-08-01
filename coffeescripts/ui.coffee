@@ -68,11 +68,9 @@ class exportObj.ManeuversUI
           stroke: @selectedColor
       ship.draw()
 
-      @ships.push ship
-      @shiplist_element.append ship.shiplist_element
-      @panel.find('.turnlist').append ship.turnlist_element
+      @addShip ship
 
-      $(exportObj).trigger 'xwm:shipSelected', ship
+    # events
 
     @panel.find('.lock-template').hide()
     @panel.find('.lock-template').click (e) ->
@@ -103,7 +101,9 @@ class exportObj.ManeuversUI
       e.preventDefault()
       @stage.find('.grid').visible $(e.target).prop('checked')
 
-    # events
+    @panel.find('.clone-ship').hide()
+    @panel.find('.clone-ship').click (e) =>
+      $(exportObj).trigger 'xwm:cloneShip', @selected_ship
 
     $(exportObj).on 'xwm:drawOptionsChanged', (e, options) =>
       for ship in @ships
@@ -128,6 +128,7 @@ class exportObj.ManeuversUI
           @selected_ship.draw()
           @selected_ship.select()
           @headingslider.slider 'value', @selected_ship.layer.rotation()
+        @panel.find('.clone-ship').toggle @selected_ship?
     .on 'xwm:shipRotated', (e, heading_deg) =>
       if @selected_ship? and @selected_ship.layer.rotation != @headingslider.slider('value')
         @selected_ship.layer.rotation @headingslider.slider('value')
@@ -156,6 +157,8 @@ class exportObj.ManeuversUI
       @selected_ship.addTurn().addMovement @barrelroll_movement
       @selected_ship.draw()
       @reset_barrelroll_data()
+    .on 'xwm:cloneShip', (e, ship) =>
+      @addShip ship.clone()
 
   reset_barrelroll_data: ->
     for layer in [@barrelroll_base_layer, @barrelroll_template_layer]
@@ -371,3 +374,10 @@ class exportObj.ManeuversUI
           fill: '#666'
 
     @selected_ship.draw()
+
+  addShip: (ship) ->
+    @ships.push ship
+    @shiplist_element.append ship.shiplist_element
+    @panel.find('.turnlist').append ship.turnlist_element
+
+    $(exportObj).trigger 'xwm:shipSelected', ship

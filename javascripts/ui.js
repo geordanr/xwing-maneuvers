@@ -82,10 +82,7 @@
           }
         });
         ship.draw();
-        _this.ships.push(ship);
-        _this.shiplist_element.append(ship.shiplist_element);
-        _this.panel.find('.turnlist').append(ship.turnlist_element);
-        return $(exportObj).trigger('xwm:shipSelected', ship);
+        return _this.addShip(ship);
       });
       this.panel.find('.lock-template').hide();
       this.panel.find('.lock-template').click(function(e) {
@@ -115,6 +112,10 @@
       this.panel.find('.toggle-grid').change(function(e) {
         e.preventDefault();
         return _this.stage.find('.grid').visible($(e.target).prop('checked'));
+      });
+      this.panel.find('.clone-ship').hide();
+      this.panel.find('.clone-ship').click(function(e) {
+        return $(exportObj).trigger('xwm:cloneShip', _this.selected_ship);
       });
       $(exportObj).on('xwm:drawOptionsChanged', function(e, options) {
         var ship, _i, _len, _ref, _results;
@@ -147,8 +148,9 @@
             _this.selected_ship.moveToTop();
             _this.selected_ship.draw();
             _this.selected_ship.select();
-            return _this.headingslider.slider('value', _this.selected_ship.layer.rotation());
+            _this.headingslider.slider('value', _this.selected_ship.layer.rotation());
           }
+          return _this.panel.find('.clone-ship').toggle(_this.selected_ship != null);
         }
       }).on('xwm:shipRotated', function(e, heading_deg) {
         if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation !== _this.headingslider.slider('value')) {
@@ -181,6 +183,8 @@
         _this.selected_ship.addTurn().addMovement(_this.barrelroll_movement);
         _this.selected_ship.draw();
         return _this.reset_barrelroll_data();
+      }).on('xwm:cloneShip', function(e, ship) {
+        return _this.addShip(ship.clone());
       });
     }
 
@@ -447,6 +451,13 @@
         });
       }
       return this.selected_ship.draw();
+    };
+
+    ManeuversUI.prototype.addShip = function(ship) {
+      this.ships.push(ship);
+      this.shiplist_element.append(ship.shiplist_element);
+      this.panel.find('.turnlist').append(ship.turnlist_element);
+      return $(exportObj).trigger('xwm:shipSelected', ship);
     };
 
     return ManeuversUI;

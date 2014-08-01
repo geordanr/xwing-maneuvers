@@ -21,6 +21,12 @@ class exportObj.Ship
     @shiplist_element.click (e) =>
       e.preventDefault()
       $(exportObj).trigger 'xwm:shipSelected', this
+    @shiplist_element.append $.trim """
+      <button type="button" class="close remove-turn"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+    """
+    @shiplist_element.find('.close').click (e) =>
+      e.preventDefault()
+      @destroy()
 
     @turnlist_element = $ document.createElement('DIV')
     @turnlist_element.addClass 'list-group'
@@ -110,6 +116,25 @@ class exportObj.Ship
       turn.setStartPosition start_position
       turn.execute()
       start_position = turn.final_position
+    this
+
+  clone: ->
+    start_position = @turns[0].final_position
+    newship = new exportObj.Ship
+      stage: @stage
+      name: "Copy of #{@name}"
+      size: @size
+      x: start_position.center_x
+      y: start_position.center_y
+      heading_deg: start_position.heading_deg
+
+    for turn, i in @turns
+      if i > 0
+        newturn = newship.addTurn()
+        for movement in turn.movements
+          newturn.addMovement movement.clone()
+
+    newship
 
 class Turn
   # Represents an in-game turn.
