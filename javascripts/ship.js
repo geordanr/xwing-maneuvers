@@ -94,7 +94,7 @@
     Ship.prototype.setDrawOptions = function(args) {
       var _ref, _ref1, _ref2;
       this.draw_options.turns = (_ref = args.turns) != null ? _ref : null;
-      this.draw_options.kinetic_draw_args = (_ref1 = args.kinetic_draw_args) != null ? _ref1 : null;
+      this.draw_options.kinetic_draw_args = $.extend(this.draw_options.kinetic_draw_args, (_ref1 = args.kinetic_draw_args) != null ? _ref1 : {});
       return this.draw_options.final_positions_only = Boolean((_ref2 = args.final_positions_only) != null ? _ref2 : false);
     };
 

@@ -85,7 +85,7 @@ class exportObj.Ship
     @draw_options.turns = args.turns ? null
 
     # e.g. {stroke: 'blue', strokeWidth: 3}
-    @draw_options.kinetic_draw_args = args.kinetic_draw_args ? null
+    @draw_options.kinetic_draw_args = $.extend(@draw_options.kinetic_draw_args, args.kinetic_draw_args ? {})
 
     # If set, draws only the final position for each turn
     @draw_options.final_positions_only = Boolean(args.final_positions_only ? false)

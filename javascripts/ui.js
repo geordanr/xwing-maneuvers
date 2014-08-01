@@ -27,7 +27,7 @@
         flat: true,
         color: '000000',
         onChange: function(hsv, hex, rgb) {
-          return _this.selectedColor = hex;
+          return _this.selectedColor = "#" + hex;
         }
       });
       this.headinginput = $(this.panel.find('.heading'));

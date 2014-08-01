@@ -26,7 +26,7 @@ class exportObj.ManeuversUI
       flat: true
       color: '000000'
       onChange: (hsv, hex, rgb) =>
-        @selectedColor = hex
+        @selectedColor = "##{hex}"
 
     # The input element shall be the source of truth.
     @headinginput = $ @panel.find('.heading')
