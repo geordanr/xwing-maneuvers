@@ -91,6 +91,18 @@ class exportObj.ManeuversUI
         @selected_ship.destroy()
         @selected_ship = null
 
+    @panel.find('.toggle-deploy').change (e) =>
+      e.preventDefault()
+      @stage.find('.deployareas').visible $(e.target).prop('checked')
+
+    @panel.find('.toggle-asteroid-area').change (e) =>
+      e.preventDefault()
+      @stage.find('.asteroidarea').visible $(e.target).prop('checked')
+
+    @panel.find('.toggle-grid').change (e) =>
+      e.preventDefault()
+      @stage.find('.grid').visible $(e.target).prop('checked')
+
     # events
 
     $(exportObj).on 'xwm:drawOptionsChanged', (e, options) =>

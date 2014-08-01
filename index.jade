@@ -26,6 +26,8 @@ html
     script(src="javascripts/ship.js")
     script(src="javascripts/ui.js")
     script(src="javascripts/maneuvergrid.js")
+    script(src="javascripts/deployarea.js")
+    script(src="javascripts/asteroidarea.js")
 
     script(src="javascripts/demo.js")
     script(src="javascripts/grid.js")
@@ -38,6 +40,10 @@ html
             container: 'stage'
             width: 914
             height: 914
+
+          drawDeployAreasOn stage
+
+          drawAsteroidAreaOn stage
 
           drawGridOn stage
 
@@ -56,6 +62,19 @@ html
         .col-sm-8.col-xs-12#stage Canvas support is required
 
         .col-sm-4.col-xs-12.ui-panel
+          .row
+            .col-xs-4.checkbox
+              label
+                input.toggle-deploy(type="checkbox", checked="checked")
+                | Show Deploy Areas
+            .col-xs-4.checkbox
+              label
+                input.toggle-asteroid-area(type="checkbox", checked="checked")
+                | Show Asteroid Area
+            .col-xs-4.checkbox
+              label
+                input.toggle-grid(type="checkbox", checked="checked")
+                | Show Grid
           .row
             .col-xs-12.colorpickerholder
           .row

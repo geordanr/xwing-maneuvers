@@ -104,6 +104,18 @@
           return _this.selected_ship = null;
         }
       });
+      this.panel.find('.toggle-deploy').change(function(e) {
+        e.preventDefault();
+        return _this.stage.find('.deployareas').visible($(e.target).prop('checked'));
+      });
+      this.panel.find('.toggle-asteroid-area').change(function(e) {
+        e.preventDefault();
+        return _this.stage.find('.asteroidarea').visible($(e.target).prop('checked'));
+      });
+      this.panel.find('.toggle-grid').change(function(e) {
+        e.preventDefault();
+        return _this.stage.find('.grid').visible($(e.target).prop('checked'));
+      });
       $(exportObj).on('xwm:drawOptionsChanged', function(e, options) {
         var ship, _i, _len, _ref, _results;
         _ref = _this.ships;
