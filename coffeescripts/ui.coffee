@@ -28,25 +28,26 @@ class exportObj.ManeuversUI
       onChange: (hsv, hex, rgb) =>
         @selectedColor = hex
 
+    # The input element shall be the source of truth.
     @headinginput = $ @panel.find('.heading')
     @headinginput.change (e) =>
       @headinginput.val(0) if @headinginput.val() < 0
       @headinginput.val(359) if @headinginput.val() > 359
       if @headinginput.val() != @headingslider.slider('value')
         @headingslider.slider('value', parseInt @headinginput.val())
-        if @selected_ship? and @selected_ship.layer.rotation() != @headingslider.slider('value')
-          $(exportObj).trigger 'xwm:shipRotated', @headingslider.slider('value')
+        $(exportObj).trigger 'xwm:shipRotated', parseInt @headinginput.val()
     @headingslider = @panel.find('.heading-slider').slider
       min: 0
       max: 359
       change: (e, ui) =>
+        console.log "change heading #{@headingslider.slider 'value'}, input value is #{@headinginput.val()}"
         if parseInt(@headinginput.val()) != @headingslider.slider('value')
           @headinginput.val(@headingslider.slider 'value')
-          $(exportObj).trigger 'xwm:shipRotated', @headingslider.slider('value')
+          @headinginput.change()
       slide: (e, ui) =>
-        if @headinginput.val() != ui.value
+        if parseInt(@headinginput.val()) != ui.value
           @headinginput.val(ui.value)
-          $(exportObj).trigger 'xwm:shipRotated', @headingslider.slider('value')
+          @headinginput.change()
 
     @shipnameinput = $ @panel.find('.shipname')
     @islargecheckbox = $ @panel.find('.isLarge')
@@ -135,9 +136,13 @@ class exportObj.ManeuversUI
         @panel.find('.clone-ship').toggle @selected_ship?
         @panel.find('.select-none').toggle @selected_ship?
     .on 'xwm:shipRotated', (e, heading_deg) =>
-      if @selected_ship? and @selected_ship.layer.rotation != @headingslider.slider('value')
-        @selected_ship.layer.rotation @headingslider.slider('value')
+      console.log "request to rotate to #{heading_deg} from #{@selected_ship?.layer?.rotation()}"
+      if @selected_ship? and @selected_ship.layer.rotation() != heading_deg
+        @selected_ship.layer.rotation heading_deg
         @selected_ship.draw()
+        if heading_deg != parseInt(@headinginput.val())
+          @headinginput.val heading_deg
+          @headingslider.slider 'value', heading_deg
     .on 'xwm:movementClicked', (e, args) =>
       @addMovementToSelectedShipTurn args
       if args.direction.indexOf('barrelroll') != -1 or args.direction.indexOf('decloak-left') != -1 or args.direction.indexOf('decloak-right') != -1

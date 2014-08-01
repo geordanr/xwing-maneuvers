@@ -40,24 +40,23 @@
         }
         if (_this.headinginput.val() !== _this.headingslider.slider('value')) {
           _this.headingslider.slider('value', parseInt(_this.headinginput.val()));
-          if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation() !== _this.headingslider.slider('value')) {
-            return $(exportObj).trigger('xwm:shipRotated', _this.headingslider.slider('value'));
-          }
+          return $(exportObj).trigger('xwm:shipRotated', parseInt(_this.headinginput.val()));
         }
       });
       this.headingslider = this.panel.find('.heading-slider').slider({
         min: 0,
         max: 359,
         change: function(e, ui) {
+          console.log("change heading " + (_this.headingslider.slider('value')) + ", input value is " + (_this.headinginput.val()));
           if (parseInt(_this.headinginput.val()) !== _this.headingslider.slider('value')) {
             _this.headinginput.val(_this.headingslider.slider('value'));
-            return $(exportObj).trigger('xwm:shipRotated', _this.headingslider.slider('value'));
+            return _this.headinginput.change();
           }
         },
         slide: function(e, ui) {
-          if (_this.headinginput.val() !== ui.value) {
+          if (parseInt(_this.headinginput.val()) !== ui.value) {
             _this.headinginput.val(ui.value);
-            return $(exportObj).trigger('xwm:shipRotated', _this.headingslider.slider('value'));
+            return _this.headinginput.change();
           }
         }
       });
@@ -158,9 +157,15 @@
           return _this.panel.find('.select-none').toggle(_this.selected_ship != null);
         }
       }).on('xwm:shipRotated', function(e, heading_deg) {
-        if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation !== _this.headingslider.slider('value')) {
-          _this.selected_ship.layer.rotation(_this.headingslider.slider('value'));
-          return _this.selected_ship.draw();
+        var _ref, _ref1;
+        console.log("request to rotate to " + heading_deg + " from " + ((_ref = _this.selected_ship) != null ? (_ref1 = _ref.layer) != null ? _ref1.rotation() : void 0 : void 0));
+        if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation() !== heading_deg) {
+          _this.selected_ship.layer.rotation(heading_deg);
+          _this.selected_ship.draw();
+          if (heading_deg !== parseInt(_this.headinginput.val())) {
+            _this.headinginput.val(heading_deg);
+            return _this.headingslider.slider('value', heading_deg);
+          }
         }
       }).on('xwm:movementClicked', function(e, args) {
         _this.addMovementToSelectedShipTurn(args);
