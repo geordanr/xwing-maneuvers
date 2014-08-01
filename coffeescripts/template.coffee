@@ -36,6 +36,16 @@ class Template
           x: 0
           y: 0
         origin_rotation_deg = (@base.getRotation() + 90) % 360
+      when 'leftlarge'
+        origin = @base.getLargeBarrelRollTransform('left', args.distance_from_front).point
+          x: -exportObj.TEMPLATE_WIDTH / 2
+          y: exportObj.SMALL_BASE_WIDTH / 2
+        origin_rotation_deg = @base.getRotation()
+      when 'rightlarge'
+        origin = @base.getLargeBarrelRollTransform('right', args.distance_from_front).point
+          x: exportObj.TEMPLATE_WIDTH / 2
+          y: exportObj.SMALL_BASE_WIDTH / 2
+        origin_rotation_deg = @base.getRotation()
       else
         throw new Error("Invalid template placement #{@where}")
 

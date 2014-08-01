@@ -245,3 +245,42 @@ class exportObj.movements.Decloak extends exportObj.movements.BarrelRoll
   constructor: (args) ->
     super args
     @speed = 2
+
+class exportObj.movements.LargeBarrelRoll extends exportObj.movements.BarrelRoll
+  constructor: (args) ->
+    super args
+    @speed = 1
+
+  getBaseTransformAndHeading: (base) ->
+    x_offset = (exportObj.TEMPLATE_WIDTH) + (base.width / 2)
+    y_offset = ((base.width - exportObj.SMALL_BASE_WIDTH) / 2) - @end_distance_from_front
+    switch @direction
+      when 'left'
+        rotation = 0
+        transform = base.getLargeBarrelRollTransform(@direction, @start_distance_from_front)
+          .translate -x_offset, y_offset
+
+      when 'right'
+        rotation = 0
+        transform = base.getLargeBarrelRollTransform(@direction, @start_distance_from_front)
+          .translate x_offset, y_offset
+
+      else
+        throw new Error("Invalid direction #{@direction}")
+
+    {
+      transform: transform
+      heading_deg: (base.getRotation() + rotation) % 360
+    }
+
+  getTemplateForBase: (base) ->
+    switch @direction
+      when 'left', 'right'
+        new exportObj.templates.Straight
+          speed: @speed
+          base: base
+          where: "#{@direction}large"
+          distance_from_front: @start_distance_from_front
+
+      else
+        throw new Error("Invalid direction #{@direction}")

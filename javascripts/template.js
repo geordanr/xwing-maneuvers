@@ -49,6 +49,20 @@
           });
           origin_rotation_deg = (this.base.getRotation() + 90) % 360;
           break;
+        case 'leftlarge':
+          origin = this.base.getLargeBarrelRollTransform('left', args.distance_from_front).point({
+            x: -exportObj.TEMPLATE_WIDTH / 2,
+            y: exportObj.SMALL_BASE_WIDTH / 2
+          });
+          origin_rotation_deg = this.base.getRotation();
+          break;
+        case 'rightlarge':
+          origin = this.base.getLargeBarrelRollTransform('right', args.distance_from_front).point({
+            x: exportObj.TEMPLATE_WIDTH / 2,
+            y: exportObj.SMALL_BASE_WIDTH / 2
+          });
+          origin_rotation_deg = this.base.getRotation();
+          break;
         default:
           throw new Error("Invalid template placement " + this.where);
       }

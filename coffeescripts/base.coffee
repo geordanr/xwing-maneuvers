@@ -107,6 +107,20 @@ class exportObj.Base
       else
         throw new Error("Invalid side #{side}")
 
+  getLargeBarrelRollTransform: (side, distance_from_front) ->
+    if distance_from_front > @width - exportObj.SMALL_BASE_WIDTH
+      throw new Error("Barrel roll template for Large ships placed too far back (#{distance_from_front} but base width is #{@width}) and template length is #{exportObj.SMALL_BASE_WIDTH}")
+
+    distance_from_front += exportObj.TEMPLATE_WIDTH
+
+    switch side
+      when 'left'
+        @group.getAbsoluteTransform().copy().translate(0, distance_from_front)
+      when 'right'
+        @group.getAbsoluteTransform().copy().translate(@width, distance_from_front)
+      else
+        throw new Error("Invalid side #{side}")
+
   newBaseFromMovement: (movement) ->
     {transform, heading_deg} = movement.getBaseTransformAndHeading this
     p = transform.point {x:0, y:0}

@@ -87,10 +87,12 @@
         _this.panel.find('.turnlist').append(ship.turnlist_element);
         return $(exportObj).trigger('xwm:shipSelected', ship);
       });
+      this.panel.find('.lock-template').hide();
       this.panel.find('.lock-template').click(function(e) {
         e.preventDefault();
         return $(exportObj).trigger('xwm:finalizeBarrelRollTemplate');
       });
+      this.panel.find('.lock-base').hide();
       this.panel.find('.lock-base').click(function(e) {
         e.preventDefault();
         return $(exportObj).trigger('xwm:finalizeBarrelRoll');
@@ -142,19 +144,25 @@
           return _this.selected_ship.draw();
         }
       }).on('xwm:movementClicked', function(e, args) {
-        return _this.addMovementToSelectedShipTurn(args);
+        _this.addMovementToSelectedShipTurn(args);
+        if (args.direction.indexOf('barrelroll') !== -1 || args.direction.indexOf('decloak-left') !== -1 || args.direction.indexOf('decloak-right') !== -1) {
+          return _this.panel.find('.lock-template').show();
+        }
       }).on('xwm:barrelRollTemplateOffsetChanged', function(e, offset) {
         return _this.barrelroll_start_offset = offset;
       }).on('xwm:barrelRollEndBaseOffsetChanged', function(e, offset) {
         return _this.barrelroll_end_offset = offset;
       }).on('xwm:finalizeBarrelRollTemplate', function(e) {
         var barrelroll_end_base;
+        _this.panel.find('.lock-template').hide();
+        _this.panel.find('.lock-base').show();
         _this.barrelroll_template_layer.draggable(false);
         _this.barrelroll_movement.start_distance_from_front = _this.barrelroll_start_offset;
         barrelroll_end_base = _this.barrelroll_start_base.newBaseFromMovement(_this.barrelroll_movement);
         barrelroll_end_base.draw(_this.barrelroll_base_layer);
         return _this.barrelroll_base_layer.dragBoundFunc(_this.makeBarrelRollBaseDragBoundFunc(0));
       }).on('xwm:finalizeBarrelRoll', function(e) {
+        _this.panel.find('.lock-base').hide();
         _this.barrelroll_movement.end_distance_from_front = _this.barrelroll_end_offset;
         _this.selected_ship.addTurn().addMovement(_this.barrelroll_movement);
         _this.selected_ship.draw();
@@ -180,10 +188,13 @@
       return this.barrelroll_end_offset = null;
     };
 
-    ManeuversUI.prototype.makeBarrelRollTemplateDragBoundFunc = function(base, direction, distance_from_front) {
+    ManeuversUI.prototype.makeBarrelRollTemplateDragBoundFunc = function(base, direction, distance_from_front, isLarge) {
+      if (isLarge == null) {
+        isLarge = false;
+      }
       return function(pos) {
         var drag_pos, new_pos, transform;
-        pos.y = Math.min(pos.y, base.width - exportObj.TEMPLATE_WIDTH);
+        pos.y = Math.min(pos.y, base.width - (isLarge ? exportObj.SMALL_BASE_WIDTH : exportObj.TEMPLATE_WIDTH));
         pos.y = Math.max(pos.y, 0);
         $(exportObj).trigger('xwm:barrelRollTemplateOffsetChanged', pos.y);
         transform = base.getBarrelRollTransform(direction, distance_from_front);
@@ -269,14 +280,25 @@
           }));
           break;
         case 'barrelroll-left':
-          this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'left', 0));
-          this.barrelroll_movement = new exportObj.movements.BarrelRoll({
-            base: this.barrelroll_start_base,
-            where: 'left',
-            direction: 'left',
-            start_distance_from_front: 0,
-            end_distance_from_front: 0
-          });
+          if (this.selected_ship.size === 'large') {
+            this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'left', 0, true));
+            this.barrelroll_movement = new exportObj.movements.LargeBarrelRoll({
+              base: this.barrelroll_start_base,
+              where: 'left',
+              direction: 'left',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+          } else {
+            this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'left', 0));
+            this.barrelroll_movement = new exportObj.movements.BarrelRoll({
+              base: this.barrelroll_start_base,
+              where: 'left',
+              direction: 'left',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+          }
           break;
         case 'barrelroll-leftforward':
           this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'left', 0));
@@ -299,14 +321,25 @@
           });
           break;
         case 'barrelroll-right':
-          this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'right', 0));
-          this.barrelroll_movement = new exportObj.movements.BarrelRoll({
-            base: this.barrelroll_start_base,
-            where: 'right',
-            direction: 'right',
-            start_distance_from_front: 0,
-            end_distance_from_front: 0
-          });
+          if (this.selected_ship.size === 'large') {
+            this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'right', 0, true));
+            this.barrelroll_movement = new exportObj.movements.LargeBarrelRoll({
+              base: this.barrelroll_start_base,
+              where: 'right',
+              direction: 'right',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+          } else {
+            this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'right', 0));
+            this.barrelroll_movement = new exportObj.movements.BarrelRoll({
+              base: this.barrelroll_start_base,
+              where: 'right',
+              direction: 'right',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+          }
           break;
         case 'barrelroll-rightforward':
           this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'right', 0));
