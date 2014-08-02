@@ -15,6 +15,12 @@
       this.element = $.parseHTML(this.toHTML());
     }
 
+    Movement.prototype.clone = function() {
+      $.extend({}, this, true);
+      this.element = $.parseHTML(this.toHTML());
+      return this;
+    };
+
     Movement.prototype.destroy = function() {
       return '';
     };
@@ -319,6 +325,55 @@
     }
 
     return Decloak;
+
+  })(exportObj.movements.BarrelRoll);
+
+  exportObj.movements.LargeBarrelRoll = (function(_super) {
+    __extends(LargeBarrelRoll, _super);
+
+    function LargeBarrelRoll(args) {
+      LargeBarrelRoll.__super__.constructor.call(this, args);
+      this.speed = 1;
+    }
+
+    LargeBarrelRoll.prototype.getBaseTransformAndHeading = function(base) {
+      var rotation, transform, x_offset, y_offset;
+      x_offset = exportObj.TEMPLATE_WIDTH + (base.width / 2);
+      y_offset = ((base.width - exportObj.SMALL_BASE_WIDTH) / 2) - this.end_distance_from_front;
+      switch (this.direction) {
+        case 'left':
+          rotation = 0;
+          transform = base.getLargeBarrelRollTransform(this.direction, this.start_distance_from_front).translate(-x_offset, y_offset);
+          break;
+        case 'right':
+          rotation = 0;
+          transform = base.getLargeBarrelRollTransform(this.direction, this.start_distance_from_front).translate(x_offset, y_offset);
+          break;
+        default:
+          throw new Error("Invalid direction " + this.direction);
+      }
+      return {
+        transform: transform,
+        heading_deg: (base.getRotation() + rotation) % 360
+      };
+    };
+
+    LargeBarrelRoll.prototype.getTemplateForBase = function(base) {
+      switch (this.direction) {
+        case 'left':
+        case 'right':
+          return new exportObj.templates.Straight({
+            speed: this.speed,
+            base: base,
+            where: "" + this.direction + "large",
+            distance_from_front: this.start_distance_from_front
+          });
+        default:
+          throw new Error("Invalid direction " + this.direction);
+      }
+    };
+
+    return LargeBarrelRoll;
 
   })(exportObj.movements.BarrelRoll);
 

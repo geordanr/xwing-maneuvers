@@ -129,6 +129,21 @@
       }
     };
 
+    Base.prototype.getLargeBarrelRollTransform = function(side, distance_from_front) {
+      if (distance_from_front > this.width - exportObj.SMALL_BASE_WIDTH) {
+        throw new Error("Barrel roll template for Large ships placed too far back (" + distance_from_front + " but base width is " + this.width + ") and template length is " + exportObj.SMALL_BASE_WIDTH);
+      }
+      distance_from_front += exportObj.TEMPLATE_WIDTH;
+      switch (side) {
+        case 'left':
+          return this.group.getAbsoluteTransform().copy().translate(0, distance_from_front);
+        case 'right':
+          return this.group.getAbsoluteTransform().copy().translate(this.width, distance_from_front);
+        default:
+          throw new Error("Invalid side " + side);
+      }
+    };
+
     Base.prototype.newBaseFromMovement = function(movement) {
       var heading_deg, p, transform, _ref;
       _ref = movement.getBaseTransformAndHeading(this), transform = _ref.transform, heading_deg = _ref.heading_deg;

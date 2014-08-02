@@ -27,7 +27,7 @@
         flat: true,
         color: '000000',
         onChange: function(hsv, hex, rgb) {
-          return _this.selectedColor = hex;
+          return _this.selectedColor = "#" + hex;
         }
       });
       this.headinginput = $(this.panel.find('.heading'));
@@ -40,9 +40,7 @@
         }
         if (_this.headinginput.val() !== _this.headingslider.slider('value')) {
           _this.headingslider.slider('value', parseInt(_this.headinginput.val()));
-          if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation() !== _this.headingslider.slider('value')) {
-            return $(exportObj).trigger('xwm:shipRotated', _this.headingslider.slider('value'));
-          }
+          return $(exportObj).trigger('xwm:shipRotated', parseInt(_this.headinginput.val()));
         }
       });
       this.headingslider = this.panel.find('.heading-slider').slider({
@@ -51,13 +49,13 @@
         change: function(e, ui) {
           if (parseInt(_this.headinginput.val()) !== _this.headingslider.slider('value')) {
             _this.headinginput.val(_this.headingslider.slider('value'));
-            return $(exportObj).trigger('xwm:shipRotated', _this.headingslider.slider('value'));
+            return _this.headinginput.change();
           }
         },
         slide: function(e, ui) {
-          if (_this.headinginput.val() !== ui.value) {
+          if (parseInt(_this.headinginput.val()) !== ui.value) {
             _this.headinginput.val(ui.value);
-            return $(exportObj).trigger('xwm:shipRotated', _this.headingslider.slider('value'));
+            return _this.headinginput.change();
           }
         }
       });
@@ -82,11 +80,9 @@
           }
         });
         ship.draw();
-        _this.ships.push(ship);
-        _this.shiplist_element.append(ship.shiplist_element);
-        _this.panel.find('.turnlist').append(ship.turnlist_element);
-        return $(exportObj).trigger('xwm:shipSelected', ship);
+        return _this.addShip(ship);
       });
+      this.panel.find('.show-when-ship-selected').hide();
       this.panel.find('.lock-template').hide();
       this.panel.find('.lock-template').click(function(e) {
         e.preventDefault();
@@ -103,6 +99,24 @@
           _this.selected_ship.destroy();
           return _this.selected_ship = null;
         }
+      });
+      this.panel.find('.toggle-deploy').change(function(e) {
+        e.preventDefault();
+        return _this.stage.find('.deployareas').visible($(e.target).prop('checked'));
+      });
+      this.panel.find('.toggle-asteroid-area').change(function(e) {
+        e.preventDefault();
+        return _this.stage.find('.asteroidarea').visible($(e.target).prop('checked'));
+      });
+      this.panel.find('.toggle-grid').change(function(e) {
+        e.preventDefault();
+        return _this.stage.find('.grid').visible($(e.target).prop('checked'));
+      });
+      this.panel.find('.clone-ship').click(function(e) {
+        return $(exportObj).trigger('xwm:cloneShip', _this.selected_ship);
+      });
+      this.panel.find('.select-none').click(function(e) {
+        return $(exportObj).trigger('xwm:shipSelected', null);
       });
       $(exportObj).on('xwm:drawOptionsChanged', function(e, options) {
         var ship, _i, _len, _ref, _results;
@@ -135,18 +149,24 @@
             _this.selected_ship.moveToTop();
             _this.selected_ship.draw();
             _this.selected_ship.select();
-            return _this.headingslider.slider('value', _this.selected_ship.layer.rotation());
+            _this.headingslider.slider('value', _this.selected_ship.layer.rotation());
           }
+          return _this.panel.find('.show-when-ship-selected').toggle(_this.selected_ship != null);
         }
       }).on('xwm:shipRotated', function(e, heading_deg) {
-        if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation !== _this.headingslider.slider('value')) {
-          _this.selected_ship.layer.rotation(_this.headingslider.slider('value'));
-          return _this.selected_ship.draw();
+        if ((_this.selected_ship != null) && _this.selected_ship.layer.rotation() !== heading_deg) {
+          _this.selected_ship.layer.rotation(heading_deg);
+          _this.selected_ship.draw();
+          if (heading_deg !== parseInt(_this.headinginput.val())) {
+            _this.headinginput.val(heading_deg);
+            return _this.headingslider.slider('value', heading_deg);
+          }
         }
       }).on('xwm:movementClicked', function(e, args) {
         _this.addMovementToSelectedShipTurn(args);
         if (args.direction.indexOf('barrelroll') !== -1 || args.direction.indexOf('decloak-left') !== -1 || args.direction.indexOf('decloak-right') !== -1) {
-          return _this.panel.find('.lock-template').show();
+          _this.panel.find('.lock-template').show();
+          return _this.panel.find('.hide-during-barrel-roll').hide();
         }
       }).on('xwm:barrelRollTemplateOffsetChanged', function(e, offset) {
         return _this.barrelroll_start_offset = offset;
@@ -163,10 +183,13 @@
         return _this.barrelroll_base_layer.dragBoundFunc(_this.makeBarrelRollBaseDragBoundFunc(0));
       }).on('xwm:finalizeBarrelRoll', function(e) {
         _this.panel.find('.lock-base').hide();
+        _this.panel.find('.hide-during-barrel-roll').show();
         _this.barrelroll_movement.end_distance_from_front = _this.barrelroll_end_offset;
         _this.selected_ship.addTurn().addMovement(_this.barrelroll_movement);
         _this.selected_ship.draw();
         return _this.reset_barrelroll_data();
+      }).on('xwm:cloneShip', function(e, ship) {
+        return _this.addShip(ship.clone());
       });
     }
 
@@ -188,10 +211,13 @@
       return this.barrelroll_end_offset = null;
     };
 
-    ManeuversUI.prototype.makeBarrelRollTemplateDragBoundFunc = function(base, direction, distance_from_front) {
+    ManeuversUI.prototype.makeBarrelRollTemplateDragBoundFunc = function(base, direction, distance_from_front, isLarge) {
+      if (isLarge == null) {
+        isLarge = false;
+      }
       return function(pos) {
         var drag_pos, new_pos, transform;
-        pos.y = Math.min(pos.y, base.width - exportObj.TEMPLATE_WIDTH);
+        pos.y = Math.min(pos.y, base.width - (isLarge ? exportObj.SMALL_BASE_WIDTH : exportObj.TEMPLATE_WIDTH));
         pos.y = Math.max(pos.y, 0);
         $(exportObj).trigger('xwm:barrelRollTemplateOffsetChanged', pos.y);
         transform = base.getBarrelRollTransform(direction, distance_from_front);
@@ -277,14 +303,25 @@
           }));
           break;
         case 'barrelroll-left':
-          this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'left', 0));
-          this.barrelroll_movement = new exportObj.movements.BarrelRoll({
-            base: this.barrelroll_start_base,
-            where: 'left',
-            direction: 'left',
-            start_distance_from_front: 0,
-            end_distance_from_front: 0
-          });
+          if (this.selected_ship.size === 'large') {
+            this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'left', 0, true));
+            this.barrelroll_movement = new exportObj.movements.LargeBarrelRoll({
+              base: this.barrelroll_start_base,
+              where: 'left',
+              direction: 'left',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+          } else {
+            this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'left', 0));
+            this.barrelroll_movement = new exportObj.movements.BarrelRoll({
+              base: this.barrelroll_start_base,
+              where: 'left',
+              direction: 'left',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+          }
           break;
         case 'barrelroll-leftforward':
           this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'left', 0));
@@ -307,14 +344,25 @@
           });
           break;
         case 'barrelroll-right':
-          this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'right', 0));
-          this.barrelroll_movement = new exportObj.movements.BarrelRoll({
-            base: this.barrelroll_start_base,
-            where: 'right',
-            direction: 'right',
-            start_distance_from_front: 0,
-            end_distance_from_front: 0
-          });
+          if (this.selected_ship.size === 'large') {
+            this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'right', 0, true));
+            this.barrelroll_movement = new exportObj.movements.LargeBarrelRoll({
+              base: this.barrelroll_start_base,
+              where: 'right',
+              direction: 'right',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+          } else {
+            this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'right', 0));
+            this.barrelroll_movement = new exportObj.movements.BarrelRoll({
+              base: this.barrelroll_start_base,
+              where: 'right',
+              direction: 'right',
+              start_distance_from_front: 0,
+              end_distance_from_front: 0
+            });
+          }
           break;
         case 'barrelroll-rightforward':
           this.barrelroll_template_layer.dragBoundFunc(this.makeBarrelRollTemplateDragBoundFunc(this.barrelroll_start_base, 'right', 0));
@@ -408,6 +456,13 @@
         });
       }
       return this.selected_ship.draw();
+    };
+
+    ManeuversUI.prototype.addShip = function(ship) {
+      this.ships.push(ship);
+      this.shiplist_element.append(ship.shiplist_element);
+      this.panel.find('.turnlist').append(ship.turnlist_element);
+      return $(exportObj).trigger('xwm:shipSelected', ship);
     };
 
     return ManeuversUI;
