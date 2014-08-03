@@ -17,6 +17,7 @@ class exportObj.Base
     throw new Error("Position required") unless @position instanceof exportObj.Position
 
     @group = new Kinetic.Group
+      name: 'baseGroup'
       x: @position.center_x
       y: @position.center_y
       offsetX: @width / 2
@@ -68,7 +69,11 @@ class exportObj.Base
       width: 1
       height: 2
 
-  draw: (layer, args) ->
+  destroy: ->
+    @group.destroyChildren()
+    @group.destroy()
+
+  draw: (layer, args={}) ->
     layer.add @group
     for child in @group.children
       child.stroke args.stroke ? 'black'
@@ -77,7 +82,10 @@ class exportObj.Base
       child.draw()
 
   getRotation: ->
-    @group.rotation()
+    # We may not have been assigned to a layer yet
+    rot = if @group.getLayer()? then @group.getLayer().rotation() else 0
+    rot += @group.rotation()
+    rot % 360
 
   getFrontNubTransform: ->
     @group.getAbsoluteTransform().copy().translate(@width / 2, 0)
@@ -95,6 +103,20 @@ class exportObj.Base
       when 'left', 'leftforward', 'leftbackward'
         @group.getAbsoluteTransform().copy().translate(0, distance_from_front)
       when 'right', 'rightforward', 'rightbackward'
+        @group.getAbsoluteTransform().copy().translate(@width, distance_from_front)
+      else
+        throw new Error("Invalid side #{side}")
+
+  getLargeBarrelRollTransform: (side, distance_from_front) ->
+    if distance_from_front > @width - exportObj.SMALL_BASE_WIDTH
+      throw new Error("Barrel roll template for Large ships placed too far back (#{distance_from_front} but base width is #{@width}) and template length is #{exportObj.SMALL_BASE_WIDTH}")
+
+    distance_from_front += exportObj.TEMPLATE_WIDTH
+
+    switch side
+      when 'left'
+        @group.getAbsoluteTransform().copy().translate(0, distance_from_front)
+      when 'right'
         @group.getAbsoluteTransform().copy().translate(@width, distance_from_front)
       else
         throw new Error("Invalid side #{side}")

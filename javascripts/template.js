@@ -49,6 +49,20 @@
           });
           origin_rotation_deg = (this.base.getRotation() + 90) % 360;
           break;
+        case 'leftlarge':
+          origin = this.base.getLargeBarrelRollTransform('left', args.distance_from_front).point({
+            x: -exportObj.TEMPLATE_WIDTH / 2,
+            y: exportObj.SMALL_BASE_WIDTH / 2
+          });
+          origin_rotation_deg = this.base.getRotation();
+          break;
+        case 'rightlarge':
+          origin = this.base.getLargeBarrelRollTransform('right', args.distance_from_front).point({
+            x: exportObj.TEMPLATE_WIDTH / 2,
+            y: exportObj.SMALL_BASE_WIDTH / 2
+          });
+          origin_rotation_deg = this.base.getRotation();
+          break;
         default:
           throw new Error("Invalid template placement " + this.where);
       }
@@ -57,8 +71,16 @@
       this.shape.rotation(origin_rotation_deg);
     }
 
+    Template.prototype.destroy = function() {
+      this.base.destroy();
+      return this.shape.destroy();
+    };
+
     Template.prototype.draw = function(layer, args) {
       var _ref, _ref1, _ref2;
+      if (args == null) {
+        args = {};
+      }
       layer.add(this.shape);
       this.shape.stroke((_ref = args.stroke) != null ? _ref : 'black');
       this.shape.strokeWidth((_ref1 = args.strokeWidth) != null ? _ref1 : 1);
@@ -83,6 +105,7 @@
 
     Straight.prototype.makeShape = function() {
       return new Kinetic.Rect({
+        name: 'template',
         offsetX: exportObj.TEMPLATE_WIDTH / 2,
         offsetY: 0,
         width: exportObj.TEMPLATE_WIDTH,
@@ -118,6 +141,7 @@
       dist = this.speed;
       return (function(dir, dist) {
         return new Kinetic.Shape({
+          name: 'template',
           drawFunc: function(ctx) {
             var angle, radius;
             radius = exportObj.BANK_INSIDE_RADII[dist];
@@ -166,6 +190,7 @@
       dist = this.speed;
       return (function(dir, dist) {
         return new Kinetic.Shape({
+          name: 'template',
           drawFunc: function(ctx) {
             var angle, radius;
             angle = -Math.PI / 2;
@@ -186,7 +211,7 @@
                 throw new Error("Invalid direction " + dir);
             }
             ctx.closePath();
-            return ctx.strokeShape(this);
+            return ctx.fillStrokeShape(this);
           }
         });
       })(dir, dist);

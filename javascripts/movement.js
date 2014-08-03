@@ -12,13 +12,28 @@
     function Movement(args) {
       this.speed = args.speed;
       this.direction = args.direction;
+      this.element = $.parseHTML(this.toHTML());
     }
+
+    Movement.prototype.clone = function() {
+      $.extend({}, this, true);
+      this.element = $.parseHTML(this.toHTML());
+      return this;
+    };
+
+    Movement.prototype.destroy = function() {
+      return '';
+    };
 
     Movement.prototype.getBaseTransformAndHeading = function(base) {
       throw new Error('Base class; implement me!');
     };
 
-    Movement.prototype.getTemplate = function() {
+    Movement.prototype.getTemplateForBase = function(base) {
+      throw new Error('Base class; implement me!');
+    };
+
+    Movement.prototype.toHTML = function() {
       throw new Error('Base class; implement me!');
     };
 
@@ -49,6 +64,10 @@
       });
     };
 
+    Straight.prototype.toHTML = function() {
+      return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon('straight')) + "&nbsp;" + this.speed + "</span>";
+    };
+
     return Straight;
 
   })(Movement);
@@ -74,6 +93,10 @@
         base: base,
         where: 'front_nubs'
       });
+    };
+
+    Koiogran.prototype.toHTML = function() {
+      return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon('koiogran')) + "&nbsp;" + this.speed + "</span>";
     };
 
     return Koiogran;
@@ -118,6 +141,10 @@
       });
     };
 
+    Bank.prototype.toHTML = function() {
+      return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("bank" + this.direction)) + "&nbsp;" + this.speed + "</span>";
+    };
+
     return Bank;
 
   })(Movement);
@@ -158,6 +185,10 @@
         base: base,
         where: 'front_nubs'
       });
+    };
+
+    Turn.prototype.toHTML = function() {
+      return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("turn" + this.direction)) + "&nbsp;" + this.speed + "</span>";
     };
 
     return Turn;
@@ -220,7 +251,7 @@
       }
       return {
         transform: transform,
-        heading_deg: (base.position.heading_deg + rotation) % 360
+        heading_deg: (base.getRotation() + rotation) % 360
       };
     };
 
@@ -250,6 +281,37 @@
       }
     };
 
+    BarrelRoll.prototype.toHTML = function() {
+      switch (this.direction) {
+        case 'left':
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("straight", {
+            rotate: -90
+          })) + "&nbsp;" + this.speed + "</span>";
+        case 'right':
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("straight", {
+            rotate: 90
+          })) + "&nbsp;" + this.speed + "</span>";
+        case 'leftforward':
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("bankright", {
+            rotate: -90
+          })) + "&nbsp;" + this.speed + "</span>";
+        case 'leftbackward':
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("bankleft", {
+            rotate: -90
+          })) + "&nbsp;" + this.speed + "</span>";
+        case 'rightforward':
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("bankleft", {
+            rotate: 90
+          })) + "&nbsp;" + this.speed + "</span>";
+        case 'rightbackward':
+          return "<span class=\"movement\">" + (exportObj.ManeuverGrid.makeManeuverIcon("bankright", {
+            rotate: -90
+          })) + "&nbsp;" + this.speed + "</span>";
+        default:
+          throw new Error("Invalid direction " + this.direction);
+      }
+    };
+
     return BarrelRoll;
 
   })(Movement);
@@ -263,6 +325,55 @@
     }
 
     return Decloak;
+
+  })(exportObj.movements.BarrelRoll);
+
+  exportObj.movements.LargeBarrelRoll = (function(_super) {
+    __extends(LargeBarrelRoll, _super);
+
+    function LargeBarrelRoll(args) {
+      LargeBarrelRoll.__super__.constructor.call(this, args);
+      this.speed = 1;
+    }
+
+    LargeBarrelRoll.prototype.getBaseTransformAndHeading = function(base) {
+      var rotation, transform, x_offset, y_offset;
+      x_offset = exportObj.TEMPLATE_WIDTH + (base.width / 2);
+      y_offset = ((base.width - exportObj.SMALL_BASE_WIDTH) / 2) - this.end_distance_from_front;
+      switch (this.direction) {
+        case 'left':
+          rotation = 0;
+          transform = base.getLargeBarrelRollTransform(this.direction, this.start_distance_from_front).translate(-x_offset, y_offset);
+          break;
+        case 'right':
+          rotation = 0;
+          transform = base.getLargeBarrelRollTransform(this.direction, this.start_distance_from_front).translate(x_offset, y_offset);
+          break;
+        default:
+          throw new Error("Invalid direction " + this.direction);
+      }
+      return {
+        transform: transform,
+        heading_deg: (base.getRotation() + rotation) % 360
+      };
+    };
+
+    LargeBarrelRoll.prototype.getTemplateForBase = function(base) {
+      switch (this.direction) {
+        case 'left':
+        case 'right':
+          return new exportObj.templates.Straight({
+            speed: this.speed,
+            base: base,
+            where: "" + this.direction + "large",
+            distance_from_front: this.start_distance_from_front
+          });
+        default:
+          throw new Error("Invalid direction " + this.direction);
+      }
+    };
+
+    return LargeBarrelRoll;
 
   })(exportObj.movements.BarrelRoll);
 

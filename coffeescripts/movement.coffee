@@ -3,14 +3,32 @@ exportObj = exports ? this
 exportObj.movements = {}
 
 class Movement
+  # Base class for an actual movement.
+
   constructor: (args) ->
     @speed = args.speed
     @direction = args.direction
+    @element = $.parseHTML @toHTML()
+
+  clone: ->
+    $.extend {}, this, true
+    @element = $.parseHTML @toHTML()
+    this
+
+  destroy: ->
+    # not much to do
+    ''
 
   getBaseTransformAndHeading: (base) ->
+    # Returns a transform and heading for the resulting final position of a base, given a starting base.
     throw new Error('Base class; implement me!')
 
-  getTemplate: ->
+  getTemplateForBase: (base) ->
+    # Returns an instance of a template, properly positioned for this movement.
+    throw new Error('Base class; implement me!')
+
+  toHTML: ->
+    # Returns an HTML representation (a container around SVG) of this movement.
     throw new Error('Base class; implement me!')
 
 class exportObj.movements.Straight extends Movement
@@ -29,6 +47,9 @@ class exportObj.movements.Straight extends Movement
       base: base
       where: 'front_nubs'
 
+  toHTML: ->
+    """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon 'straight'}&nbsp;#{@speed}</span>"""
+
 class exportObj.movements.Koiogran extends Movement
   # K-turn from the front nubs
   constructor: (args) ->
@@ -44,6 +65,9 @@ class exportObj.movements.Koiogran extends Movement
       direction: @direction
       base: base
       where: 'front_nubs'
+
+  toHTML: ->
+    """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon 'koiogran'}&nbsp;#{@speed}</span>"""
 
 class exportObj.movements.Bank extends Movement
   # Bank from the front nubs
@@ -81,6 +105,9 @@ class exportObj.movements.Bank extends Movement
       base: base
       where: 'front_nubs'
 
+  toHTML: ->
+    """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "bank#{@direction}"}&nbsp;#{@speed}</span>"""
+
 class exportObj.movements.Turn extends Movement
   # Turn from the front nubs
   constructor: (args) ->
@@ -116,6 +143,9 @@ class exportObj.movements.Turn extends Movement
       direction: @direction
       base: base
       where: 'front_nubs'
+
+  toHTML: ->
+    """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "turn#{@direction}"}&nbsp;#{@speed}</span>"""
 
 class exportObj.movements.BarrelRoll extends Movement
   # Template aligned on the sides
@@ -181,7 +211,7 @@ class exportObj.movements.BarrelRoll extends Movement
 
     {
       transform: transform
-      heading_deg: (base.position.heading_deg + rotation) % 360
+      heading_deg: (base.getRotation() + rotation) % 360
     }
 
   getTemplateForBase: (base) ->
@@ -204,7 +234,63 @@ class exportObj.movements.BarrelRoll extends Movement
       else
         throw new Error("Invalid direction #{@direction}")
 
+  toHTML: ->
+    switch @direction
+      when 'left'
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "straight", {rotate: -90}}&nbsp;#{@speed}</span>"""
+      when 'right'
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "straight", {rotate: 90}}&nbsp;#{@speed}</span>"""
+      when 'leftforward'
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "bankright", {rotate: -90}}&nbsp;#{@speed}</span>"""
+      when 'leftbackward'
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "bankleft", {rotate: -90}}&nbsp;#{@speed}</span>"""
+      when 'rightforward'
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "bankleft", {rotate: 90}}&nbsp;#{@speed}</span>"""
+      when 'rightbackward'
+        """<span class="movement">#{exportObj.ManeuverGrid.makeManeuverIcon "bankright", {rotate: -90}}&nbsp;#{@speed}</span>"""
+      else
+        throw new Error("Invalid direction #{@direction}")
+
 class exportObj.movements.Decloak extends exportObj.movements.BarrelRoll
   constructor: (args) ->
     super args
     @speed = 2
+
+class exportObj.movements.LargeBarrelRoll extends exportObj.movements.BarrelRoll
+  constructor: (args) ->
+    super args
+    @speed = 1
+
+  getBaseTransformAndHeading: (base) ->
+    x_offset = (exportObj.TEMPLATE_WIDTH) + (base.width / 2)
+    y_offset = ((base.width - exportObj.SMALL_BASE_WIDTH) / 2) - @end_distance_from_front
+    switch @direction
+      when 'left'
+        rotation = 0
+        transform = base.getLargeBarrelRollTransform(@direction, @start_distance_from_front)
+          .translate -x_offset, y_offset
+
+      when 'right'
+        rotation = 0
+        transform = base.getLargeBarrelRollTransform(@direction, @start_distance_from_front)
+          .translate x_offset, y_offset
+
+      else
+        throw new Error("Invalid direction #{@direction}")
+
+    {
+      transform: transform
+      heading_deg: (base.getRotation() + rotation) % 360
+    }
+
+  getTemplateForBase: (base) ->
+    switch @direction
+      when 'left', 'right'
+        new exportObj.templates.Straight
+          speed: @speed
+          base: base
+          where: "#{@direction}large"
+          distance_from_front: @start_distance_from_front
+
+      else
+        throw new Error("Invalid direction #{@direction}")

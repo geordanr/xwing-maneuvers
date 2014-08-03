@@ -36,6 +36,16 @@ class Template
           x: 0
           y: 0
         origin_rotation_deg = (@base.getRotation() + 90) % 360
+      when 'leftlarge'
+        origin = @base.getLargeBarrelRollTransform('left', args.distance_from_front).point
+          x: -exportObj.TEMPLATE_WIDTH / 2
+          y: exportObj.SMALL_BASE_WIDTH / 2
+        origin_rotation_deg = @base.getRotation()
+      when 'rightlarge'
+        origin = @base.getLargeBarrelRollTransform('right', args.distance_from_front).point
+          x: exportObj.TEMPLATE_WIDTH / 2
+          y: exportObj.SMALL_BASE_WIDTH / 2
+        origin_rotation_deg = @base.getRotation()
       else
         throw new Error("Invalid template placement #{@where}")
 
@@ -43,7 +53,11 @@ class Template
     @shape.y origin.y
     @shape.rotation origin_rotation_deg
 
-  draw: (layer, args) ->
+  destroy: ->
+    @base.destroy()
+    @shape.destroy()
+
+  draw: (layer, args={}) ->
     layer.add @shape
     @shape.stroke args.stroke ? 'black'
     @shape.strokeWidth args.strokeWidth ? 1
@@ -59,6 +73,7 @@ class exportObj.templates.Straight extends Template
 
   makeShape: ->
     new Kinetic.Rect
+      name: 'template'
       offsetX: exportObj.TEMPLATE_WIDTH / 2
       offsetY: 0
       width: exportObj.TEMPLATE_WIDTH
@@ -77,6 +92,7 @@ class exportObj.templates.Bank extends Template
     dist = @speed
     do (dir, dist) ->
       new Kinetic.Shape
+        name: 'template'
         drawFunc: (ctx) ->
           radius = exportObj.BANK_INSIDE_RADII[dist]
 
@@ -106,6 +122,7 @@ class exportObj.templates.Turn extends Template
     dist = @speed
     do (dir, dist) ->
       new Kinetic.Shape
+        name: 'template'
         drawFunc: (ctx) ->
           angle = -Math.PI / 2
           radius = exportObj.TURN_INSIDE_RADII[dist]
@@ -125,4 +142,4 @@ class exportObj.templates.Turn extends Template
               throw new Error("Invalid direction #{dir}")
 
           ctx.closePath()
-          ctx.strokeShape this
+          ctx.fillStrokeShape this

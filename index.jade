@@ -24,9 +24,13 @@ html
     script(src="javascripts/template.js")
     script(src="javascripts/movement.js")
     script(src="javascripts/ship.js")
+    script(src="javascripts/ui.js")
+    script(src="javascripts/maneuvergrid.js")
+    script(src="javascripts/deployarea.js")
+    script(src="javascripts/asteroidarea.js")
+
     script(src="javascripts/demo.js")
     script(src="javascripts/grid.js")
-    script(src="javascripts/ui.js")
 
     script(defer="defer")
       :coffee
@@ -37,6 +41,10 @@ html
             width: 914
             height: 914
 
+          drawDeployAreasOn stage
+
+          drawAsteroidAreaOn stage
+
           drawGridOn stage
 
           window.ui = new ManeuversUI
@@ -44,31 +52,63 @@ html
             panel: '.ui-panel'
             colorpicker: '.colorpickerholder'
 
+          window.maneuvergrid = new ManeuverGrid
+            container: '.maneuvers'
+
         #demo stage
 
     .container-fluid
       .row
         .col-sm-8.col-xs-12#stage Canvas support is required
+
         .col-sm-4.col-xs-12.ui-panel
+          .row
+            .col-xs-4.checkbox
+              label
+                input.toggle-deploy(type="checkbox", checked="checked")
+                | Show Deploy Areas
+            .col-xs-4.checkbox
+              label
+                input.toggle-asteroid-area(type="checkbox", checked="checked")
+                | Show Asteroid Area
+            .col-xs-4.checkbox
+              label
+                input.toggle-grid(type="checkbox", checked="checked")
+                | Show Grid
           .row
             .col-xs-12.colorpickerholder
           .row
             .col-xs-6
               input.form-control.shipname(placeholder="Ship name (optional)")
-            .col-xs-6.checkbox
+            .col-xs-3.checkbox
               label
                 input.isLarge(type="checkbox")
                 | Large Base
-          .row
-            .col-xs-4
-            button.btn.btn-primary.addship Add Ship
+            .col-xs-3
+              button.btn.btn-primary.addship Add Ship
+
+          hr
+
           .row
             .col-xs-6
-              ul.shiplist.list-unstyled
-            .col-xs-6
-              .row
-                .col-xs-6 Heading
+              .list-group.shiplist
+              button.btn.clone-ship.show-when-ship-selected Clone Selected Ship
+              button.btn.select-none.show-when-ship-selected Deselect Ship
+            .col-xs-6.ship-controls
+              .row.hide-during-barrel-roll.show-when-ship-selected
+                .col-xs-6 Start Heading
                 .col-xs-6
                   input.form-control.heading(value="0", type="number")
-              .row
+              .row.hide-during-barrel-roll.show-when-ship-selected
                 .col-xs-12.heading-slider
+              .row.hide-during-barrel-roll.show-when-ship-selected
+                .col-xs-12.maneuvers
+              .row
+                .col-xs-12
+                  button.btn.btn-primary.btn-block.lock-template Lock Template
+                  button.btn.btn-primary.btn-block.lock-base Lock Base
+              .row.hide-during-barrel-roll.show-when-ship-selected
+                .col-xs-12.list-group.turnlist
+              .row.hide-during-barrel-roll.show-when-ship-selected
+                .col-xs-12.btn-group
+                  button.btn.btn-primary.add-turn Add Turn

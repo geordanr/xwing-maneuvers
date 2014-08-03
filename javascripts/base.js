@@ -23,6 +23,7 @@
         throw new Error("Position required");
       }
       this.group = new Kinetic.Group({
+        name: 'baseGroup',
         x: this.position.center_x,
         y: this.position.center_y,
         offsetX: this.width / 2,
@@ -71,8 +72,16 @@
       }));
     }
 
+    Base.prototype.destroy = function() {
+      this.group.destroyChildren();
+      return this.group.destroy();
+    };
+
     Base.prototype.draw = function(layer, args) {
       var child, _i, _len, _ref, _ref1, _ref2, _ref3, _results;
+      if (args == null) {
+        args = {};
+      }
       layer.add(this.group);
       _ref = this.group.children;
       _results = [];
@@ -87,7 +96,10 @@
     };
 
     Base.prototype.getRotation = function() {
-      return this.group.rotation();
+      var rot;
+      rot = this.group.getLayer() != null ? this.group.getLayer().rotation() : 0;
+      rot += this.group.rotation();
+      return rot % 360;
     };
 
     Base.prototype.getFrontNubTransform = function() {
@@ -111,6 +123,21 @@
         case 'right':
         case 'rightforward':
         case 'rightbackward':
+          return this.group.getAbsoluteTransform().copy().translate(this.width, distance_from_front);
+        default:
+          throw new Error("Invalid side " + side);
+      }
+    };
+
+    Base.prototype.getLargeBarrelRollTransform = function(side, distance_from_front) {
+      if (distance_from_front > this.width - exportObj.SMALL_BASE_WIDTH) {
+        throw new Error("Barrel roll template for Large ships placed too far back (" + distance_from_front + " but base width is " + this.width + ") and template length is " + exportObj.SMALL_BASE_WIDTH);
+      }
+      distance_from_front += exportObj.TEMPLATE_WIDTH;
+      switch (side) {
+        case 'left':
+          return this.group.getAbsoluteTransform().copy().translate(0, distance_from_front);
+        case 'right':
           return this.group.getAbsoluteTransform().copy().translate(this.width, distance_from_front);
         default:
           throw new Error("Invalid side " + side);
