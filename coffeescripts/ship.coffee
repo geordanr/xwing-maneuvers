@@ -30,6 +30,11 @@ class exportObj.Ship
 
     @turnlist_element = $ document.createElement('DIV')
     @turnlist_element.addClass 'list-group'
+    @turnlist_element.sortable
+      update: (e, ui) =>
+        @turns = [@turns[0]].concat($(elem).data('turn_obj') for elem in @turnlist_element.find('.turn-element'))
+        @executeTurns()
+        @draw()
     @turnlist_element.hide()
 
     @draw_options = {}
@@ -153,7 +158,7 @@ class Turn
 
     @final_position = null
     @list_element = $ document.createElement('A')
-    @list_element.addClass 'list-group-item'
+    @list_element.addClass 'list-group-item turn-element'
     @list_element.append $.trim """
       <button type="button" class="close remove-turn"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
     """
@@ -163,6 +168,7 @@ class Turn
     @list_element.find('.remove-turn').click (e) =>
       e.preventDefault()
       $(exportObj).trigger 'xwm:removeTurn', this
+    @list_element.data 'turn_obj', this
 
     $(exportObj).on 'xwm:turnSelected', (e, turn) =>
       @list_element.toggleClass('active', turn == this)

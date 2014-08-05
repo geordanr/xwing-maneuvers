@@ -35,6 +35,23 @@
       });
       this.turnlist_element = $(document.createElement('DIV'));
       this.turnlist_element.addClass('list-group');
+      this.turnlist_element.sortable({
+        update: function(e, ui) {
+          var elem;
+          _this.turns = [_this.turns[0]].concat((function() {
+            var _i, _len, _ref1, _results;
+            _ref1 = this.turnlist_element.find('.turn-element');
+            _results = [];
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              elem = _ref1[_i];
+              _results.push($(elem).data('turn_obj'));
+            }
+            return _results;
+          }).call(_this));
+          _this.executeTurns();
+          return _this.draw();
+        }
+      });
       this.turnlist_element.hide();
       this.draw_options = {};
       turn = new Turn({
@@ -191,7 +208,7 @@
       this.templates = [];
       this.final_position = null;
       this.list_element = $(document.createElement('A'));
-      this.list_element.addClass('list-group-item');
+      this.list_element.addClass('list-group-item turn-element');
       this.list_element.append($.trim("<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
       this.list_element.click(function(e) {
         e.preventDefault();
@@ -201,6 +218,7 @@
         e.preventDefault();
         return $(exportObj).trigger('xwm:removeTurn', _this);
       });
+      this.list_element.data('turn_obj', this);
       $(exportObj).on('xwm:turnSelected', function(e, turn) {
         return _this.list_element.toggleClass('active', turn === _this);
       }).on('xwm:removeTurn', function(e, turn) {
