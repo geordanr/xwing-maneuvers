@@ -85,12 +85,6 @@ class exportObj.ManeuversUI
       e.preventDefault()
       $(exportObj).trigger 'xwm:finalizeBarrelRoll'
 
-    @panel.find('.delete-ship').click (e) =>
-      e.preventDefault()
-      if @selected_ship?
-        @selected_ship.destroy()
-        @selected_ship = null
-
     @panel.find('.toggle-deploy').change (e) =>
       e.preventDefault()
       @stage.find('.deployareas').visible $(e.target).prop('checked')

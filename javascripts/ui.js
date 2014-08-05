@@ -93,13 +93,6 @@
         e.preventDefault();
         return $(exportObj).trigger('xwm:finalizeBarrelRoll');
       });
-      this.panel.find('.delete-ship').click(function(e) {
-        e.preventDefault();
-        if (_this.selected_ship != null) {
-          _this.selected_ship.destroy();
-          return _this.selected_ship = null;
-        }
-      });
       this.panel.find('.toggle-deploy').change(function(e) {
         e.preventDefault();
         return _this.stage.find('.deployareas').visible($(e.target).prop('checked'));

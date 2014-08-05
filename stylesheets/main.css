@@ -1,2 +1,5 @@
 li.shipbutton {
   padding: 2px 0; }
+
+.sort-handle {
+  cursor: ns-resize; }

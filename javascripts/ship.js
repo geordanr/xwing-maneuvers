@@ -31,11 +31,13 @@
       this.shiplist_element.append($.trim("<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
       this.shiplist_element.find('.close').click(function(e) {
         e.preventDefault();
-        return _this.destroy();
+        _this.destroy();
+        return $(exportObj).trigger('xwm:shipSelected', null);
       });
       this.turnlist_element = $(document.createElement('DIV'));
       this.turnlist_element.addClass('list-group');
       this.turnlist_element.sortable({
+        handle: '.sort-handle',
         update: function(e, ui) {
           var elem;
           _this.turns = [_this.turns[0]].concat((function() {
@@ -209,7 +211,7 @@
       this.final_position = null;
       this.list_element = $(document.createElement('A'));
       this.list_element.addClass('list-group-item turn-element');
-      this.list_element.append($.trim("<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
+      this.list_element.append($.trim("<span class=\"glyphicon glyphicon-align-justify sort-handle\"></span>\n<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
       this.list_element.click(function(e) {
         e.preventDefault();
         return $(exportObj).trigger('xwm:turnSelected', _this);

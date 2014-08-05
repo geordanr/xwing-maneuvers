@@ -27,10 +27,12 @@ class exportObj.Ship
     @shiplist_element.find('.close').click (e) =>
       e.preventDefault()
       @destroy()
+      $(exportObj).trigger 'xwm:shipSelected', null
 
     @turnlist_element = $ document.createElement('DIV')
     @turnlist_element.addClass 'list-group'
     @turnlist_element.sortable
+      handle: '.sort-handle'
       update: (e, ui) =>
         @turns = [@turns[0]].concat($(elem).data('turn_obj') for elem in @turnlist_element.find('.turn-element'))
         @executeTurns()
@@ -160,6 +162,7 @@ class Turn
     @list_element = $ document.createElement('A')
     @list_element.addClass 'list-group-item turn-element'
     @list_element.append $.trim """
+      <span class="glyphicon glyphicon-align-justify sort-handle"></span>
       <button type="button" class="close remove-turn"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
     """
     @list_element.click (e) =>
