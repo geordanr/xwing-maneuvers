@@ -215,7 +215,7 @@
       this.final_position = null;
       this.list_element = $(document.createElement('A'));
       this.list_element.addClass('list-group-item turn-element');
-      this.list_element.append($.trim("<span class=\"glyphicon glyphicon-align-justify sort-handle\"></span>\n<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>\n<button class=\"btn btn-default add-decloak\">Decloak</button>\n<button class=\"btn btn-default add-movement\">Movement</button>\n<button class=\"btn btn-default add-boost\">Boost</button>\n<button class=\"btn btn-default add-barrel-roll\">Barrel Roll</button>\n<button class=\"btn btn-default add-daredevil\">Daredevil</button>"));
+      this.list_element.append($.trim("<span class=\"glyphicon glyphicon-align-justify sort-handle\"></span>\n<span class=\"executed-movements\"></span>\n<button class=\"btn btn-default add-decloak\">Decloak</button>\n<button class=\"btn btn-default add-movement\">Movement</button>\n<button class=\"btn btn-default add-boost\">Boost</button>\n<button class=\"btn btn-default add-barrel-roll\">Barrel Roll</button>\n<button class=\"btn btn-default add-daredevil\">Daredevil</button>\n<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
       this.list_element.click(function(e) {
         e.preventDefault();
         return $(exportObj).trigger('xwm:turnSelected', _this);
@@ -225,6 +225,21 @@
         return $(exportObj).trigger('xwm:removeTurn', _this);
       });
       this.list_element.data('turn_obj', this);
+      this.list_element.find('.add-movement').click(function(e) {
+        return $(exportObj).trigger('xwm:showMovementSelections');
+      });
+      this.list_element.find('.add-barrel-roll').click(function(e) {
+        return $(exportObj).trigger('xwm:showBarrelRollSelections');
+      });
+      this.list_element.find('.add-decloak').click(function(e) {
+        return $(exportObj).trigger('xwm:showDecloakSelections');
+      });
+      this.list_element.find('.add-boost').click(function(e) {
+        return $(exportObj).trigger('xwm:showBoostSelections');
+      });
+      this.list_element.find('.add-daredevil').click(function(e) {
+        return $(exportObj).trigger('xwm:showDaredevilSelections');
+      });
       $(exportObj).on('xwm:turnSelected', function(e, turn) {
         _this.isSelected = turn === _this;
         return _this.list_element.toggleClass('active', _this.isSelected);
@@ -285,6 +300,34 @@
                 _this.addMovement(new exportObj.movements.Koiogran({
                   speed: args.speed
                 }));
+                _this.ship.executeTurns();
+                return _this.ship.draw();
+              case 'decloak-forward-left':
+                _this.addMovement(new exportObj.movements.DecloakForwardLeft());
+                _this.ship.executeTurns();
+                return _this.ship.draw();
+              case 'decloak-forward-right':
+                _this.addMovement(new exportObj.movements.DecloakForwardRight());
+                _this.ship.executeTurns();
+                return _this.ship.draw();
+              case 'daredevil-left':
+                _this.addMovement(new exportObj.movements.DaredevilLeft());
+                _this.ship.executeTurns();
+                return _this.ship.draw();
+              case 'daredevil-right':
+                _this.addMovement(new exportObj.movements.DaredevilRight());
+                _this.ship.executeTurns();
+                return _this.ship.draw();
+              case 'boost':
+                _this.addMovement(new exportObj.movements.Boost());
+                _this.ship.executeTurns();
+                return _this.ship.draw();
+              case 'boost-left':
+                _this.addMovement(new exportObj.movements.BoostLeft());
+                _this.ship.executeTurns();
+                return _this.ship.draw();
+              case 'boost-right':
+                _this.addMovement(new exportObj.movements.BoostRight());
                 _this.ship.executeTurns();
                 return _this.ship.draw();
               case 'barrelroll-left':
@@ -543,8 +586,19 @@
 
     Turn.prototype.addMovement = function(movement) {
       this.movements.push(movement);
-      this.list_element.find('.add-movement').remove();
-      this.list_element.append(movement.element);
+      this.list_element.find('.executed-movements').append(movement.element);
+      if (movement instanceof exportObj.movements.Decloak || movement instanceof exportObj.movements.DecloakForwardLeft || movement instanceof exportObj.movements.DecloakForwardRight) {
+        this.list_element.find('.add-decloak').hide();
+      } else if (movement instanceof exportObj.movements.Boost || movement instanceof exportObj.movements.BoostLeft || movement instanceof exportObj.movements.BoostRight) {
+        this.list_element.find('.add-boost').hide();
+      } else if (movement instanceof exportObj.movements.DaredevilLeft || movement instanceof exportObj.movements.DaredevilRight) {
+        this.list_element.find('.add-daredevil').hide();
+      } else if (movement instanceof exportObj.movements.BarrelRoll) {
+        this.list_element.find('.add-barrel-roll').hide();
+      } else {
+        this.list_element.find('.add-movement').hide();
+        this.list_element.find('.add-decloak').hide();
+      }
       return this.execute();
     };
 

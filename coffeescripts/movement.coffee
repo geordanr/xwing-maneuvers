@@ -256,6 +256,47 @@ class exportObj.movements.Decloak extends exportObj.movements.BarrelRoll
     super args
     @speed = 2
 
+class exportObj.movements.DecloakForwardLeft extends exportObj.movements.Bank
+  constructor: ->
+    super
+      speed: 2
+      direction: 'left'
+
+class exportObj.movements.DecloakForwardRight extends exportObj.movements.Bank
+  constructor: ->
+    super
+      speed: 2
+      direction: 'right'
+
+class exportObj.movements.Boost extends exportObj.movements.Straight
+  constructor: ->
+    super
+      speed: 1
+
+class exportObj.movements.BoostLeft extends exportObj.movements.Bank
+  constructor: ->
+    super
+      speed: 1
+      direction: 'left'
+
+class exportObj.movements.BoostRight extends exportObj.movements.Bank
+  constructor: ->
+    super
+      speed: 1
+      direction: 'right'
+
+class exportObj.movements.DaredevilLeft extends exportObj.movements.Turn
+  constructor: ->
+    super
+      speed: 1
+      direction: 'left'
+
+class exportObj.movements.DaredevilRight extends exportObj.movements.Turn
+  constructor: ->
+    super
+      speed: 1
+      direction: 'right'
+
 class exportObj.movements.LargeBarrelRoll extends exportObj.movements.BarrelRoll
   constructor: (args) ->
     super args

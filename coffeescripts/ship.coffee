@@ -167,12 +167,13 @@ class Turn
     @list_element.addClass 'list-group-item turn-element'
     @list_element.append $.trim """
       <span class="glyphicon glyphicon-align-justify sort-handle"></span>
-      <button type="button" class="close remove-turn"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+      <span class="executed-movements"></span>
       <button class="btn btn-default add-decloak">Decloak</button>
       <button class="btn btn-default add-movement">Movement</button>
       <button class="btn btn-default add-boost">Boost</button>
       <button class="btn btn-default add-barrel-roll">Barrel Roll</button>
       <button class="btn btn-default add-daredevil">Daredevil</button>
+      <button type="button" class="close remove-turn"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
     """
     @list_element.click (e) =>
       e.preventDefault()
@@ -181,6 +182,17 @@ class Turn
       e.preventDefault()
       $(exportObj).trigger 'xwm:removeTurn', this
     @list_element.data 'turn_obj', this
+
+    @list_element.find('.add-movement').click (e) ->
+      $(exportObj).trigger 'xwm:showMovementSelections'
+    @list_element.find('.add-barrel-roll').click (e) ->
+      $(exportObj).trigger 'xwm:showBarrelRollSelections'
+    @list_element.find('.add-decloak').click (e) ->
+      $(exportObj).trigger 'xwm:showDecloakSelections'
+    @list_element.find('.add-boost').click (e) ->
+      $(exportObj).trigger 'xwm:showBoostSelections'
+    @list_element.find('.add-daredevil').click (e) ->
+      $(exportObj).trigger 'xwm:showDaredevilSelections'
 
     $(exportObj).on 'xwm:turnSelected', (e, turn) =>
       @isSelected = turn is this
@@ -234,6 +246,34 @@ class Turn
               @ship.draw()
             when 'koiogran'
               @addMovement new exportObj.movements.Koiogran {speed: args.speed}
+              @ship.executeTurns()
+              @ship.draw()
+            when 'decloak-forward-left'
+              @addMovement new exportObj.movements.DecloakForwardLeft()
+              @ship.executeTurns()
+              @ship.draw()
+            when 'decloak-forward-right'
+              @addMovement new exportObj.movements.DecloakForwardRight()
+              @ship.executeTurns()
+              @ship.draw()
+            when 'daredevil-left'
+              @addMovement new exportObj.movements.DaredevilLeft()
+              @ship.executeTurns()
+              @ship.draw()
+            when 'daredevil-right'
+              @addMovement new exportObj.movements.DaredevilRight()
+              @ship.executeTurns()
+              @ship.draw()
+            when 'boost'
+              @addMovement new exportObj.movements.Boost()
+              @ship.executeTurns()
+              @ship.draw()
+            when 'boost-left'
+              @addMovement new exportObj.movements.BoostLeft()
+              @ship.executeTurns()
+              @ship.draw()
+            when 'boost-right'
+              @addMovement new exportObj.movements.BoostRight()
               @ship.executeTurns()
               @ship.draw()
             when 'barrelroll-left'
@@ -426,8 +466,20 @@ class Turn
 
   addMovement: (movement) ->
     @movements.push movement
-    @list_element.find('.add-movement').remove()
-    @list_element.append movement.element
+    @list_element.find('.executed-movements').append movement.element
+    if movement instanceof exportObj.movements.Decloak or movement instanceof exportObj.movements.DecloakForwardLeft or movement instanceof exportObj.movements.DecloakForwardRight
+      # decloak always has to go before movement
+      @list_element.find('.add-decloak').hide()
+    else if movement instanceof exportObj.movements.Boost or movement instanceof exportObj.movements.BoostLeft or movement instanceof exportObj.movements.BoostRight
+      @list_element.find('.add-boost').hide()
+    else if movement instanceof exportObj.movements.DaredevilLeft or movement instanceof exportObj.movements.DaredevilRight
+      @list_element.find('.add-daredevil').hide()
+    else if movement instanceof exportObj.movements.BarrelRoll
+      @list_element.find('.add-barrel-roll').hide()
+    else
+      @list_element.find('.add-movement').hide()
+      # once you move, you can't decloak
+      @list_element.find('.add-decloak').hide()
     @execute()
 
   removeMovement: (movement) ->

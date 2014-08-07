@@ -51,6 +51,8 @@ class exportObj.ManeuversUI
     @shipnameinput = $ @panel.find('.shipname')
     @islargecheckbox = $ @panel.find('.isLarge')
     @shiplist_element = $ @panel.find('.shiplist')
+    @maneuvers_element = $ @panel.find('.maneuvers')
+    @turnlist_element = $ @panel.find('.turnlist')
 
     @addshipbtn = $ @panel.find('.addship')
     @addshipbtn.click (e) =>
@@ -71,6 +73,8 @@ class exportObj.ManeuversUI
       @addShip ship
 
     @panel.find('.show-when-ship-selected').hide()
+    @panel.find('.show-during-barrel-roll').hide()
+    @maneuvers_element.hide()
 
     # events
 
@@ -140,8 +144,11 @@ class exportObj.ManeuversUI
           @headinginput.val heading_deg
           @headingslider.slider 'value', heading_deg
     .on 'xwm:movementClicked', (e, args) =>
+      @turnlist_element.show()
+      @maneuvers_element.hide()
       if args.direction.indexOf('barrelroll') != -1 or args.direction.indexOf('decloak-left') != -1 or args.direction.indexOf('decloak-right') != -1
         @panel.find('.lock-template').show()
+        @panel.find('.show-during-barrel-roll').show()
         @panel.find('.hide-during-barrel-roll').hide()
     .on 'xwm:barrelRollTemplateOffsetChanged', (e, offset) =>
       @barrelroll_start_offset = offset
@@ -171,6 +178,7 @@ class exportObj.ManeuversUI
     .on 'xwm:finalizeBarrelRoll', (e) =>
       @panel.find('.lock-base').hide()
       @panel.find('.hide-during-barrel-roll').show()
+      @panel.find('.show-during-barrel-roll').hide()
       @barrelroll_movement.end_distance_from_front = @barrelroll_end_offset
       $(exportObj).trigger 'xwm:executeBarrelRoll', @barrelroll_movement
     .on 'xwm:cloneShip', (e, ship) =>
@@ -195,10 +203,39 @@ class exportObj.ManeuversUI
       template.draw @barrelroll_template_layer,
         kinetic_draw_args:
           fill: '#666'
+    .on 'xwm:showMovementSelections', (e, args) =>
+      @turnlist_element.hide()
+      @maneuvers_element.find('.movement').show()
+      @maneuvers_element.find('.nonmovement').hide()
+      @maneuvers_element.show()
+    .on 'xwm:showBarrelRollSelections', (e, args) =>
+      @turnlist_element.hide()
+      @maneuvers_element.find('.movement').hide()
+      @maneuvers_element.find('.nonmovement, .nonmovement td').hide()
+      @maneuvers_element.find('tr.nonmovement.barrelroll, td.barrelroll').show()
+      @maneuvers_element.show()
+    .on 'xwm:showDecloakSelections', (e, args) =>
+      @turnlist_element.hide()
+      @maneuvers_element.find('.movement').hide()
+      @maneuvers_element.find('.nonmovement, .nonmovement td').hide()
+      @maneuvers_element.find('tr.nonmovement.decloak, td.decloak').show()
+      @maneuvers_element.show()
+    .on 'xwm:showBoostSelections', (e, args) =>
+      @turnlist_element.hide()
+      @maneuvers_element.find('.movement').hide()
+      @maneuvers_element.find('.nonmovement, .nonmovement td').hide()
+      @maneuvers_element.find('tr.nonmovement.boost, td.boost').show()
+      @maneuvers_element.show()
+    .on 'xwm:showDaredevilSelections', (e, args) =>
+      @turnlist_element.hide()
+      @maneuvers_element.find('.movement').hide()
+      @maneuvers_element.find('.nonmovement, .nonmovement td').hide()
+      @maneuvers_element.find('tr.nonmovement.daredevil, td.daredevil').show()
+      @maneuvers_element.show()
 
   addShip: (ship) ->
     @ships.push ship
     @shiplist_element.append ship.shiplist_element
-    @panel.find('.turnlist').append ship.turnlist_element
+    @turnlist_element.append ship.turnlist_element
 
     $(exportObj).trigger 'xwm:shipSelected', ship

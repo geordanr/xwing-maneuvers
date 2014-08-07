@@ -62,6 +62,8 @@
       this.shipnameinput = $(this.panel.find('.shipname'));
       this.islargecheckbox = $(this.panel.find('.isLarge'));
       this.shiplist_element = $(this.panel.find('.shiplist'));
+      this.maneuvers_element = $(this.panel.find('.maneuvers'));
+      this.turnlist_element = $(this.panel.find('.turnlist'));
       this.addshipbtn = $(this.panel.find('.addship'));
       this.addshipbtn.click(function(e) {
         var ship;
@@ -83,6 +85,8 @@
         return _this.addShip(ship);
       });
       this.panel.find('.show-when-ship-selected').hide();
+      this.panel.find('.show-during-barrel-roll').hide();
+      this.maneuvers_element.hide();
       this.panel.find('.lock-template').hide();
       this.panel.find('.lock-template').click(function(e) {
         e.preventDefault();
@@ -163,8 +167,11 @@
           }
         }
       }).on('xwm:movementClicked', function(e, args) {
+        _this.turnlist_element.show();
+        _this.maneuvers_element.hide();
         if (args.direction.indexOf('barrelroll') !== -1 || args.direction.indexOf('decloak-left') !== -1 || args.direction.indexOf('decloak-right') !== -1) {
           _this.panel.find('.lock-template').show();
+          _this.panel.find('.show-during-barrel-roll').show();
           return _this.panel.find('.hide-during-barrel-roll').hide();
         }
       }).on('xwm:barrelRollTemplateOffsetChanged', function(e, offset) {
@@ -200,6 +207,7 @@
       }).on('xwm:finalizeBarrelRoll', function(e) {
         _this.panel.find('.lock-base').hide();
         _this.panel.find('.hide-during-barrel-roll').show();
+        _this.panel.find('.show-during-barrel-roll').hide();
         _this.barrelroll_movement.end_distance_from_front = _this.barrelroll_end_offset;
         return $(exportObj).trigger('xwm:executeBarrelRoll', _this.barrelroll_movement);
       }).on('xwm:cloneShip', function(e, ship) {
@@ -231,13 +239,42 @@
             fill: '#666'
           }
         });
+      }).on('xwm:showMovementSelections', function(e, args) {
+        _this.turnlist_element.hide();
+        _this.maneuvers_element.find('.movement').show();
+        _this.maneuvers_element.find('.nonmovement').hide();
+        return _this.maneuvers_element.show();
+      }).on('xwm:showBarrelRollSelections', function(e, args) {
+        _this.turnlist_element.hide();
+        _this.maneuvers_element.find('.movement').hide();
+        _this.maneuvers_element.find('.nonmovement, .nonmovement td').hide();
+        _this.maneuvers_element.find('tr.nonmovement.barrelroll, td.barrelroll').show();
+        return _this.maneuvers_element.show();
+      }).on('xwm:showDecloakSelections', function(e, args) {
+        _this.turnlist_element.hide();
+        _this.maneuvers_element.find('.movement').hide();
+        _this.maneuvers_element.find('.nonmovement, .nonmovement td').hide();
+        _this.maneuvers_element.find('tr.nonmovement.decloak, td.decloak').show();
+        return _this.maneuvers_element.show();
+      }).on('xwm:showBoostSelections', function(e, args) {
+        _this.turnlist_element.hide();
+        _this.maneuvers_element.find('.movement').hide();
+        _this.maneuvers_element.find('.nonmovement, .nonmovement td').hide();
+        _this.maneuvers_element.find('tr.nonmovement.boost, td.boost').show();
+        return _this.maneuvers_element.show();
+      }).on('xwm:showDaredevilSelections', function(e, args) {
+        _this.turnlist_element.hide();
+        _this.maneuvers_element.find('.movement').hide();
+        _this.maneuvers_element.find('.nonmovement, .nonmovement td').hide();
+        _this.maneuvers_element.find('tr.nonmovement.daredevil, td.daredevil').show();
+        return _this.maneuvers_element.show();
       });
     }
 
     ManeuversUI.prototype.addShip = function(ship) {
       this.ships.push(ship);
       this.shiplist_element.append(ship.shiplist_element);
-      this.panel.find('.turnlist').append(ship.turnlist_element);
+      this.turnlist_element.append(ship.turnlist_element);
       return $(exportObj).trigger('xwm:shipSelected', ship);
     };
 
