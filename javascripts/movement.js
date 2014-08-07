@@ -328,6 +328,103 @@
 
   })(exportObj.movements.BarrelRoll);
 
+  exportObj.movements.DecloakForwardLeft = (function(_super) {
+    __extends(DecloakForwardLeft, _super);
+
+    function DecloakForwardLeft() {
+      DecloakForwardLeft.__super__.constructor.call(this, {
+        speed: 2,
+        direction: 'left'
+      });
+    }
+
+    return DecloakForwardLeft;
+
+  })(exportObj.movements.Bank);
+
+  exportObj.movements.DecloakForwardRight = (function(_super) {
+    __extends(DecloakForwardRight, _super);
+
+    function DecloakForwardRight() {
+      DecloakForwardRight.__super__.constructor.call(this, {
+        speed: 2,
+        direction: 'right'
+      });
+    }
+
+    return DecloakForwardRight;
+
+  })(exportObj.movements.Bank);
+
+  exportObj.movements.Boost = (function(_super) {
+    __extends(Boost, _super);
+
+    function Boost() {
+      Boost.__super__.constructor.call(this, {
+        speed: 1
+      });
+    }
+
+    return Boost;
+
+  })(exportObj.movements.Straight);
+
+  exportObj.movements.BoostLeft = (function(_super) {
+    __extends(BoostLeft, _super);
+
+    function BoostLeft() {
+      BoostLeft.__super__.constructor.call(this, {
+        speed: 1,
+        direction: 'left'
+      });
+    }
+
+    return BoostLeft;
+
+  })(exportObj.movements.Bank);
+
+  exportObj.movements.BoostRight = (function(_super) {
+    __extends(BoostRight, _super);
+
+    function BoostRight() {
+      BoostRight.__super__.constructor.call(this, {
+        speed: 1,
+        direction: 'right'
+      });
+    }
+
+    return BoostRight;
+
+  })(exportObj.movements.Bank);
+
+  exportObj.movements.DaredevilLeft = (function(_super) {
+    __extends(DaredevilLeft, _super);
+
+    function DaredevilLeft() {
+      DaredevilLeft.__super__.constructor.call(this, {
+        speed: 1,
+        direction: 'left'
+      });
+    }
+
+    return DaredevilLeft;
+
+  })(exportObj.movements.Turn);
+
+  exportObj.movements.DaredevilRight = (function(_super) {
+    __extends(DaredevilRight, _super);
+
+    function DaredevilRight() {
+      DaredevilRight.__super__.constructor.call(this, {
+        speed: 1,
+        direction: 'right'
+      });
+    }
+
+    return DaredevilRight;
+
+  })(exportObj.movements.Turn);
+
   exportObj.movements.LargeBarrelRoll = (function(_super) {
     __extends(LargeBarrelRoll, _super);
 
