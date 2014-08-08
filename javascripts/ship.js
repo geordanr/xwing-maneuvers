@@ -320,7 +320,7 @@
                 _this.addMovement(new exportObj.movements.BoostRight());
                 return _this.ship.executeTurnsAndDraw();
               case 'barrelroll-left':
-                if (_this.size === 'large') {
+                if (_this.ship.size === 'large') {
                   barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0, true));
                   return $(exportObj).trigger('xwm:initiateBarrelRoll', [
                     start_base, new exportObj.movements.LargeBarrelRoll({
@@ -367,7 +367,7 @@
                   })
                 ]);
               case 'barrelroll-right':
-                if (_this.size === 'large') {
+                if (_this.ship.size === 'large') {
                   barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0, true));
                   return $(exportObj).trigger('xwm:initiateBarrelRoll', [
                     start_base, new exportObj.movements.LargeBarrelRoll({

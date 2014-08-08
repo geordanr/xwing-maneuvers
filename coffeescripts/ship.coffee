@@ -265,7 +265,7 @@ class Turn
               @addMovement new exportObj.movements.BoostRight()
               @ship.executeTurnsAndDraw()
             when 'barrelroll-left'
-              if @size == 'large'
+              if @ship.size == 'large'
                 barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0, true)
                 $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.LargeBarrelRoll
                   base: start_base
@@ -305,7 +305,7 @@ class Turn
               ]
 
             when 'barrelroll-right'
-              if @size == 'large'
+              if @ship.size == 'large'
                 barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0, true)
                 $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.LargeBarrelRoll
                   base: start_base
