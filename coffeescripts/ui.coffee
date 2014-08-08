@@ -232,6 +232,11 @@ class exportObj.ManeuversUI
       @maneuvers_element.find('.nonmovement, .nonmovement td').hide()
       @maneuvers_element.find('tr.nonmovement.daredevil, td.daredevil').show()
       @maneuvers_element.show()
+    .on 'xwm:destroyShip', (e, ship) =>
+      idx = @ships.indexOf ship
+      if idx != -1
+        @ships.splice idx, 1
+      $(exportObj).trigger 'xwm:shipSelected', null
 
   addShip: (ship) ->
     @ships.push ship

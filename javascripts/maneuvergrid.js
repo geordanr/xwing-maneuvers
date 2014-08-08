@@ -73,7 +73,7 @@
         table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"bankright\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"turnright\">" + (exportObj.ManeuverGrid.makeManeuverIcon('turnright')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
         table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"koiogran\">" + (exportObj.ManeuverGrid.makeManeuverIcon('kturn')) + "</td>") : "<td>&nbsp;</td>";
       }
-      table += $.trim("<tr class=\"nonmovement decloak\">\n  <td>&nbsp;</td>\n  <td class=\"decloak\" data-speed=\"2\" data-direction=\"decloak-forward-left\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>\n  <td>&nbsp;</td>\n  <td class=\"decloak\" data-speed=\"2\" data-direction=\"decloak-forward-right\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmovement daredevil boost\">\n  <td class=\"daredevil\" data-speed=\"1\" data-direction=\"daredevil-left\">DD " + (exportObj.ManeuverGrid.makeManeuverIcon('turnleft')) + "</td>\n  <td class=\"boost\" data-speed=\"1\" data-direction=\"boost-left\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>\n  <td class=\"boost\" data-speed=\"1\" data-direction=\"boost\">" + (exportObj.ManeuverGrid.makeManeuverIcon('straight')) + "</td>\n  <td class=\"boost\" data-speed=\"1\" data-direction=\"boost-right\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n  <td class=\"daredevil\" data-speed=\"1\" data-direction=\"daredevil-right\">DD " + (exportObj.ManeuverGrid.makeManeuverIcon('turnright')) + "</td>\n  <td>&nbsp;</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmovement decloak barrelroll\">\n  <td class=\"decloak\" data-direction=\"decloak-leftforward\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
+      table += $.trim("<tr class=\"nonmovement decloak\">\n  <td>&nbsp;</td>\n  <td class=\"decloak\" data-speed=\"2\" data-direction=\"decloak-forward-left\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>\n  <td>&nbsp;</td>\n  <td class=\"decloak\" data-speed=\"2\" data-direction=\"decloak-forward-right\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmovement daredevil boost\">\n  <td class=\"daredevil\" data-speed=\"1\" data-direction=\"daredevil-left\">" + (exportObj.ManeuverGrid.makeManeuverIcon('turnleft')) + "</td>\n  <td class=\"boost\" data-speed=\"1\" data-direction=\"boost-left\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>\n  <td class=\"boost\" data-speed=\"1\" data-direction=\"boost\">" + (exportObj.ManeuverGrid.makeManeuverIcon('straight')) + "</td>\n  <td class=\"boost\" data-speed=\"1\" data-direction=\"boost-right\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n  <td class=\"daredevil\" data-speed=\"1\" data-direction=\"daredevil-right\">" + (exportObj.ManeuverGrid.makeManeuverIcon('turnright')) + "</td>\n  <td>&nbsp;</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmovement decloak barrelroll\">\n  <td class=\"decloak\" data-direction=\"decloak-leftforward\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
         rotate: -90
       })) + "</td>\n  <td class=\"barrelroll\" data-direction=\"barrelroll-leftforward\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
         rotate: -90
@@ -105,10 +105,12 @@
     ManeuverGrid.prototype.setupHandlers = function() {
       return this.container.find('td').click(function(e) {
         e.preventDefault();
-        return $(exportObj).trigger('xwm:movementClicked', {
-          direction: $(e.delegateTarget).data('direction'),
-          speed: $(e.delegateTarget).data('speed')
-        });
+        if ($(e.delegateTarget).data('direction') != null) {
+          return $(exportObj).trigger('xwm:movementClicked', {
+            direction: $(e.delegateTarget).data('direction'),
+            speed: $(e.delegateTarget).data('speed')
+          });
+        }
       });
     };
 

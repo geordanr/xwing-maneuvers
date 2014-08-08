@@ -108,11 +108,11 @@ class exportObj.ManeuverGrid
       </tr>
 
       <tr class="nonmovement daredevil boost">
-        <td class="daredevil" data-speed="1" data-direction="daredevil-left">DD #{exportObj.ManeuverGrid.makeManeuverIcon 'turnleft'}</td>
+        <td class="daredevil" data-speed="1" data-direction="daredevil-left">#{exportObj.ManeuverGrid.makeManeuverIcon 'turnleft'}</td>
         <td class="boost" data-speed="1" data-direction="boost-left">#{exportObj.ManeuverGrid.makeManeuverIcon 'bankleft'}</td>
         <td class="boost" data-speed="1" data-direction="boost">#{exportObj.ManeuverGrid.makeManeuverIcon 'straight'}</td>
         <td class="boost" data-speed="1" data-direction="boost-right">#{exportObj.ManeuverGrid.makeManeuverIcon 'bankright'}</td>
-        <td class="daredevil" data-speed="1" data-direction="daredevil-right">DD #{exportObj.ManeuverGrid.makeManeuverIcon 'turnright'}</td>
+        <td class="daredevil" data-speed="1" data-direction="daredevil-right">#{exportObj.ManeuverGrid.makeManeuverIcon 'turnright'}</td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
       </tr>
@@ -152,6 +152,7 @@ class exportObj.ManeuverGrid
   setupHandlers: ->
     @container.find('td').click (e) ->
       e.preventDefault()
-      $(exportObj).trigger 'xwm:movementClicked',
-        direction: $(e.delegateTarget).data 'direction'
-        speed: $(e.delegateTarget).data 'speed'
+      if $(e.delegateTarget).data('direction')?
+        $(exportObj).trigger 'xwm:movementClicked',
+          direction: $(e.delegateTarget).data 'direction'
+          speed: $(e.delegateTarget).data 'speed'

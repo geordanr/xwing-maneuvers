@@ -32,8 +32,7 @@
       this.shiplist_element.append($.trim("<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
       this.shiplist_element.find('.close').click(function(e) {
         e.preventDefault();
-        _this.destroy();
-        return $(exportObj).trigger('xwm:shipSelected', null);
+        return $(exportObj).trigger('xwm:destroyShip', _this);
       });
       this.turnlist_element = $(document.createElement('DIV'));
       this.turnlist_element.addClass('list-group');
@@ -52,8 +51,7 @@
             }
             return _results;
           }).call(_this));
-          _this.executeTurns();
-          return _this.draw();
+          return _this.executeTurnsAndDraw();
         }
       });
       this.turnlist_element.hide();
@@ -82,6 +80,10 @@
       $(exportObj).on('xwm:shipSelected', function(e, ship) {
         _this.isSelected = ship === _this;
         return _this.turnlist_element.toggle(_this.isSelected);
+      }).on('xwm:destroyShip', function(e, ship) {
+        if (ship === _this) {
+          return _this.destroy();
+        }
       });
     }
 
@@ -110,6 +112,7 @@
       turn.execute();
       this.turns.push(turn);
       this.turnlist_element.append(turn.list_element);
+      this.draw();
       return turn;
     };
 
@@ -160,7 +163,7 @@
       }
     };
 
-    Ship.prototype.executeTurns = function() {
+    Ship.prototype.executeTurnsAndDraw = function() {
       var i, start_position, turn, _i, _len, _ref;
       start_position = this.turns[0].final_position;
       _ref = this.turns;
@@ -170,6 +173,7 @@
         turn.execute();
         start_position = turn.final_position;
       }
+      this.draw();
       return this;
     };
 
@@ -245,14 +249,12 @@
         return _this.list_element.toggleClass('active', _this.isSelected);
       }).on('xwm:removeTurn', function(e, turn) {
         turn.destroy();
-        _this.ship.executeTurns();
-        return _this.ship.draw();
+        return _this.ship.executeTurnsAndDraw();
       }).on('xwm:executeBarrelRoll', function(e, movement) {
         if (_this.ship.isSelected && _this.isSelected) {
           _this.addMovement(movement);
           $(exportObj).trigger('xwm:resetBarrelRollData', $.noop);
-          _this.ship.executeTurns();
-          return _this.ship.draw();
+          return _this.ship.executeTurnsAndDraw();
         }
       }).on('xwm:movementClicked', function(e, args) {
         if (_this.ship.isSelected && _this.isSelected) {
@@ -266,70 +268,57 @@
                 _this.addMovement(new exportObj.movements.Straight({
                   speed: args.speed
                 }));
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'bankleft':
                 _this.addMovement(new exportObj.movements.Bank({
                   speed: args.speed,
                   direction: 'left'
                 }));
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'bankright':
                 _this.addMovement(new exportObj.movements.Bank({
                   speed: args.speed,
                   direction: 'right'
                 }));
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'turnleft':
                 _this.addMovement(new exportObj.movements.Turn({
                   speed: args.speed,
                   direction: 'left'
                 }));
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'turnright':
                 _this.addMovement(new exportObj.movements.Turn({
                   speed: args.speed,
                   direction: 'right'
                 }));
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'koiogran':
                 _this.addMovement(new exportObj.movements.Koiogran({
                   speed: args.speed
                 }));
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'decloak-forward-left':
                 _this.addMovement(new exportObj.movements.DecloakForwardLeft());
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'decloak-forward-right':
                 _this.addMovement(new exportObj.movements.DecloakForwardRight());
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'daredevil-left':
                 _this.addMovement(new exportObj.movements.DaredevilLeft());
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'daredevil-right':
                 _this.addMovement(new exportObj.movements.DaredevilRight());
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'boost':
                 _this.addMovement(new exportObj.movements.Boost());
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'boost-left':
                 _this.addMovement(new exportObj.movements.BoostLeft());
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'boost-right':
                 _this.addMovement(new exportObj.movements.BoostRight());
-                _this.ship.executeTurns();
-                return _this.ship.draw();
+                return _this.ship.executeTurnsAndDraw();
               case 'barrelroll-left':
                 if (_this.size === 'large') {
                   barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0, true));

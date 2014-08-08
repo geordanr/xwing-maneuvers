@@ -27,8 +27,7 @@ class exportObj.Ship
     """
     @shiplist_element.find('.close').click (e) =>
       e.preventDefault()
-      @destroy()
-      $(exportObj).trigger 'xwm:shipSelected', null
+      $(exportObj).trigger 'xwm:destroyShip', this
 
     @turnlist_element = $ document.createElement('DIV')
     @turnlist_element.addClass 'list-group'
@@ -37,8 +36,7 @@ class exportObj.Ship
       handle: '.sort-handle'
       update: (e, ui) =>
         @turns = [@turns[0]].concat($(elem).data('turn_obj') for elem in @turnlist_element.find('.turn-element'))
-        @executeTurns()
-        @draw()
+        @executeTurnsAndDraw()
     @turnlist_element.hide()
 
     @draw_options = {}
@@ -68,6 +66,9 @@ class exportObj.Ship
     $(exportObj).on 'xwm:shipSelected', (e, ship) =>
       @isSelected = ship is this
       @turnlist_element.toggle @isSelected
+    .on 'xwm:destroyShip', (e, ship) =>
+      if ship is this
+        @destroy()
 
   select: ->
     @shiplist_element.addClass 'active'
@@ -87,6 +88,7 @@ class exportObj.Ship
     turn.execute()
     @turns.push turn
     @turnlist_element.append turn.list_element
+    @draw()
     turn
 
   setDrawOptions: (args) ->
@@ -119,13 +121,14 @@ class exportObj.Ship
       @selected_turn = turn
       @selected_turn.select() if @selected_turn?
 
-  executeTurns: ->
+  executeTurnsAndDraw: ->
     # Re-executes all the turns.  Call this after the turn list has been modified.
     start_position = @turns[0].final_position
     for turn, i in @turns
       turn.setStartPosition start_position
       turn.execute()
       start_position = turn.final_position
+    @draw()
     this
 
   clone: ->
@@ -199,14 +202,12 @@ class Turn
       @list_element.toggleClass 'active', @isSelected
     .on 'xwm:removeTurn', (e, turn) =>
       turn.destroy()
-      @ship.executeTurns()
-      @ship.draw()
+      @ship.executeTurnsAndDraw()
     .on 'xwm:executeBarrelRoll', (e, movement) =>
       if @ship.isSelected and @isSelected
         @addMovement movement
         $(exportObj).trigger 'xwm:resetBarrelRollData', $.noop
-        @ship.executeTurns()
-        @ship.draw()
+        @ship.executeTurnsAndDraw()
     .on 'xwm:movementClicked', (e, args) =>
       if @ship.isSelected and @isSelected
         $(exportObj).trigger 'xwm:resetBarrelRollData', (barrelroll_template_layer) =>
@@ -218,64 +219,51 @@ class Turn
               ''
             when 'straight'
               @addMovement new exportObj.movements.Straight {speed: args.speed}
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'bankleft'
               @addMovement new exportObj.movements.Bank
                 speed: args.speed
                 direction: 'left'
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'bankright'
               @addMovement new exportObj.movements.Bank
                 speed: args.speed
                 direction: 'right'
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'turnleft'
               @addMovement new exportObj.movements.Turn
                 speed: args.speed
                 direction: 'left'
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'turnright'
               @addMovement new exportObj.movements.Turn
                 speed: args.speed
                 direction: 'right'
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'koiogran'
               @addMovement new exportObj.movements.Koiogran {speed: args.speed}
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'decloak-forward-left'
               @addMovement new exportObj.movements.DecloakForwardLeft()
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'decloak-forward-right'
               @addMovement new exportObj.movements.DecloakForwardRight()
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'daredevil-left'
               @addMovement new exportObj.movements.DaredevilLeft()
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'daredevil-right'
               @addMovement new exportObj.movements.DaredevilRight()
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'boost'
               @addMovement new exportObj.movements.Boost()
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'boost-left'
               @addMovement new exportObj.movements.BoostLeft()
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'boost-right'
               @addMovement new exportObj.movements.BoostRight()
-              @ship.executeTurns()
-              @ship.draw()
+              @ship.executeTurnsAndDraw()
             when 'barrelroll-left'
               if @size == 'large'
                 barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0, true)
