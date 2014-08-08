@@ -268,6 +268,13 @@
         _this.maneuvers_element.find('.nonmovement, .nonmovement td').hide();
         _this.maneuvers_element.find('tr.nonmovement.daredevil, td.daredevil').show();
         return _this.maneuvers_element.show();
+      }).on('xwm:destroyShip', function(e, ship) {
+        var idx;
+        idx = _this.ships.indexOf(ship);
+        if (idx !== -1) {
+          _this.ships.splice(idx, 1);
+        }
+        return $(exportObj).trigger('xwm:shipSelected', null);
       });
     }
 
