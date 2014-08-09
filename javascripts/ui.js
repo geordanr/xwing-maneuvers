@@ -74,7 +74,12 @@
           size: _this.islargecheckbox.prop('checked') ? 'large' : 'small',
           x: _this.stage.width() / 2,
           y: _this.stage.height() / 2,
-          heading_deg: 0
+          heading_deg: 0,
+          draw_options: {
+            show_final_maneuver_only: _this.panel.find('.toggle-final-positions').prop('checked'),
+            show_movement_templates: _this.panel.find('.toggle-templates').prop('checked'),
+            show_last_turn_only: _this.panel.find('.toggle-last-turn').prop('checked')
+          }
         });
         ship.setDrawOptions({
           kinetic_draw_args: {
@@ -101,14 +106,32 @@
         e.preventDefault();
         return _this.stage.find('.deployareas').visible($(e.target).prop('checked'));
       });
+      this.panel.find('.toggle-deploy').change();
       this.panel.find('.toggle-asteroid-area').change(function(e) {
         e.preventDefault();
         return _this.stage.find('.asteroidarea').visible($(e.target).prop('checked'));
       });
+      this.panel.find('.toggle-asteroid-area').change();
       this.panel.find('.toggle-grid').change(function(e) {
         e.preventDefault();
         return _this.stage.find('.grid').visible($(e.target).prop('checked'));
       });
+      this.panel.find('.toggle-grid').change();
+      this.panel.find('.toggle-templates').change(function(e) {
+        e.preventDefault();
+        return $(exportObj).trigger('xwm:showMovementTemplates', $(e.target).prop('checked'));
+      });
+      this.panel.find('.toggle-templates').change();
+      this.panel.find('.toggle-final-positions').change(function(e) {
+        e.preventDefault();
+        return $(exportObj).trigger('xwm:showFinalManeuverOnly', $(e.target).prop('checked'));
+      });
+      this.panel.find('.toggle-final-positions').change();
+      this.panel.find('.toggle-last-turn').change(function(e) {
+        e.preventDefault();
+        return $(exportObj).trigger('xwm:showLastTurnOnly', $(e.target).prop('checked'));
+      });
+      this.panel.find('.toggle-last-turn').change();
       this.panel.find('.clone-ship').click(function(e) {
         return $(exportObj).trigger('xwm:cloneShip', _this.selected_ship);
       });

@@ -16,6 +16,7 @@
         center_y: args.y,
         heading_deg: args.heading_deg
       });
+      this.draw_options = args.draw_options;
       if (this.name === "") {
         this.name = "Unnamed Ship";
       }
@@ -55,7 +56,6 @@
         }
       });
       this.turnlist_element.hide();
-      this.draw_options = {};
       turn = new Turn({
         ship: this,
         start_position: this.start_position
@@ -84,6 +84,15 @@
         if (ship === _this) {
           return _this.destroy();
         }
+      }).on('xwm:showFinalManeuverOnly', function(e, toggle) {
+        _this.draw_options.show_final_maneuver_only = toggle;
+        return _this.draw();
+      }).on('xwm:showMovementTemplates', function(e, toggle) {
+        _this.draw_options.show_movement_templates = toggle;
+        return _this.draw();
+      }).on('xwm:showLastTurnOnly', function(e, toggle) {
+        _this.draw_options.show_last_turn_only = toggle;
+        return _this.draw();
       });
     }
 
@@ -124,27 +133,39 @@
     };
 
     Ship.prototype.draw = function() {
-      var turn_idx, _i, _j, _len, _ref, _ref1, _ref2, _results, _results1;
+      var turn, turn_idx, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3, _results, _results1, _results2;
       this.layer.clear();
-      _ref2 = (_ref = this.draw_options.turns) != null ? _ref : (function() {
-        _results1 = [];
-        for (var _j = 0, _ref1 = this.turns.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; 0 <= _ref1 ? _j++ : _j--){ _results1.push(_j); }
-        return _results1;
-      }).apply(this);
-      _results = [];
-      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-        turn_idx = _ref2[_i];
-        if (turn_idx < this.turns.length) {
-          if (this.draw_options.final_positions_only) {
-            _results.push(this.turns[turn_idx].drawFinalPositionOnly(this.layer, this.draw_options.kinetic_draw_args));
+      if (this.draw_options.show_last_turn_only) {
+        _ref = this.turns;
+        _results = [];
+        for (turn_idx = _i = 0, _len = _ref.length; _i < _len; turn_idx = ++_i) {
+          turn = _ref[turn_idx];
+          if (turn_idx < this.turns.length - 1) {
+            turn.hide();
           } else {
-            _results.push(this.turns[turn_idx].drawMovements(this.layer, this.draw_options.kinetic_draw_args));
+            turn.show();
           }
-        } else {
-          _results.push(void 0);
+          _results.push(turn.draw(this.layer, this.draw_options));
         }
+        return _results;
+      } else {
+        _ref3 = (_ref1 = this.draw_options.turns) != null ? _ref1 : (function() {
+          _results2 = [];
+          for (var _k = 0, _ref2 = this.turns.length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; 0 <= _ref2 ? _k++ : _k--){ _results2.push(_k); }
+          return _results2;
+        }).apply(this);
+        _results1 = [];
+        for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+          turn_idx = _ref3[_j];
+          if (turn_idx < this.turns.length) {
+            this.turns[turn_idx].show();
+            _results1.push(this.turns[turn_idx].draw(this.layer, this.draw_options));
+          } else {
+            _results1.push(void 0);
+          }
+        }
+        return _results1;
       }
-      return _results;
     };
 
     Ship.prototype.moveToTop = function() {
@@ -186,7 +207,8 @@
         size: this.size,
         x: start_position.center_x,
         y: start_position.center_y,
-        heading_deg: start_position.heading_deg
+        heading_deg: start_position.heading_deg,
+        draw_options: $.extend({}, this.draw_options, true)
       });
       _ref = this.turns;
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
@@ -216,6 +238,7 @@
       this.bases = [];
       this.templates = [];
       this.isSelected = false;
+      this.isVisible = true;
       this.final_position = null;
       this.list_element = $(document.createElement('A'));
       this.list_element.addClass('list-group-item turn-element');
@@ -246,7 +269,8 @@
       });
       $(exportObj).on('xwm:turnSelected', function(e, turn) {
         _this.isSelected = turn === _this;
-        return _this.list_element.toggleClass('active', _this.isSelected);
+        _this.list_element.toggleClass('active', _this.isSelected);
+        return _this.ship.draw();
       }).on('xwm:removeTurn', function(e, turn) {
         turn.destroy();
         return _this.ship.executeTurnsAndDraw();
@@ -547,30 +571,85 @@
       }
     };
 
-    Turn.prototype.drawMovements = function(layer, args) {
-      var base, template, _i, _j, _len, _len1, _ref, _ref1, _results;
-      if (args == null) {
-        args = {};
+    Turn.prototype.draw = function(layer, options) {
+      var base, i, kinetic_draw_args, template, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _len8, _m, _n, _o, _p, _q, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
+      if (this.isVisible) {
+        if (options.show_movement_templates) {
+          _ref = this.templates;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            template = _ref[_i];
+            template.show();
+          }
+        } else {
+          _ref1 = this.templates;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            template = _ref1[_j];
+            template.hide();
+          }
+        }
+        if (options.show_final_maneuver_only) {
+          if (options.show_movement_templates) {
+            _ref2 = this.templates;
+            for (i = _k = 0, _len2 = _ref2.length; _k < _len2; i = ++_k) {
+              template = _ref2[i];
+              if (i < this.templates.length - 1) {
+                template.hide();
+              }
+            }
+          }
+          _ref3 = this.bases;
+          for (i = _l = 0, _len3 = _ref3.length; _l < _len3; i = ++_l) {
+            base = _ref3[i];
+            if (i === this.bases.length - 1) {
+              base.show();
+            } else {
+              base.hide();
+            }
+          }
+        } else {
+          _ref4 = this.bases;
+          for (_m = 0, _len4 = _ref4.length; _m < _len4; _m++) {
+            base = _ref4[_m];
+            base.show();
+          }
+        }
+      } else {
+        _ref5 = this.templates;
+        for (_n = 0, _len5 = _ref5.length; _n < _len5; _n++) {
+          template = _ref5[_n];
+          template.hide();
+        }
+        _ref6 = this.bases;
+        for (_o = 0, _len6 = _ref6.length; _o < _len6; _o++) {
+          base = _ref6[_o];
+          base.hide();
+        }
       }
-      _ref = this.bases;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        base = _ref[_i];
-        base.draw(layer, args);
+      kinetic_draw_args = $.extend({}, options.kinetic_draw_args, true);
+      if (this.isSelected) {
+        kinetic_draw_args.fill = '#428bca';
       }
-      _ref1 = this.templates;
-      _results = [];
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        template = _ref1[_j];
-        _results.push(template.draw(layer, args));
+      _ref7 = this.templates;
+      for (_p = 0, _len7 = _ref7.length; _p < _len7; _p++) {
+        template = _ref7[_p];
+        template.draw(layer, kinetic_draw_args);
       }
-      return _results;
+      _ref8 = this.bases;
+      for (_q = 0, _len8 = _ref8.length; _q < _len8; _q++) {
+        base = _ref8[_q];
+        base.draw(layer, kinetic_draw_args);
+      }
+      return this;
     };
 
-    Turn.prototype.drawFinalPositionOnly = function(layer, args) {
-      if (args == null) {
-        args = {};
-      }
-      return this.bases[this.bases.length - 1].draw(layer, args);
+    Turn.prototype.show = function() {
+      this.isVisible = true;
+      return this;
+    };
+
+    Turn.prototype.hide = function() {
+      this.isVisible = false;
+      return this;
     };
 
     Turn.prototype.addMovement = function(movement) {
