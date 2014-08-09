@@ -81,6 +81,14 @@ class exportObj.Base
       child.fill args.fill ? ''
       child.draw()
 
+  hide: ->
+    for child in @group.children
+      child.hide()
+
+  show: ->
+    for child in @group.children
+      child.show()
+
   getRotation: ->
     # We may not have been assigned to a layer yet
     rot = if @group.getLayer()? then @group.getLayer().rotation() else 0

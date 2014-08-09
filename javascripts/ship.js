@@ -16,10 +16,12 @@
         center_y: args.y,
         heading_deg: args.heading_deg
       });
+      this.draw_options = args.draw_options;
       if (this.name === "") {
         this.name = "Unnamed Ship";
       }
       this.selected_turn = null;
+      this.isSelected = false;
       this.shiplist_element = $(document.createElement('A'));
       this.shiplist_element.addClass('list-group-item');
       this.shiplist_element.data('ship', this);
@@ -31,12 +33,12 @@
       this.shiplist_element.append($.trim("<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
       this.shiplist_element.find('.close').click(function(e) {
         e.preventDefault();
-        _this.destroy();
-        return $(exportObj).trigger('xwm:shipSelected', null);
+        return $(exportObj).trigger('xwm:destroyShip', _this);
       });
       this.turnlist_element = $(document.createElement('DIV'));
       this.turnlist_element.addClass('list-group');
       this.turnlist_element.sortable({
+        axis: 'y',
         handle: '.sort-handle',
         update: function(e, ui) {
           var elem;
@@ -50,12 +52,10 @@
             }
             return _results;
           }).call(_this));
-          _this.executeTurns();
-          return _this.draw();
+          return _this.executeTurnsAndDraw();
         }
       });
       this.turnlist_element.hide();
-      this.draw_options = {};
       turn = new Turn({
         ship: this,
         start_position: this.start_position
@@ -78,7 +78,21 @@
       });
       this.stage.add(this.layer);
       $(exportObj).on('xwm:shipSelected', function(e, ship) {
-        return _this.turnlist_element.toggle(ship === _this);
+        _this.isSelected = ship === _this;
+        return _this.turnlist_element.toggle(_this.isSelected);
+      }).on('xwm:destroyShip', function(e, ship) {
+        if (ship === _this) {
+          return _this.destroy();
+        }
+      }).on('xwm:showFinalManeuverOnly', function(e, toggle) {
+        _this.draw_options.show_final_maneuver_only = toggle;
+        return _this.draw();
+      }).on('xwm:showMovementTemplates', function(e, toggle) {
+        _this.draw_options.show_movement_templates = toggle;
+        return _this.draw();
+      }).on('xwm:showLastTurnOnly', function(e, toggle) {
+        _this.draw_options.show_last_turn_only = toggle;
+        return _this.draw();
       });
     }
 
@@ -107,6 +121,7 @@
       turn.execute();
       this.turns.push(turn);
       this.turnlist_element.append(turn.list_element);
+      this.draw();
       return turn;
     };
 
@@ -118,27 +133,39 @@
     };
 
     Ship.prototype.draw = function() {
-      var turn_idx, _i, _j, _len, _ref, _ref1, _ref2, _results, _results1;
+      var turn, turn_idx, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3, _results, _results1, _results2;
       this.layer.clear();
-      _ref2 = (_ref = this.draw_options.turns) != null ? _ref : (function() {
-        _results1 = [];
-        for (var _j = 0, _ref1 = this.turns.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; 0 <= _ref1 ? _j++ : _j--){ _results1.push(_j); }
-        return _results1;
-      }).apply(this);
-      _results = [];
-      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-        turn_idx = _ref2[_i];
-        if (turn_idx < this.turns.length) {
-          if (this.draw_options.final_positions_only) {
-            _results.push(this.turns[turn_idx].drawFinalPositionOnly(this.layer, this.draw_options.kinetic_draw_args));
+      if (this.draw_options.show_last_turn_only) {
+        _ref = this.turns;
+        _results = [];
+        for (turn_idx = _i = 0, _len = _ref.length; _i < _len; turn_idx = ++_i) {
+          turn = _ref[turn_idx];
+          if (turn_idx < this.turns.length - 1) {
+            turn.hide();
           } else {
-            _results.push(this.turns[turn_idx].drawMovements(this.layer, this.draw_options.kinetic_draw_args));
+            turn.show();
           }
-        } else {
-          _results.push(void 0);
+          _results.push(turn.draw(this.layer, this.draw_options));
         }
+        return _results;
+      } else {
+        _ref3 = (_ref1 = this.draw_options.turns) != null ? _ref1 : (function() {
+          _results2 = [];
+          for (var _k = 0, _ref2 = this.turns.length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; 0 <= _ref2 ? _k++ : _k--){ _results2.push(_k); }
+          return _results2;
+        }).apply(this);
+        _results1 = [];
+        for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+          turn_idx = _ref3[_j];
+          if (turn_idx < this.turns.length) {
+            this.turns[turn_idx].show();
+            _results1.push(this.turns[turn_idx].draw(this.layer, this.draw_options));
+          } else {
+            _results1.push(void 0);
+          }
+        }
+        return _results1;
       }
-      return _results;
     };
 
     Ship.prototype.moveToTop = function() {
@@ -157,7 +184,7 @@
       }
     };
 
-    Ship.prototype.executeTurns = function() {
+    Ship.prototype.executeTurnsAndDraw = function() {
       var i, start_position, turn, _i, _len, _ref;
       start_position = this.turns[0].final_position;
       _ref = this.turns;
@@ -167,6 +194,7 @@
         turn.execute();
         start_position = turn.final_position;
       }
+      this.draw();
       return this;
     };
 
@@ -179,7 +207,8 @@
         size: this.size,
         x: start_position.center_x,
         y: start_position.center_y,
-        heading_deg: start_position.heading_deg
+        heading_deg: start_position.heading_deg,
+        draw_options: $.extend({}, this.draw_options, true)
       });
       _ref = this.turns;
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
@@ -208,10 +237,12 @@
       this.movements = [];
       this.bases = [];
       this.templates = [];
+      this.isSelected = false;
+      this.isVisible = true;
       this.final_position = null;
       this.list_element = $(document.createElement('A'));
       this.list_element.addClass('list-group-item turn-element');
-      this.list_element.append($.trim("<span class=\"glyphicon glyphicon-align-justify sort-handle\"></span>\n<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
+      this.list_element.append($.trim("<span class=\"glyphicon glyphicon-align-justify sort-handle\"></span>\n<span class=\"executed-movements\"></span>\n<button class=\"btn btn-default add-decloak\">Decloak</button>\n<button class=\"btn btn-default add-movement\">Movement</button>\n<button class=\"btn btn-default add-boost\">Boost</button>\n<button class=\"btn btn-default add-barrel-roll\">Barrel Roll</button>\n<button class=\"btn btn-default add-daredevil\">Daredevil</button>\n<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
       this.list_element.click(function(e) {
         e.preventDefault();
         return $(exportObj).trigger('xwm:turnSelected', _this);
@@ -221,12 +252,262 @@
         return $(exportObj).trigger('xwm:removeTurn', _this);
       });
       this.list_element.data('turn_obj', this);
+      this.list_element.find('.add-movement').click(function(e) {
+        return $(exportObj).trigger('xwm:showMovementSelections');
+      });
+      this.list_element.find('.add-barrel-roll').click(function(e) {
+        return $(exportObj).trigger('xwm:showBarrelRollSelections');
+      });
+      this.list_element.find('.add-decloak').click(function(e) {
+        return $(exportObj).trigger('xwm:showDecloakSelections');
+      });
+      this.list_element.find('.add-boost').click(function(e) {
+        return $(exportObj).trigger('xwm:showBoostSelections');
+      });
+      this.list_element.find('.add-daredevil').click(function(e) {
+        return $(exportObj).trigger('xwm:showDaredevilSelections');
+      });
       $(exportObj).on('xwm:turnSelected', function(e, turn) {
-        return _this.list_element.toggleClass('active', turn === _this);
+        _this.isSelected = turn === _this;
+        _this.list_element.toggleClass('active', _this.isSelected);
+        return _this.ship.draw();
       }).on('xwm:removeTurn', function(e, turn) {
         turn.destroy();
-        _this.ship.executeTurns();
-        return _this.ship.draw();
+        return _this.ship.executeTurnsAndDraw();
+      }).on('xwm:executeBarrelRoll', function(e, movement) {
+        if (_this.ship.isSelected && _this.isSelected) {
+          _this.addMovement(movement);
+          $(exportObj).trigger('xwm:resetBarrelRollData', $.noop);
+          return _this.ship.executeTurnsAndDraw();
+        }
+      }).on('xwm:movementClicked', function(e, args) {
+        if (_this.ship.isSelected && _this.isSelected) {
+          return $(exportObj).trigger('xwm:resetBarrelRollData', function(barrelroll_template_layer) {
+            var start_base;
+            start_base = _this.bases[_this.bases.length - 1];
+            switch (args.direction) {
+              case 'stop':
+                return '';
+              case 'straight':
+                _this.addMovement(new exportObj.movements.Straight({
+                  speed: args.speed
+                }));
+                return _this.ship.executeTurnsAndDraw();
+              case 'bankleft':
+                _this.addMovement(new exportObj.movements.Bank({
+                  speed: args.speed,
+                  direction: 'left'
+                }));
+                return _this.ship.executeTurnsAndDraw();
+              case 'bankright':
+                _this.addMovement(new exportObj.movements.Bank({
+                  speed: args.speed,
+                  direction: 'right'
+                }));
+                return _this.ship.executeTurnsAndDraw();
+              case 'turnleft':
+                _this.addMovement(new exportObj.movements.Turn({
+                  speed: args.speed,
+                  direction: 'left'
+                }));
+                return _this.ship.executeTurnsAndDraw();
+              case 'turnright':
+                _this.addMovement(new exportObj.movements.Turn({
+                  speed: args.speed,
+                  direction: 'right'
+                }));
+                return _this.ship.executeTurnsAndDraw();
+              case 'koiogran':
+                _this.addMovement(new exportObj.movements.Koiogran({
+                  speed: args.speed
+                }));
+                return _this.ship.executeTurnsAndDraw();
+              case 'decloak-forward-left':
+                _this.addMovement(new exportObj.movements.DecloakForwardLeft());
+                return _this.ship.executeTurnsAndDraw();
+              case 'decloak-forward-right':
+                _this.addMovement(new exportObj.movements.DecloakForwardRight());
+                return _this.ship.executeTurnsAndDraw();
+              case 'daredevil-left':
+                _this.addMovement(new exportObj.movements.DaredevilLeft());
+                return _this.ship.executeTurnsAndDraw();
+              case 'daredevil-right':
+                _this.addMovement(new exportObj.movements.DaredevilRight());
+                return _this.ship.executeTurnsAndDraw();
+              case 'boost':
+                _this.addMovement(new exportObj.movements.Boost());
+                return _this.ship.executeTurnsAndDraw();
+              case 'boost-left':
+                _this.addMovement(new exportObj.movements.BoostLeft());
+                return _this.ship.executeTurnsAndDraw();
+              case 'boost-right':
+                _this.addMovement(new exportObj.movements.BoostRight());
+                return _this.ship.executeTurnsAndDraw();
+              case 'barrelroll-left':
+                if (_this.ship.size === 'large') {
+                  barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0, true));
+                  return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                    start_base, new exportObj.movements.LargeBarrelRoll({
+                      base: start_base,
+                      where: 'left',
+                      direction: 'left',
+                      start_distance_from_front: 0,
+                      end_distance_from_front: 0
+                    })
+                  ]);
+                } else {
+                  barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0));
+                  return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                    start_base, new exportObj.movements.BarrelRoll({
+                      base: start_base,
+                      where: 'left',
+                      direction: 'left',
+                      start_distance_from_front: 0,
+                      end_distance_from_front: 0
+                    })
+                  ]);
+                }
+                break;
+              case 'barrelroll-leftforward':
+                barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0));
+                return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                  start_base, new exportObj.movements.BarrelRoll({
+                    base: start_base,
+                    where: 'left',
+                    direction: 'leftforward',
+                    start_distance_from_front: 0,
+                    end_distance_from_front: 0
+                  })
+                ]);
+              case 'barrelroll-leftbackward':
+                barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0));
+                return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                  start_base, new exportObj.movements.BarrelRoll({
+                    base: start_base,
+                    where: 'left',
+                    direction: 'leftbackward',
+                    start_distance_from_front: 0,
+                    end_distance_from_front: 0
+                  })
+                ]);
+              case 'barrelroll-right':
+                if (_this.ship.size === 'large') {
+                  barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0, true));
+                  return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                    start_base, new exportObj.movements.LargeBarrelRoll({
+                      base: start_base,
+                      where: 'right',
+                      direction: 'right',
+                      start_distance_from_front: 0,
+                      end_distance_from_front: 0
+                    })
+                  ]);
+                } else {
+                  barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0));
+                  return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                    start_base, new exportObj.movements.BarrelRoll({
+                      base: start_base,
+                      where: 'right',
+                      direction: 'right',
+                      start_distance_from_front: 0,
+                      end_distance_from_front: 0
+                    })
+                  ]);
+                }
+                break;
+              case 'barrelroll-rightforward':
+                barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0));
+                return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                  start_base, new exportObj.movements.BarrelRoll({
+                    base: start_base,
+                    where: 'right',
+                    direction: 'rightforward',
+                    start_distance_from_front: 0,
+                    end_distance_from_front: 0
+                  })
+                ]);
+              case 'barrelroll-rightbackward':
+                barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0));
+                return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                  start_base, new exportObj.movements.BarrelRoll({
+                    base: start_base,
+                    where: 'right',
+                    direction: 'rightbackward',
+                    start_distance_from_front: 0,
+                    end_distance_from_front: 0
+                  })
+                ]);
+              case 'decloak-left':
+                barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0));
+                return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                  start_base, new exportObj.movements.Decloak({
+                    base: start_base,
+                    where: 'left',
+                    direction: 'left',
+                    start_distance_from_front: 0,
+                    end_distance_from_front: 0
+                  })
+                ]);
+              case 'decloak-leftforward':
+                barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0));
+                return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                  start_base, new exportObj.movements.Decloak({
+                    base: start_base,
+                    where: 'left',
+                    direction: 'leftforward',
+                    start_distance_from_front: 0,
+                    end_distance_from_front: 0
+                  })
+                ]);
+              case 'decloak-leftbackward':
+                barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0));
+                return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                  start_base, new exportObj.movements.Decloak({
+                    base: start_base,
+                    where: 'left',
+                    direction: 'leftbackward',
+                    start_distance_from_front: 0,
+                    end_distance_from_front: 0
+                  })
+                ]);
+              case 'decloak-right':
+                barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0));
+                return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                  start_base, new exportObj.movements.Decloak({
+                    base: start_base,
+                    where: 'right',
+                    direction: 'right',
+                    start_distance_from_front: 0,
+                    end_distance_from_front: 0
+                  })
+                ]);
+              case 'decloak-rightforward':
+                barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0));
+                return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                  start_base, new exportObj.movements.Decloak({
+                    base: start_base,
+                    where: 'right',
+                    direction: 'rightforward',
+                    start_distance_from_front: 0,
+                    end_distance_from_front: 0
+                  })
+                ]);
+              case 'decloak-rightbackward':
+                barrelroll_template_layer.dragBoundFunc(_this.makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0));
+                return $(exportObj).trigger('xwm:initiateBarrelRoll', [
+                  start_base, new exportObj.movements.Decloak({
+                    base: start_base,
+                    where: 'right',
+                    direction: 'rightbackward',
+                    start_distance_from_front: 0,
+                    end_distance_from_front: 0
+                  })
+                ]);
+              default:
+                throw new Error("Bad direction " + args.direction);
+            }
+          });
+        }
       });
     }
 
@@ -290,35 +571,102 @@
       }
     };
 
-    Turn.prototype.drawMovements = function(layer, args) {
-      var base, template, _i, _j, _len, _len1, _ref, _ref1, _results;
-      if (args == null) {
-        args = {};
+    Turn.prototype.draw = function(layer, options) {
+      var base, i, kinetic_draw_args, template, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _len8, _m, _n, _o, _p, _q, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
+      if (this.isVisible) {
+        if (options.show_movement_templates) {
+          _ref = this.templates;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            template = _ref[_i];
+            template.show();
+          }
+        } else {
+          _ref1 = this.templates;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            template = _ref1[_j];
+            template.hide();
+          }
+        }
+        if (options.show_final_maneuver_only) {
+          if (options.show_movement_templates) {
+            _ref2 = this.templates;
+            for (i = _k = 0, _len2 = _ref2.length; _k < _len2; i = ++_k) {
+              template = _ref2[i];
+              if (i < this.templates.length - 1) {
+                template.hide();
+              }
+            }
+          }
+          _ref3 = this.bases;
+          for (i = _l = 0, _len3 = _ref3.length; _l < _len3; i = ++_l) {
+            base = _ref3[i];
+            if (i === this.bases.length - 1) {
+              base.show();
+            } else {
+              base.hide();
+            }
+          }
+        } else {
+          _ref4 = this.bases;
+          for (_m = 0, _len4 = _ref4.length; _m < _len4; _m++) {
+            base = _ref4[_m];
+            base.show();
+          }
+        }
+      } else {
+        _ref5 = this.templates;
+        for (_n = 0, _len5 = _ref5.length; _n < _len5; _n++) {
+          template = _ref5[_n];
+          template.hide();
+        }
+        _ref6 = this.bases;
+        for (_o = 0, _len6 = _ref6.length; _o < _len6; _o++) {
+          base = _ref6[_o];
+          base.hide();
+        }
       }
-      _ref = this.bases;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        base = _ref[_i];
-        base.draw(layer, args);
+      kinetic_draw_args = $.extend({}, options.kinetic_draw_args, true);
+      if (this.isSelected) {
+        kinetic_draw_args.fill = '#428bca';
       }
-      _ref1 = this.templates;
-      _results = [];
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        template = _ref1[_j];
-        _results.push(template.draw(layer, args));
+      _ref7 = this.templates;
+      for (_p = 0, _len7 = _ref7.length; _p < _len7; _p++) {
+        template = _ref7[_p];
+        template.draw(layer, kinetic_draw_args);
       }
-      return _results;
+      _ref8 = this.bases;
+      for (_q = 0, _len8 = _ref8.length; _q < _len8; _q++) {
+        base = _ref8[_q];
+        base.draw(layer, kinetic_draw_args);
+      }
+      return this;
     };
 
-    Turn.prototype.drawFinalPositionOnly = function(layer, args) {
-      if (args == null) {
-        args = {};
-      }
-      return this.bases[this.bases.length - 1].draw(layer, args);
+    Turn.prototype.show = function() {
+      this.isVisible = true;
+      return this;
+    };
+
+    Turn.prototype.hide = function() {
+      this.isVisible = false;
+      return this;
     };
 
     Turn.prototype.addMovement = function(movement) {
       this.movements.push(movement);
-      this.list_element.append(movement.element);
+      this.list_element.find('.executed-movements').append(movement.element);
+      if (movement instanceof exportObj.movements.Decloak || movement instanceof exportObj.movements.DecloakForwardLeft || movement instanceof exportObj.movements.DecloakForwardRight) {
+        this.list_element.find('.add-decloak').hide();
+      } else if (movement instanceof exportObj.movements.Boost || movement instanceof exportObj.movements.BoostLeft || movement instanceof exportObj.movements.BoostRight) {
+        this.list_element.find('.add-boost').hide();
+      } else if (movement instanceof exportObj.movements.DaredevilLeft || movement instanceof exportObj.movements.DaredevilRight) {
+        this.list_element.find('.add-daredevil').hide();
+      } else if (movement instanceof exportObj.movements.BarrelRoll) {
+        this.list_element.find('.add-barrel-roll').hide();
+      } else {
+        this.list_element.find('.add-movement').hide();
+        this.list_element.find('.add-decloak').hide();
+      }
       return this.execute();
     };
 
@@ -345,6 +693,28 @@
         size: this.ship.size,
         position: position
       });
+    };
+
+    Turn.prototype.makeBarrelRollTemplateDragBoundFunc = function(base, direction, distance_from_front, isLarge) {
+      if (isLarge == null) {
+        isLarge = false;
+      }
+      return function(pos) {
+        var drag_pos, new_pos, transform;
+        pos.y = Math.min(pos.y, base.width - (isLarge ? exportObj.SMALL_BASE_WIDTH : exportObj.TEMPLATE_WIDTH));
+        pos.y = Math.max(pos.y, 0);
+        $(exportObj).trigger('xwm:barrelRollTemplateOffsetChanged', pos.y);
+        transform = base.getBarrelRollTransform(direction, distance_from_front);
+        drag_pos = transform.point(pos);
+        new_pos = transform.point({
+          x: pos.x,
+          y: 0
+        });
+        return {
+          x: drag_pos.x - new_pos.x,
+          y: drag_pos.y - new_pos.y
+        };
+      };
     };
 
     return Turn;

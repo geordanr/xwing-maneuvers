@@ -15,7 +15,7 @@
       y: 0,
       width: stage.width(),
       height: exportObj.RANGE1,
-      fill: '#cfc',
+      fillGreen: 255,
       fillAlpha: 0.1
     }));
     deploylayer.add(new Kinetic.Rect({
@@ -24,7 +24,7 @@
       y: stage.height() - exportObj.RANGE1,
       width: stage.width(),
       height: exportObj.RANGE1,
-      fill: '#cfc',
+      fillGreen: 255,
       fillAlpha: 0.1
     }));
     return stage.add(deploylayer);

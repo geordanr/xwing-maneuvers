@@ -10,8 +10,7 @@ exportObj.drawDeployAreasOn = (stage) ->
     y: 0
     width: stage.width()
     height: exportObj.RANGE1
-    fill: '#cfc'
-    # XXX Why doesn't this work?
+    fillGreen: 255
     fillAlpha: 0.1
 
   deploylayer.add new Kinetic.Rect
@@ -20,7 +19,7 @@ exportObj.drawDeployAreasOn = (stage) ->
     y: stage.height() - exportObj.RANGE1
     width: stage.width()
     height: exportObj.RANGE1
-    fill: '#cfc'
+    fillGreen: 255
     fillAlpha: 0.1
 
   stage.add deploylayer

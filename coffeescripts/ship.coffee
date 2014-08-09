@@ -9,10 +9,12 @@ class exportObj.Ship
       center_x: args.x
       center_y: args.y
       heading_deg: args.heading_deg
+    @draw_options = args.draw_options
 
     @name = "Unnamed Ship" if @name == ""
 
     @selected_turn = null
+    @isSelected = false
 
     @shiplist_element = $ document.createElement('A')
     @shiplist_element.addClass 'list-group-item'
@@ -26,20 +28,17 @@ class exportObj.Ship
     """
     @shiplist_element.find('.close').click (e) =>
       e.preventDefault()
-      @destroy()
-      $(exportObj).trigger 'xwm:shipSelected', null
+      $(exportObj).trigger 'xwm:destroyShip', this
 
     @turnlist_element = $ document.createElement('DIV')
     @turnlist_element.addClass 'list-group'
     @turnlist_element.sortable
+      axis: 'y'
       handle: '.sort-handle'
       update: (e, ui) =>
         @turns = [@turns[0]].concat($(elem).data('turn_obj') for elem in @turnlist_element.find('.turn-element'))
-        @executeTurns()
-        @draw()
+        @executeTurnsAndDraw()
     @turnlist_element.hide()
-
-    @draw_options = {}
 
     # Turn 0
     turn = new Turn
@@ -64,7 +63,20 @@ class exportObj.Ship
     @stage.add @layer
 
     $(exportObj).on 'xwm:shipSelected', (e, ship) =>
-      @turnlist_element.toggle(ship == this)
+      @isSelected = ship is this
+      @turnlist_element.toggle @isSelected
+    .on 'xwm:destroyShip', (e, ship) =>
+      if ship is this
+        @destroy()
+    .on 'xwm:showFinalManeuverOnly', (e, toggle) =>
+      @draw_options.show_final_maneuver_only = toggle
+      @draw()
+    .on 'xwm:showMovementTemplates', (e, toggle) =>
+      @draw_options.show_movement_templates = toggle
+      @draw()
+    .on 'xwm:showLastTurnOnly', (e, toggle) =>
+      @draw_options.show_last_turn_only = toggle
+      @draw()
 
   select: ->
     @shiplist_element.addClass 'active'
@@ -84,6 +96,7 @@ class exportObj.Ship
     turn.execute()
     @turns.push turn
     @turnlist_element.append turn.list_element
+    @draw()
     turn
 
   setDrawOptions: (args) ->
@@ -99,12 +112,18 @@ class exportObj.Ship
 
   draw: ->
     @layer.clear()
-    for turn_idx in @draw_options.turns ? [0...@turns.length]
-      if turn_idx < @turns.length
-        if @draw_options.final_positions_only
-          @turns[turn_idx].drawFinalPositionOnly @layer, @draw_options.kinetic_draw_args
+    if @draw_options.show_last_turn_only
+      for turn, turn_idx in @turns
+        if turn_idx < @turns.length - 1
+          turn.hide()
         else
-          @turns[turn_idx].drawMovements @layer, @draw_options.kinetic_draw_args
+          turn.show()
+        turn.draw @layer, @draw_options
+    else
+      for turn_idx in @draw_options.turns ? [0...@turns.length]
+        if turn_idx < @turns.length
+          @turns[turn_idx].show()
+          @turns[turn_idx].draw @layer, @draw_options
 
   moveToTop: ->
     @layer.moveToTop()
@@ -116,13 +135,14 @@ class exportObj.Ship
       @selected_turn = turn
       @selected_turn.select() if @selected_turn?
 
-  executeTurns: ->
+  executeTurnsAndDraw: ->
     # Re-executes all the turns.  Call this after the turn list has been modified.
     start_position = @turns[0].final_position
     for turn, i in @turns
       turn.setStartPosition start_position
       turn.execute()
       start_position = turn.final_position
+    @draw()
     this
 
   clone: ->
@@ -134,6 +154,7 @@ class exportObj.Ship
       x: start_position.center_x
       y: start_position.center_y
       heading_deg: start_position.heading_deg
+      draw_options: $.extend {}, @draw_options, true
 
     for turn, i in @turns
       if i > 0
@@ -158,11 +179,19 @@ class Turn
     @bases = []
     @templates = []
 
+    @isSelected = false
+    @isVisible = true
     @final_position = null
     @list_element = $ document.createElement('A')
     @list_element.addClass 'list-group-item turn-element'
     @list_element.append $.trim """
       <span class="glyphicon glyphicon-align-justify sort-handle"></span>
+      <span class="executed-movements"></span>
+      <button class="btn btn-default add-decloak">Decloak</button>
+      <button class="btn btn-default add-movement">Movement</button>
+      <button class="btn btn-default add-boost">Boost</button>
+      <button class="btn btn-default add-barrel-roll">Barrel Roll</button>
+      <button class="btn btn-default add-daredevil">Daredevil</button>
       <button type="button" class="close remove-turn"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
     """
     @list_element.click (e) =>
@@ -173,12 +202,228 @@ class Turn
       $(exportObj).trigger 'xwm:removeTurn', this
     @list_element.data 'turn_obj', this
 
+    @list_element.find('.add-movement').click (e) ->
+      $(exportObj).trigger 'xwm:showMovementSelections'
+    @list_element.find('.add-barrel-roll').click (e) ->
+      $(exportObj).trigger 'xwm:showBarrelRollSelections'
+    @list_element.find('.add-decloak').click (e) ->
+      $(exportObj).trigger 'xwm:showDecloakSelections'
+    @list_element.find('.add-boost').click (e) ->
+      $(exportObj).trigger 'xwm:showBoostSelections'
+    @list_element.find('.add-daredevil').click (e) ->
+      $(exportObj).trigger 'xwm:showDaredevilSelections'
+
     $(exportObj).on 'xwm:turnSelected', (e, turn) =>
-      @list_element.toggleClass('active', turn == this)
+      @isSelected = turn is this
+      @list_element.toggleClass 'active', @isSelected
+      @ship.draw()
     .on 'xwm:removeTurn', (e, turn) =>
       turn.destroy()
-      @ship.executeTurns()
-      @ship.draw()
+      @ship.executeTurnsAndDraw()
+    .on 'xwm:executeBarrelRoll', (e, movement) =>
+      if @ship.isSelected and @isSelected
+        @addMovement movement
+        $(exportObj).trigger 'xwm:resetBarrelRollData', $.noop
+        @ship.executeTurnsAndDraw()
+    .on 'xwm:movementClicked', (e, args) =>
+      if @ship.isSelected and @isSelected
+        $(exportObj).trigger 'xwm:resetBarrelRollData', (barrelroll_template_layer) =>
+          start_base = @bases[@bases.length - 1]
+
+          switch args.direction
+            when 'stop'
+              # do nothing? should mark it somehow
+              ''
+            when 'straight'
+              @addMovement new exportObj.movements.Straight {speed: args.speed}
+              @ship.executeTurnsAndDraw()
+            when 'bankleft'
+              @addMovement new exportObj.movements.Bank
+                speed: args.speed
+                direction: 'left'
+              @ship.executeTurnsAndDraw()
+            when 'bankright'
+              @addMovement new exportObj.movements.Bank
+                speed: args.speed
+                direction: 'right'
+              @ship.executeTurnsAndDraw()
+            when 'turnleft'
+              @addMovement new exportObj.movements.Turn
+                speed: args.speed
+                direction: 'left'
+              @ship.executeTurnsAndDraw()
+            when 'turnright'
+              @addMovement new exportObj.movements.Turn
+                speed: args.speed
+                direction: 'right'
+              @ship.executeTurnsAndDraw()
+            when 'koiogran'
+              @addMovement new exportObj.movements.Koiogran {speed: args.speed}
+              @ship.executeTurnsAndDraw()
+            when 'decloak-forward-left'
+              @addMovement new exportObj.movements.DecloakForwardLeft()
+              @ship.executeTurnsAndDraw()
+            when 'decloak-forward-right'
+              @addMovement new exportObj.movements.DecloakForwardRight()
+              @ship.executeTurnsAndDraw()
+            when 'daredevil-left'
+              @addMovement new exportObj.movements.DaredevilLeft()
+              @ship.executeTurnsAndDraw()
+            when 'daredevil-right'
+              @addMovement new exportObj.movements.DaredevilRight()
+              @ship.executeTurnsAndDraw()
+            when 'boost'
+              @addMovement new exportObj.movements.Boost()
+              @ship.executeTurnsAndDraw()
+            when 'boost-left'
+              @addMovement new exportObj.movements.BoostLeft()
+              @ship.executeTurnsAndDraw()
+            when 'boost-right'
+              @addMovement new exportObj.movements.BoostRight()
+              @ship.executeTurnsAndDraw()
+            when 'barrelroll-left'
+              if @ship.size == 'large'
+                barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0, true)
+                $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.LargeBarrelRoll
+                  base: start_base
+                  where: 'left'
+                  direction: 'left'
+                  start_distance_from_front: 0
+                  end_distance_from_front: 0
+                ]
+              else
+                barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0)
+                $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.BarrelRoll
+                  base: start_base
+                  where: 'left'
+                  direction: 'left'
+                  start_distance_from_front: 0
+                  end_distance_from_front: 0
+                ]
+
+            when 'barrelroll-leftforward'
+              barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0)
+              $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.BarrelRoll
+                base: start_base
+                where: 'left'
+                direction: 'leftforward'
+                start_distance_from_front: 0
+                end_distance_from_front: 0
+              ]
+
+            when 'barrelroll-leftbackward'
+              barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0)
+              $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.BarrelRoll
+                base: start_base
+                where: 'left'
+                direction: 'leftbackward'
+                start_distance_from_front: 0
+                end_distance_from_front: 0
+              ]
+
+            when 'barrelroll-right'
+              if @ship.size == 'large'
+                barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0, true)
+                $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.LargeBarrelRoll
+                  base: start_base
+                  where: 'right'
+                  direction: 'right'
+                  start_distance_from_front: 0
+                  end_distance_from_front: 0
+                ]
+              else
+                barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0)
+                $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.BarrelRoll
+                  base: start_base
+                  where: 'right'
+                  direction: 'right'
+                  start_distance_from_front: 0
+                  end_distance_from_front: 0
+                ]
+
+            when 'barrelroll-rightforward'
+              barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0)
+              $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.BarrelRoll
+                base: start_base
+                where: 'right'
+                direction: 'rightforward'
+                start_distance_from_front: 0
+                end_distance_from_front: 0
+              ]
+
+            when 'barrelroll-rightbackward'
+              barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0)
+              $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.BarrelRoll
+                base: start_base
+                where: 'right'
+                direction: 'rightbackward'
+                start_distance_from_front: 0
+                end_distance_from_front: 0
+              ]
+
+            when 'decloak-left'
+              barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0)
+              $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.Decloak
+                base: start_base
+                where: 'left'
+                direction: 'left'
+                start_distance_from_front: 0
+                end_distance_from_front: 0
+              ]
+
+            when 'decloak-leftforward'
+              barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0)
+              $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.Decloak
+                base: start_base
+                where: 'left'
+                direction: 'leftforward'
+                start_distance_from_front: 0
+                end_distance_from_front: 0
+              ]
+
+            when 'decloak-leftbackward'
+              barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'left', 0)
+              $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.Decloak
+                base: start_base
+                where: 'left'
+                direction: 'leftbackward'
+                start_distance_from_front: 0
+                end_distance_from_front: 0
+              ]
+
+            when 'decloak-right'
+              barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0)
+              $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.Decloak
+                base: start_base
+                where: 'right'
+                direction: 'right'
+                start_distance_from_front: 0
+                end_distance_from_front: 0
+              ]
+
+            when 'decloak-rightforward'
+              barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0)
+              $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.Decloak
+                base: start_base
+                where: 'right'
+                direction: 'rightforward'
+                start_distance_from_front: 0
+                end_distance_from_front: 0
+              ]
+
+            when 'decloak-rightbackward'
+              barrelroll_template_layer.dragBoundFunc @makeBarrelRollTemplateDragBoundFunc(start_base, 'right', 0)
+              $(exportObj).trigger 'xwm:initiateBarrelRoll', [start_base, new exportObj.movements.Decloak
+                base: start_base
+                where: 'right'
+                direction: 'rightbackward'
+                start_distance_from_front: 0
+                end_distance_from_front: 0
+              ]
+
+            else
+              throw new Error("Bad direction #{args.direction}")
+
 
   destroy: ->
     @base_at_start = null
@@ -215,18 +460,71 @@ class Turn
       @bases = [@base_at_start]
       @final_position = @base_at_start.position
 
-  drawMovements: (layer, args={}) ->
-    for base in @bases
-      base.draw layer, args
-    for template in @templates
-      template.draw layer, args
+  draw: (layer, options) ->
+    if @isVisible
+      if options.show_movement_templates
+        for template in @templates
+          template.show()
+      else
+        for template in @templates
+          template.hide()
 
-  drawFinalPositionOnly: (layer, args={}) ->
-    @bases[@bases.length - 1].draw layer, args
+      if options.show_final_maneuver_only
+        if options.show_movement_templates
+          # If we're not showing templates at all, no need to worry.
+          # Otherwise, we need to hide all but the last template.
+          for template, i in @templates
+            if i < @templates.length - 1
+              template.hide()
+
+        for base, i in @bases
+          if i == @bases.length - 1
+            base.show()
+          else
+            base.hide()
+      else
+        for base in @bases
+          base.show()
+    else
+      for template in @templates
+        template.hide()
+      for base in @bases
+        base.hide()
+
+    kinetic_draw_args = $.extend {}, options.kinetic_draw_args, true
+    if @isSelected
+      kinetic_draw_args.fill = '#428bca'
+
+    for template in @templates
+      template.draw layer, kinetic_draw_args
+    for base in @bases
+      base.draw layer, kinetic_draw_args
+    this
+    
+  show: ->
+    @isVisible = true
+    this
+
+  hide: ->
+    @isVisible = false
+    this
 
   addMovement: (movement) ->
     @movements.push movement
-    @list_element.append movement.element
+    @list_element.find('.executed-movements').append movement.element
+    if movement instanceof exportObj.movements.Decloak or movement instanceof exportObj.movements.DecloakForwardLeft or movement instanceof exportObj.movements.DecloakForwardRight
+      # decloak always has to go before movement
+      @list_element.find('.add-decloak').hide()
+    else if movement instanceof exportObj.movements.Boost or movement instanceof exportObj.movements.BoostLeft or movement instanceof exportObj.movements.BoostRight
+      @list_element.find('.add-boost').hide()
+    else if movement instanceof exportObj.movements.DaredevilLeft or movement instanceof exportObj.movements.DaredevilRight
+      @list_element.find('.add-daredevil').hide()
+    else if movement instanceof exportObj.movements.BarrelRoll
+      @list_element.find('.add-barrel-roll').hide()
+    else
+      @list_element.find('.add-movement').hide()
+      # once you move, you can't decloak
+      @list_element.find('.add-decloak').hide()
     @execute()
 
   removeMovement: (movement) ->
@@ -246,3 +544,18 @@ class Turn
     @base_at_start = new exportObj.Base
       size: @ship.size
       position: position
+
+  makeBarrelRollTemplateDragBoundFunc: (base, direction, distance_from_front, isLarge=false) ->
+    (pos) ->
+      pos.y = Math.min pos.y, base.width - (if isLarge then exportObj.SMALL_BASE_WIDTH else exportObj.TEMPLATE_WIDTH)
+      pos.y = Math.max pos.y, 0
+      $(exportObj).trigger 'xwm:barrelRollTemplateOffsetChanged', pos.y
+      transform = base.getBarrelRollTransform direction, distance_from_front
+      drag_pos = transform.point pos
+      new_pos = transform.point
+        x: pos.x
+        y: 0
+      {
+        x: drag_pos.x - new_pos.x
+        y: drag_pos.y - new_pos.y
+      }

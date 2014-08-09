@@ -67,35 +67,35 @@
       var speed, table, _i;
       table = '<table class="maneuvergrid">';
       for (speed = _i = 5; _i >= 0; speed = --_i) {
-        table += "<tr class=\"speed-" + speed + "\">";
+        table += "<tr class=\"movement speed-" + speed + "\">";
         table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"turnleft\">" + (exportObj.ManeuverGrid.makeManeuverIcon('turnleft')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"bankleft\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
         table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"straight\">" + (exportObj.ManeuverGrid.makeManeuverIcon('straight')) + "</td>") : $.trim("<td data-direction=\"stop\">" + (exportObj.ManeuverGrid.makeManeuverIcon('stop')) + "</td>");
         table += speed > 0 && speed < 4 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"bankright\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n<td data-speed=\"" + speed + "\" data-direction=\"turnright\">" + (exportObj.ManeuverGrid.makeManeuverIcon('turnright')) + "</td>") : "<td>&nbsp;</td><td>&nbsp;</td>";
         table += speed > 0 ? $.trim("<td data-speed=\"" + speed + "\" data-direction=\"koiogran\">" + (exportObj.ManeuverGrid.makeManeuverIcon('kturn')) + "</td>") : "<td>&nbsp;</td>";
       }
-      table += $.trim("<tr class=\"nonmaneuver\">\n  <td>&nbsp;</td>\n  <td data-speed=\"2\" data-direction=\"bankleft\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>\n  <td>&nbsp;</td>\n  <td data-speed=\"2\" data-direction=\"bankright\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-speed=\"1\" data-direction=\"turnleft\">DD " + (exportObj.ManeuverGrid.makeManeuverIcon('turnleft')) + "</td>\n  <td data-speed=\"1\" data-direction=\"bankleft\">B " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>\n  <td data-speed=\"1\" data-direction=\"straight\">B " + (exportObj.ManeuverGrid.makeManeuverIcon('straight')) + "</td>\n  <td data-speed=\"1\" data-direction=\"bankright\">B " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n  <td data-speed=\"1\" data-direction=\"turnright\">DD " + (exportObj.ManeuverGrid.makeManeuverIcon('turnright')) + "</td>\n  <td>&nbsp;</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-direction=\"decloak-leftforward\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
+      table += $.trim("<tr class=\"nonmovement decloak\">\n  <td>&nbsp;</td>\n  <td class=\"decloak\" data-speed=\"2\" data-direction=\"decloak-forward-left\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>\n  <td>&nbsp;</td>\n  <td class=\"decloak\" data-speed=\"2\" data-direction=\"decloak-forward-right\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmovement daredevil boost\">\n  <td class=\"daredevil\" data-speed=\"1\" data-direction=\"daredevil-left\">" + (exportObj.ManeuverGrid.makeManeuverIcon('turnleft')) + "</td>\n  <td class=\"boost\" data-speed=\"1\" data-direction=\"boost-left\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft')) + "</td>\n  <td class=\"boost\" data-speed=\"1\" data-direction=\"boost\">" + (exportObj.ManeuverGrid.makeManeuverIcon('straight')) + "</td>\n  <td class=\"boost\" data-speed=\"1\" data-direction=\"boost-right\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright')) + "</td>\n  <td class=\"daredevil\" data-speed=\"1\" data-direction=\"daredevil-right\">" + (exportObj.ManeuverGrid.makeManeuverIcon('turnright')) + "</td>\n  <td>&nbsp;</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmovement decloak barrelroll\">\n  <td class=\"decloak\" data-direction=\"decloak-leftforward\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
         rotate: -90
-      })) + "</td>\n  <td data-direction=\"barrelroll-leftforward\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
+      })) + "</td>\n  <td class=\"barrelroll\" data-direction=\"barrelroll-leftforward\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
         rotate: -90
-      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-rightforward\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
+      })) + "</td>\n  <td>&nbsp;</td>\n  <td class=\"barrelroll\" data-direction=\"barrelroll-rightforward\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
         rotate: 90
-      })) + "</td>\n  <td data-direction=\"decloak-rightforward\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
+      })) + "</td>\n  <td class=\"decloak\" data-direction=\"decloak-rightforward\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
         rotate: 90
-      })) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-direction=\"decloak-left\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
+      })) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmovement decloak barrelroll\">\n  <td class=\"decloak\" data-direction=\"decloak-left\">" + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
         rotate: -90
-      })) + "</td>\n  <td data-direction=\"barrelroll-left\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
+      })) + "</td>\n  <td class=\"barrelroll\" data-direction=\"barrelroll-left\">" + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
         rotate: -90
-      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-direction=\"barrelroll-right\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
+      })) + "</td>\n  <td>&nbsp;</td>\n  <td class=\"barrelroll\" data-direction=\"barrelroll-right\">" + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
         rotate: 90
-      })) + "</td>\n  <td data-direction=\"decloak-right\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
+      })) + "</td>\n  <td class=\"decloak\" data-direction=\"decloak-right\">" + (exportObj.ManeuverGrid.makeManeuverIcon('straight', {
         rotate: 90
-      })) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmaneuver\">\n  <td data-speed=\"2\" data-direction=\"decloak-leftbackward\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
+      })) + "</td>\n  <td>&nbsp;</td>\n</tr>\n\n<tr class=\"nonmovement decloak barrelroll\">\n  <td class=\"decloak\" data-speed=\"2\" data-direction=\"decloak-leftbackward\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
         rotate: -90
-      })) + "</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-leftbackward\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
+      })) + "</td>\n  <td class=\"barrelroll\" data-speed=\"1\" data-direction=\"barrelroll-leftbackward\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankleft', {
         rotate: -90
-      })) + "</td>\n  <td>&nbsp;</td>\n  <td data-speed=\"1\" data-direction=\"barrelroll-rightbackward\">BR " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
+      })) + "</td>\n  <td>&nbsp;</td>\n  <td class=\"barrelroll\" data-speed=\"1\" data-direction=\"barrelroll-rightbackward\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
         rotate: 90
-      })) + "</td>\n  <td data-speed=\"2\" data-direction=\"decloak-rightbackward\">DC " + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
+      })) + "</td>\n  <td class=\"decloak\" data-speed=\"2\" data-direction=\"decloak-rightbackward\">" + (exportObj.ManeuverGrid.makeManeuverIcon('bankright', {
         rotate: 90
       })) + "</td>\n  <td>&nbsp;</td>\n</tr>");
       table += "</table>";
@@ -105,10 +105,12 @@
     ManeuverGrid.prototype.setupHandlers = function() {
       return this.container.find('td').click(function(e) {
         e.preventDefault();
-        return $(exportObj).trigger('xwm:movementClicked', {
-          direction: $(e.delegateTarget).data('direction'),
-          speed: $(e.delegateTarget).data('speed')
-        });
+        if ($(e.delegateTarget).data('direction') != null) {
+          return $(exportObj).trigger('xwm:movementClicked', {
+            direction: $(e.delegateTarget).data('direction'),
+            speed: $(e.delegateTarget).data('speed')
+          });
+        }
       });
     };
 

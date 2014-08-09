@@ -95,6 +95,28 @@
       return _results;
     };
 
+    Base.prototype.hide = function() {
+      var child, _i, _len, _ref, _results;
+      _ref = this.group.children;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        child = _ref[_i];
+        _results.push(child.hide());
+      }
+      return _results;
+    };
+
+    Base.prototype.show = function() {
+      var child, _i, _len, _ref, _results;
+      _ref = this.group.children;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        child = _ref[_i];
+        _results.push(child.show());
+      }
+      return _results;
+    };
+
     Base.prototype.getRotation = function() {
       var rot;
       rot = this.group.getLayer() != null ? this.group.getLayer().rotation() : 0;
