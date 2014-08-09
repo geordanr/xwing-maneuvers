@@ -216,6 +216,7 @@ class Turn
     $(exportObj).on 'xwm:turnSelected', (e, turn) =>
       @isSelected = turn is this
       @list_element.toggleClass 'active', @isSelected
+      @ship.draw()
     .on 'xwm:removeTurn', (e, turn) =>
       turn.destroy()
       @ship.executeTurnsAndDraw()
@@ -490,10 +491,14 @@ class Turn
       for base in @bases
         base.hide()
 
+    kinetic_draw_args = $.extend {}, options.kinetic_draw_args, true
+    if @isSelected
+      kinetic_draw_args.fill = '#428bca'
+
     for template in @templates
-      template.draw layer, options.kinetic_draw_args
+      template.draw layer, kinetic_draw_args
     for base in @bases
-      base.draw layer, options.kinetic_draw_args
+      base.draw layer, kinetic_draw_args
     this
     
   show: ->

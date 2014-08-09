@@ -269,7 +269,8 @@
       });
       $(exportObj).on('xwm:turnSelected', function(e, turn) {
         _this.isSelected = turn === _this;
-        return _this.list_element.toggleClass('active', _this.isSelected);
+        _this.list_element.toggleClass('active', _this.isSelected);
+        return _this.ship.draw();
       }).on('xwm:removeTurn', function(e, turn) {
         turn.destroy();
         return _this.ship.executeTurnsAndDraw();
@@ -571,7 +572,7 @@
     };
 
     Turn.prototype.draw = function(layer, options) {
-      var base, i, template, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _len8, _m, _n, _o, _p, _q, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
+      var base, i, kinetic_draw_args, template, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _len8, _m, _n, _o, _p, _q, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
       if (this.isVisible) {
         if (options.show_movement_templates) {
           _ref = this.templates;
@@ -624,15 +625,19 @@
           base.hide();
         }
       }
+      kinetic_draw_args = $.extend({}, options.kinetic_draw_args, true);
+      if (this.isSelected) {
+        kinetic_draw_args.fill = '#428bca';
+      }
       _ref7 = this.templates;
       for (_p = 0, _len7 = _ref7.length; _p < _len7; _p++) {
         template = _ref7[_p];
-        template.draw(layer, options.kinetic_draw_args);
+        template.draw(layer, kinetic_draw_args);
       }
       _ref8 = this.bases;
       for (_q = 0, _len8 = _ref8.length; _q < _len8; _q++) {
         base = _ref8[_q];
-        base.draw(layer, options.kinetic_draw_args);
+        base.draw(layer, kinetic_draw_args);
       }
       return this;
     };
