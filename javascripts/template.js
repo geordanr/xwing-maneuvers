@@ -88,6 +88,14 @@
       return this.shape.draw();
     };
 
+    Template.prototype.hide = function() {
+      return this.shape.hide();
+    };
+
+    Template.prototype.show = function() {
+      return this.shape.show();
+    };
+
     Template.prototype.makeShape = function() {
       throw new Error('Base class; implement me!');
     };

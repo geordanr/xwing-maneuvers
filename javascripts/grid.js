@@ -5,23 +5,25 @@
   exportObj = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   exportObj.drawGridOn = function(stage) {
-    var gridlayer, strokeWidth, x, y, _i, _j, _ref, _ref1;
+    var gridlayer, strokeWidth, x, y, _i, _j, _ref, _ref1, _ref2, _ref3;
     gridlayer = new Kinetic.Layer({
       name: 'grid'
     });
-    for (x = _i = 0, _ref = stage.width(); _i <= _ref; x = _i += 25) {
-      strokeWidth = x % 100 === 0 ? 3 : 1;
+    for (x = _i = 0, _ref = stage.width(), _ref1 = exportObj.SMALL_BASE_WIDTH / 2; _ref1 > 0 ? _i <= _ref : _i >= _ref; x = _i += _ref1) {
+      strokeWidth = x % exportObj.LARGE_BASE_WIDTH === 0 ? 3 : 1;
       gridlayer.add(new Kinetic.Line({
         points: [x, 0, x, stage.height()],
-        stroke: 'cyan',
+        strokeAlpha: 0.25,
+        strokeBlue: 255,
         strokeWidth: strokeWidth
       }));
     }
-    for (y = _j = 0, _ref1 = stage.height(); _j <= _ref1; y = _j += 25) {
-      strokeWidth = y % 100 === 0 ? 3 : 1;
+    for (y = _j = 0, _ref2 = stage.height(), _ref3 = exportObj.SMALL_BASE_WIDTH / 2; _ref3 > 0 ? _j <= _ref2 : _j >= _ref2; y = _j += _ref3) {
+      strokeWidth = y % exportObj.LARGE_BASE_WIDTH === 0 ? 3 : 1;
       gridlayer.add(new Kinetic.Line({
         points: [0, y, stage.width(), y],
-        stroke: 'cyan',
+        strokeAlpha: 0.25,
+        strokeBlue: 255,
         strokeWidth: strokeWidth
       }));
     }

@@ -64,6 +64,12 @@ class Template
     @shape.fill args.fill ? ''
     @shape.draw()
 
+  hide: ->
+    @shape.hide()
+
+  show: ->
+    @shape.show()
+
   makeShape: ->
     throw new Error('Base class; implement me!')
 

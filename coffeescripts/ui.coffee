@@ -64,6 +64,10 @@ class exportObj.ManeuversUI
         x: @stage.width() / 2
         y: @stage.height() / 2
         heading_deg: 0
+        draw_options:
+          show_final_maneuver_only: @panel.find('.toggle-final-positions').prop('checked')
+          show_movement_templates: @panel.find('.toggle-templates').prop('checked')
+          show_last_turn_only: @panel.find('.toggle-last-turn').prop('checked')
 
       ship.setDrawOptions
         kinetic_draw_args:
@@ -92,14 +96,32 @@ class exportObj.ManeuversUI
     @panel.find('.toggle-deploy').change (e) =>
       e.preventDefault()
       @stage.find('.deployareas').visible $(e.target).prop('checked')
+    @panel.find('.toggle-deploy').change()
 
     @panel.find('.toggle-asteroid-area').change (e) =>
       e.preventDefault()
       @stage.find('.asteroidarea').visible $(e.target).prop('checked')
+    @panel.find('.toggle-asteroid-area').change()
 
     @panel.find('.toggle-grid').change (e) =>
       e.preventDefault()
       @stage.find('.grid').visible $(e.target).prop('checked')
+    @panel.find('.toggle-grid').change()
+
+    @panel.find('.toggle-templates').change (e) ->
+      e.preventDefault()
+      $(exportObj).trigger 'xwm:showMovementTemplates', $(e.target).prop('checked')
+    @panel.find('.toggle-templates').change()
+
+    @panel.find('.toggle-final-positions').change (e) ->
+      e.preventDefault()
+      $(exportObj).trigger 'xwm:showFinalManeuverOnly', $(e.target).prop('checked')
+    @panel.find('.toggle-final-positions').change()
+
+    @panel.find('.toggle-last-turn').change (e) ->
+      e.preventDefault()
+      $(exportObj).trigger 'xwm:showLastTurnOnly', $(e.target).prop('checked')
+    @panel.find('.toggle-last-turn').change()
 
     @panel.find('.clone-ship').click (e) =>
       $(exportObj).trigger 'xwm:cloneShip', @selected_ship

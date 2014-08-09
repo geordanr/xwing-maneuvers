@@ -9,6 +9,7 @@ class exportObj.Ship
       center_x: args.x
       center_y: args.y
       heading_deg: args.heading_deg
+    @draw_options = args.draw_options
 
     @name = "Unnamed Ship" if @name == ""
 
@@ -39,8 +40,6 @@ class exportObj.Ship
         @executeTurnsAndDraw()
     @turnlist_element.hide()
 
-    @draw_options = {}
-
     # Turn 0
     turn = new Turn
       ship: this
@@ -69,6 +68,15 @@ class exportObj.Ship
     .on 'xwm:destroyShip', (e, ship) =>
       if ship is this
         @destroy()
+    .on 'xwm:showFinalManeuverOnly', (e, toggle) =>
+      @draw_options.show_final_maneuver_only = toggle
+      @draw()
+    .on 'xwm:showMovementTemplates', (e, toggle) =>
+      @draw_options.show_movement_templates = toggle
+      @draw()
+    .on 'xwm:showLastTurnOnly', (e, toggle) =>
+      @draw_options.show_last_turn_only = toggle
+      @draw()
 
   select: ->
     @shiplist_element.addClass 'active'
@@ -104,12 +112,18 @@ class exportObj.Ship
 
   draw: ->
     @layer.clear()
-    for turn_idx in @draw_options.turns ? [0...@turns.length]
-      if turn_idx < @turns.length
-        if @draw_options.final_positions_only
-          @turns[turn_idx].drawFinalPositionOnly @layer, @draw_options.kinetic_draw_args
+    if @draw_options.show_last_turn_only
+      for turn, turn_idx in @turns
+        if turn_idx < @turns.length - 1
+          turn.hide()
         else
-          @turns[turn_idx].drawMovements @layer, @draw_options.kinetic_draw_args
+          turn.show()
+        turn.draw @layer, @draw_options
+    else
+      for turn_idx in @draw_options.turns ? [0...@turns.length]
+        if turn_idx < @turns.length
+          @turns[turn_idx].show()
+          @turns[turn_idx].draw @layer, @draw_options
 
   moveToTop: ->
     @layer.moveToTop()
@@ -140,6 +154,7 @@ class exportObj.Ship
       x: start_position.center_x
       y: start_position.center_y
       heading_deg: start_position.heading_deg
+      draw_options: $.extend {}, @draw_options, true
 
     for turn, i in @turns
       if i > 0
@@ -165,6 +180,7 @@ class Turn
     @templates = []
 
     @isSelected = false
+    @isVisible = true
     @final_position = null
     @list_element = $ document.createElement('A')
     @list_element.addClass 'list-group-item turn-element'
@@ -443,14 +459,50 @@ class Turn
       @bases = [@base_at_start]
       @final_position = @base_at_start.position
 
-  drawMovements: (layer, args={}) ->
-    for base in @bases
-      base.draw layer, args
-    for template in @templates
-      template.draw layer, args
+  draw: (layer, options) ->
+    if @isVisible
+      if options.show_movement_templates
+        for template in @templates
+          template.show()
+      else
+        for template in @templates
+          template.hide()
 
-  drawFinalPositionOnly: (layer, args={}) ->
-    @bases[@bases.length - 1].draw layer, args
+      if options.show_final_maneuver_only
+        if options.show_movement_templates
+          # If we're not showing templates at all, no need to worry.
+          # Otherwise, we need to hide all but the last template.
+          for template, i in @templates
+            if i < @templates.length - 1
+              template.hide()
+
+        for base, i in @bases
+          if i == @bases.length - 1
+            base.show()
+          else
+            base.hide()
+      else
+        for base in @bases
+          base.show()
+    else
+      for template in @templates
+        template.hide()
+      for base in @bases
+        base.hide()
+
+    for template in @templates
+      template.draw layer, options.kinetic_draw_args
+    for base in @bases
+      base.draw layer, options.kinetic_draw_args
+    this
+    
+  show: ->
+    @isVisible = true
+    this
+
+  hide: ->
+    @isVisible = false
+    this
 
   addMovement: (movement) ->
     @movements.push movement
