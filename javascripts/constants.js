@@ -20,6 +20,8 @@
 
   exportObj.RANGE3 = 3 * exportObj.RANGE1;
 
+  exportObj.PRIMARY_FIRING_ARC_DEG = 79;
+
 }).call(this);
 
 /*

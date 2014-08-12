@@ -24,3 +24,5 @@ exportObj.TURN_INSIDE_RADII = [
 exportObj.RANGE1 = 2.5 * exportObj.SMALL_BASE_WIDTH
 exportObj.RANGE2 = 2 * exportObj.RANGE1
 exportObj.RANGE3 = 3 * exportObj.RANGE1
+
+exportObj.PRIMARY_FIRING_ARC_DEG = 79

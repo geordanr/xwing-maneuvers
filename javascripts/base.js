@@ -9,6 +9,7 @@
       var nub_offset;
       this.size = args.size;
       this.position = args.position;
+      this.firingarcs = [];
       this.width = (function() {
         switch (this.size) {
           case 'small':
@@ -38,8 +39,8 @@
         height: this.width
       }));
       this.group.add(new Kinetic.Line({
-        name: 'firing_arc',
-        points: [1, 0, this.width / 2, this.width / 2, this.width - 1, 0]
+        name: 'printed_firing_arc',
+        points: [3, 0, this.width / 2, this.width / 2, this.width - 3, 0]
       }));
       nub_offset = exportObj.TEMPLATE_WIDTH / 2;
       this.group.add(new Kinetic.Rect({
@@ -70,6 +71,7 @@
         width: 1,
         height: 2
       }));
+      this.firingarc = null;
     }
 
     Base.prototype.destroy = function() {
@@ -166,6 +168,10 @@
       }
     };
 
+    Base.prototype.getCenterTransform = function() {
+      return this.group.getAbsoluteTransform().copy().translate(this.width / 2, this.width / 2);
+    };
+
     Base.prototype.newBaseFromMovement = function(movement) {
       var heading_deg, p, transform, _ref;
       _ref = movement.getBaseTransformAndHeading(this), transform = _ref.transform, heading_deg = _ref.heading_deg;
@@ -181,6 +187,26 @@
           heading_deg: heading_deg
         })
       });
+    };
+
+    Base.prototype.addFiringArc = function(args) {
+      var firingarc;
+      firingarc = new exportObj.FiringArc({
+        base: this,
+        rotation: args != null ? args.rotation : void 0,
+        angle: args != null ? args.angle : void 0
+      });
+      this.firingarcs.push(firingarc);
+      return firingarc;
+    };
+
+    Base.prototype.addRangeBand = function(args) {
+      if (this.range_band == null) {
+        this.range_band = new exportObj.RangeBand({
+          base: this
+        });
+      }
+      return this.range_band;
     };
 
     return Base;

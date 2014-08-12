@@ -185,7 +185,7 @@ class Turn
     @list_element = $ document.createElement('A')
     @list_element.addClass 'list-group-item turn-element'
     @list_element.append $.trim """
-      <span class="glyphicon glyphicon-align-justify sort-handle"></span>
+      <span class="fa fa-reorder sort-handle"></span>
       <span class="executed-movements"></span>
       <button class="btn btn-default add-decloak">Decloak</button>
       <button class="btn btn-default add-movement">Movement</button>

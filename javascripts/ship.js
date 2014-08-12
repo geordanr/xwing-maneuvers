@@ -242,7 +242,7 @@
       this.final_position = null;
       this.list_element = $(document.createElement('A'));
       this.list_element.addClass('list-group-item turn-element');
-      this.list_element.append($.trim("<span class=\"glyphicon glyphicon-align-justify sort-handle\"></span>\n<span class=\"executed-movements\"></span>\n<button class=\"btn btn-default add-decloak\">Decloak</button>\n<button class=\"btn btn-default add-movement\">Movement</button>\n<button class=\"btn btn-default add-boost\">Boost</button>\n<button class=\"btn btn-default add-barrel-roll\">Barrel Roll</button>\n<button class=\"btn btn-default add-daredevil\">Daredevil</button>\n<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
+      this.list_element.append($.trim("<span class=\"fa fa-reorder sort-handle\"></span>\n<span class=\"executed-movements\"></span>\n<button class=\"btn btn-default add-decloak\">Decloak</button>\n<button class=\"btn btn-default add-movement\">Movement</button>\n<button class=\"btn btn-default add-boost\">Boost</button>\n<button class=\"btn btn-default add-barrel-roll\">Barrel Roll</button>\n<button class=\"btn btn-default add-daredevil\">Daredevil</button>\n<button type=\"button\" class=\"close remove-turn\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>"));
       this.list_element.click(function(e) {
         e.preventDefault();
         return $(exportObj).trigger('xwm:turnSelected', _this);

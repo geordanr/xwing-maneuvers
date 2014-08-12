@@ -6,6 +6,8 @@ class exportObj.Base
     @size = args.size
     @position = args.position
 
+    @firingarcs = []
+
     @width = switch @size
       when 'small'
         exportObj.SMALL_BASE_WIDTH
@@ -32,11 +34,11 @@ class exportObj.Base
       height: @width
 
     @group.add new Kinetic.Line
-      name: 'firing_arc'
+      name: 'printed_firing_arc'
       points: [
-        1, 0
+        3, 0
         @width / 2, @width / 2
-        @width - 1, 0
+        @width - 3, 0
       ]
 
     nub_offset = exportObj.TEMPLATE_WIDTH / 2
@@ -68,6 +70,8 @@ class exportObj.Base
       y: @width
       width: 1
       height: 2
+
+    @firingarc = null
 
   destroy: ->
     @group.destroyChildren()
@@ -129,6 +133,9 @@ class exportObj.Base
       else
         throw new Error("Invalid side #{side}")
 
+  getCenterTransform: ->
+    @group.getAbsoluteTransform().copy().translate(@width / 2, @width / 2)
+
   newBaseFromMovement: (movement) ->
     {transform, heading_deg} = movement.getBaseTransformAndHeading this
     p = transform.point {x:0, y:0}
@@ -138,3 +145,17 @@ class exportObj.Base
         center_x: p.x
         center_y: p.y
         heading_deg: heading_deg
+
+  addFiringArc: (args) ->
+    firingarc = new exportObj.FiringArc
+      base: this
+      rotation: args?.rotation
+      angle: args?.angle
+    @firingarcs.push firingarc
+    firingarc
+
+  addRangeBand: (args) ->
+    unless @range_band?
+      @range_band = new exportObj.RangeBand
+        base: this
+    @range_band
