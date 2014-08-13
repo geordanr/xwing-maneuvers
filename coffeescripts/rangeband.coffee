@@ -11,7 +11,9 @@ class exportObj.RangeBand
       y: @base.position.y
       rotation: @base.position.heading_deg
 
-    @addRangeBandAtRange exportObj.RANGE1, 0.2
+    @addRangeBandAtRange exportObj.RANGE1, 0.3
+    @addRangeBandAtRange exportObj.RANGE2, 0.2
+    @addRangeBandAtRange exportObj.RANGE3, 0.1
 
   addRangeBandAtRange: (range, alpha) ->
     @group.add new Kinetic.Arc
@@ -21,12 +23,12 @@ class exportObj.RangeBand
       angle: 90
       innerRadius: 0
       outerRadius: range
-      fillRed: 255
+      fillBlue: 255
       fillAlpha: alpha
       rotationDeg: -90
 
     @group.add new Kinetic.Arc
-      name: 'range_rect'
+      name: 'range_arc'
       x: @base.width / 2
       y: @base.width / 2
       angle: 90
@@ -35,13 +37,62 @@ class exportObj.RangeBand
       fillBlue: 255
       fillAlpha: alpha
 
-    @group.add new Kinetic.Rect
+    @group.add new Kinetic.Arc
       name: 'range_arc'
+      x: -@base.width / 2
+      y: @base.width / 2
+      angle: 90
+      innerRadius: 0
+      outerRadius: range
+      fillBlue: 255
+      fillAlpha: alpha
+      rotationDeg: 90
+
+    @group.add new Kinetic.Arc
+      name: 'range_arc'
+      x: -@base.width / 2
+      y: -@base.width / 2
+      angle: 90
+      innerRadius: 0
+      outerRadius: range
+      fillBlue: 255
+      fillAlpha: alpha
+      rotationDeg: 180
+
+    @group.add new Kinetic.Rect
+      name: 'range_rect'
       x: @base.width / 2
       y: -@base.width / 2
       width: range
       height: @base.width
-      fillGreen: 255
+      fillBlue: 255
+      fillAlpha: alpha
+
+    @group.add new Kinetic.Rect
+      name: 'range_rect'
+      x: -(@base.width / 2) - range
+      y: -@base.width / 2
+      width: range
+      height: @base.width
+      fillBlue: 255
+      fillAlpha: alpha
+
+    @group.add new Kinetic.Rect
+      name: 'range_rect'
+      x: -@base.width / 2
+      y: @base.width / 2
+      width: @base.width
+      height: range
+      fillBlue: 255
+      fillAlpha: alpha
+
+    @group.add new Kinetic.Rect
+      name: 'range_rect'
+      x: -@base.width / 2
+      y: -(@base.width / 2) - range
+      width: @base.width
+      height: range
+      fillBlue: 255
       fillAlpha: alpha
 
   destroy: ->

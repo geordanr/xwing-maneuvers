@@ -11,8 +11,6 @@ class exportObj.FiringArc
       name: 'firing_arc_group'
       x: @base.position.x
       y: @base.position.y
-      #offsetX: base_center_point.x
-      #offsetY: base_center_point.y
       rotation: (@base.position.heading_deg + @rotation + 270) % 360
 
     @addArcAtRange exportObj.RANGE1, 0.3

@@ -13,7 +13,9 @@
         y: this.base.position.y,
         rotation: this.base.position.heading_deg
       });
-      this.addRangeBandAtRange(exportObj.RANGE1, 0.2);
+      this.addRangeBandAtRange(exportObj.RANGE1, 0.3);
+      this.addRangeBandAtRange(exportObj.RANGE2, 0.2);
+      this.addRangeBandAtRange(exportObj.RANGE3, 0.1);
     }
 
     RangeBand.prototype.addRangeBandAtRange = function(range, alpha) {
@@ -24,12 +26,12 @@
         angle: 90,
         innerRadius: 0,
         outerRadius: range,
-        fillRed: 255,
+        fillBlue: 255,
         fillAlpha: alpha,
         rotationDeg: -90
       }));
       this.group.add(new Kinetic.Arc({
-        name: 'range_rect',
+        name: 'range_arc',
         x: this.base.width / 2,
         y: this.base.width / 2,
         angle: 90,
@@ -38,13 +40,62 @@
         fillBlue: 255,
         fillAlpha: alpha
       }));
-      return this.group.add(new Kinetic.Rect({
+      this.group.add(new Kinetic.Arc({
         name: 'range_arc',
+        x: -this.base.width / 2,
+        y: this.base.width / 2,
+        angle: 90,
+        innerRadius: 0,
+        outerRadius: range,
+        fillBlue: 255,
+        fillAlpha: alpha,
+        rotationDeg: 90
+      }));
+      this.group.add(new Kinetic.Arc({
+        name: 'range_arc',
+        x: -this.base.width / 2,
+        y: -this.base.width / 2,
+        angle: 90,
+        innerRadius: 0,
+        outerRadius: range,
+        fillBlue: 255,
+        fillAlpha: alpha,
+        rotationDeg: 180
+      }));
+      this.group.add(new Kinetic.Rect({
+        name: 'range_rect',
         x: this.base.width / 2,
         y: -this.base.width / 2,
         width: range,
         height: this.base.width,
-        fillGreen: 255,
+        fillBlue: 255,
+        fillAlpha: alpha
+      }));
+      this.group.add(new Kinetic.Rect({
+        name: 'range_rect',
+        x: -(this.base.width / 2) - range,
+        y: -this.base.width / 2,
+        width: range,
+        height: this.base.width,
+        fillBlue: 255,
+        fillAlpha: alpha
+      }));
+      this.group.add(new Kinetic.Rect({
+        name: 'range_rect',
+        x: -this.base.width / 2,
+        y: this.base.width / 2,
+        width: this.base.width,
+        height: range,
+        fillBlue: 255,
+        fillAlpha: alpha
+      }));
+      return this.group.add(new Kinetic.Rect({
+        name: 'range_rect',
+        x: -this.base.width / 2,
+        y: -(this.base.width / 2) - range,
+        width: this.base.width,
+        height: range,
+        fillBlue: 255,
         fillAlpha: alpha
       }));
     };
