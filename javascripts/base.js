@@ -6,9 +6,12 @@
 
   exportObj.Base = (function() {
     function Base(args) {
-      var nub_offset;
+      var nub_offset,
+        _this = this;
       this.size = args.size;
       this.position = args.position;
+      this.firingarcs = [];
+      this.range_band = null;
       this.width = (function() {
         switch (this.size) {
           case 'small':
@@ -38,8 +41,8 @@
         height: this.width
       }));
       this.group.add(new Kinetic.Line({
-        name: 'firing_arc',
-        points: [1, 0, this.width / 2, this.width / 2, this.width - 1, 0]
+        name: 'printed_firing_arc',
+        points: [3, 0, this.width / 2, this.width / 2, this.width - 3, 0]
       }));
       nub_offset = exportObj.TEMPLATE_WIDTH / 2;
       this.group.add(new Kinetic.Rect({
@@ -70,26 +73,38 @@
         width: 1,
         height: 2
       }));
+      this.group.on('dblclick', function(e) {
+        return _this.getRangeBand().toggle();
+      });
     }
 
     Base.prototype.destroy = function() {
+      if (this.range_band != null) {
+        this.range_band.destroy();
+      }
       this.group.destroyChildren();
       return this.group.destroy();
     };
 
     Base.prototype.draw = function(layer, args) {
-      var child, _i, _len, _ref, _ref1, _ref2, _ref3, _results;
+      var child, firingarc, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3, _ref4, _results;
       if (args == null) {
         args = {};
       }
       layer.add(this.group);
-      _ref = this.group.children;
-      _results = [];
+      _ref = this.firingarcs;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        child = _ref[_i];
-        child.stroke((_ref1 = args.stroke) != null ? _ref1 : 'black');
-        child.strokeWidth((_ref2 = args.strokeWidth) != null ? _ref2 : 1);
-        child.fill((_ref3 = args.fill) != null ? _ref3 : '');
+        firingarc = _ref[_i];
+        firingarc.draw();
+      }
+      this.getRangeBand().draw();
+      _ref1 = this.group.children;
+      _results = [];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        child = _ref1[_j];
+        child.stroke((_ref2 = args.stroke) != null ? _ref2 : 'black');
+        child.strokeWidth((_ref3 = args.strokeWidth) != null ? _ref3 : 1);
+        child.fill((_ref4 = args.fill) != null ? _ref4 : '');
         _results.push(child.draw());
       }
       return _results;
@@ -166,6 +181,10 @@
       }
     };
 
+    Base.prototype.getCenterTransform = function() {
+      return this.group.getAbsoluteTransform().copy().translate(this.width / 2, this.width / 2);
+    };
+
     Base.prototype.newBaseFromMovement = function(movement) {
       var heading_deg, p, transform, _ref;
       _ref = movement.getBaseTransformAndHeading(this), transform = _ref.transform, heading_deg = _ref.heading_deg;
@@ -181,6 +200,26 @@
           heading_deg: heading_deg
         })
       });
+    };
+
+    Base.prototype.addFiringArc = function(args) {
+      var firingarc;
+      firingarc = new exportObj.FiringArc({
+        base: this,
+        rotation: args != null ? args.rotation : void 0,
+        angle: args != null ? args.angle : void 0
+      });
+      this.firingarcs.push(firingarc);
+      return firingarc;
+    };
+
+    Base.prototype.getRangeBand = function() {
+      if (this.range_band == null) {
+        this.range_band = new exportObj.RangeBand({
+          base: this
+        });
+      }
+      return this.range_band;
     };
 
     return Base;
