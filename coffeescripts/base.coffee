@@ -7,6 +7,7 @@ class exportObj.Base
     @position = args.position
 
     @firingarcs = []
+    @range_band = null
 
     @width = switch @size
       when 'small'
@@ -71,14 +72,19 @@ class exportObj.Base
       width: 1
       height: 2
 
-    @firingarc = null
+    @group.on 'dblclick', (e) =>
+      @getRangeBand().toggle()
 
   destroy: ->
+    @range_band.destroy() if @range_band?
     @group.destroyChildren()
     @group.destroy()
 
   draw: (layer, args={}) ->
     layer.add @group
+    for firingarc in @firingarcs
+      firingarc.draw()
+    @getRangeBand().draw()
     for child in @group.children
       child.stroke args.stroke ? 'black'
       child.strokeWidth args.strokeWidth ? 1
@@ -154,7 +160,7 @@ class exportObj.Base
     @firingarcs.push firingarc
     firingarc
 
-  addRangeBand: (args) ->
+  getRangeBand: ->
     unless @range_band?
       @range_band = new exportObj.RangeBand
         base: this

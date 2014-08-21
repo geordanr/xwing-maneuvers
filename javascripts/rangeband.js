@@ -6,13 +6,18 @@
 
   exportObj.RangeBand = (function() {
     function RangeBand(args) {
+      var _ref;
       this.base = args.base;
       this.group = new Kinetic.Group({
         name: 'range_group',
         x: this.base.position.x,
         y: this.base.position.y,
-        rotation: this.base.position.heading_deg
+        rotation: this.base.position.heading_deg,
+        listening: false
       });
+      this.layer = (_ref = args.layer) != null ? _ref : this.base.group.getLayer();
+      this.layer.add(this.group);
+      this.isVisible = false;
       this.addRangeBandAtRange(exportObj.RANGE1, 0.3);
       this.addRangeBandAtRange(exportObj.RANGE2, 0.2);
       this.addRangeBandAtRange(exportObj.RANGE3, 0.1);
@@ -100,21 +105,37 @@
       }));
     };
 
-    RangeBand.prototype.destroy = function() {};
+    RangeBand.prototype.destroy = function() {
+      return this.group.destroy();
+    };
 
-    RangeBand.prototype.draw = function(layer) {
-      var child, _i, _len, _ref, _results;
-      if (layer == null) {
-        layer = this.base.group.getLayer();
+    RangeBand.prototype.draw = function() {
+      this.layer.clear();
+      if (this.isVisible) {
+        this.group.show();
+      } else {
+        this.group.hide();
       }
-      layer.add(this.group);
-      _ref = this.group.children;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        child = _ref[_i];
-        _results.push(child.draw());
+      this.layer.draw();
+      return this;
+    };
+
+    RangeBand.prototype.hide = function() {
+      this.isVisible = false;
+      return this.draw();
+    };
+
+    RangeBand.prototype.show = function() {
+      this.isVisible = true;
+      return this.draw();
+    };
+
+    RangeBand.prototype.toggle = function() {
+      if (this.isVisible) {
+        return this.hide();
+      } else {
+        return this.show();
       }
-      return _results;
     };
 
     return RangeBand;

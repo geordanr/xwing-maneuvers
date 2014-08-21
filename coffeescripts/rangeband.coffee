@@ -10,6 +10,12 @@ class exportObj.RangeBand
       x: @base.position.x
       y: @base.position.y
       rotation: @base.position.heading_deg
+      listening: false
+
+    @layer = args.layer ? @base.group.getLayer()
+    @layer.add @group
+
+    @isVisible = false
 
     @addRangeBandAtRange exportObj.RANGE1, 0.3
     @addRangeBandAtRange exportObj.RANGE2, 0.2
@@ -96,9 +102,27 @@ class exportObj.RangeBand
       fillAlpha: alpha
 
   destroy: ->
+    @group.destroy()
 
-  draw: (layer) ->
-    layer = @base.group.getLayer() unless layer?
-    layer.add @group
-    for child in @group.children
-      child.draw()
+  draw: ->
+    @layer.clear()
+    if @isVisible
+      @group.show()
+    else
+      @group.hide()
+    @layer.draw()
+    this
+
+  hide: ->
+    @isVisible = false
+    @draw()
+
+  show: ->
+    @isVisible = true
+    @draw()
+
+  toggle: ->
+    if @isVisible
+      @hide()
+    else
+      @show()

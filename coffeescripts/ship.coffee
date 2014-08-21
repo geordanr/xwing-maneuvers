@@ -50,6 +50,7 @@ class exportObj.Ship
     @layer = new Kinetic.Layer
       name: "ship"
       draggable: true
+      dragDistance: 5
       x: @start_position.x
       y: @start_position.y
       offset: @start_position

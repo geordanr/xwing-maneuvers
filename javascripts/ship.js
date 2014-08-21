@@ -65,6 +65,7 @@
       this.layer = new Kinetic.Layer({
         name: "ship",
         draggable: true,
+        dragDistance: 5,
         x: this.start_position.x,
         y: this.start_position.y,
         offset: this.start_position
