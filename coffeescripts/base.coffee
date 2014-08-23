@@ -1,13 +1,21 @@
 exportObj = exports ? this
 
+DISPLAY_MODES = [
+  'NOTHING'
+  'FRONT_ARC'
+  'RANGE_BAND'
+]
+
 class exportObj.Base
   # A ship base at a given position
   constructor: (args) ->
     @size = args.size
     @position = args.position
 
-    @firingarcs = []
+    @front_firing_arc = null
+    @rear_firing_arc = null
     @range_band = null
+    @display_mode = 0
 
     @width = switch @size
       when 'small'
@@ -73,17 +81,25 @@ class exportObj.Base
       height: 2
 
     @group.on 'dblclick', (e) =>
-      @getRangeBand().toggle()
+      @getRangeBand().hide()
+      @getFrontFiringArc().hide()
+      @display_mode = (@display_mode + 1) % DISPLAY_MODES.length
+      switch DISPLAY_MODES[@display_mode]
+        when 'FRONT_ARC'
+          @getFrontFiringArc().show()
+        when 'RANGE_BAND'
+          @getRangeBand().show()
 
   destroy: ->
     @range_band.destroy() if @range_band?
+    @front_firing_arc.destroy() if @front_firing_arc?
+    @rear_firing_arc.destroy() if @rear_firing_arc?
     @group.destroyChildren()
     @group.destroy()
 
   draw: (layer, args={}) ->
     layer.add @group
-    for firingarc in @firingarcs
-      firingarc.draw()
+    @getFrontFiringArc().draw()
     @getRangeBand().draw()
     for child in @group.children
       child.stroke args.stroke ? 'black'
@@ -152,13 +168,11 @@ class exportObj.Base
         center_y: p.y
         heading_deg: heading_deg
 
-  addFiringArc: (args) ->
-    firingarc = new exportObj.FiringArc
-      base: this
-      rotation: args?.rotation
-      angle: args?.angle
-    @firingarcs.push firingarc
-    firingarc
+  getFrontFiringArc: (args) ->
+    unless @front_firing_arc?
+      @front_firing_arc = new exportObj.FiringArc
+        base: this
+    @front_firing_arc
 
   getRangeBand: ->
     unless @range_band?
