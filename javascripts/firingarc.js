@@ -6,26 +6,32 @@
 
   exportObj.FiringArc = (function() {
     function FiringArc(args) {
-      var _ref, _ref1;
+      var _ref, _ref1, _ref2;
       this.base = args.base;
       this.rotation = parseFloat((_ref = args.rotation) != null ? _ref : 0);
       this.angle = parseFloat((_ref1 = args.angle) != null ? _ref1 : exportObj.PRIMARY_FIRING_ARC_DEG);
+      this.layer = (_ref2 = args.layer) != null ? _ref2 : this.base.group.getLayer();
+      this.isVisible = false;
       this.group = new Kinetic.Group({
         name: 'firing_arc_group',
         x: this.base.position.x,
         y: this.base.position.y,
-        rotation: (this.base.position.heading_deg + this.rotation + 270) % 360
+        rotation: (this.base.position.heading_deg + this.rotation + 270) % 360,
+        listening: false
       });
+      this.layer.add(this.group);
       this.addArcAtRange(exportObj.RANGE1, 0.3);
       this.addArcAtRange(exportObj.RANGE2, 0.2);
       this.addArcAtRange(exportObj.RANGE3, 0.1);
     }
 
     FiringArc.prototype.addArcAtRange = function(range, alpha) {
+      var y_offset;
+      y_offset = (this.base.width / 2) * Math.tan((Math.PI * this.angle / 180) / 2);
       this.group.add(new Kinetic.Arc({
         name: 'firing_arc_range_left_arc',
         x: this.base.width / 2,
-        y: -this.base.width / 2,
+        y: -y_offset,
         angle: this.angle / 2,
         innerRadius: 0,
         outerRadius: range,
@@ -36,7 +42,7 @@
       this.group.add(new Kinetic.Arc({
         name: 'firing_arc_range_right_arc',
         x: this.base.width / 2,
-        y: this.base.width / 2,
+        y: y_offset,
         angle: this.angle / 2,
         innerRadius: 0,
         outerRadius: range,
@@ -46,29 +52,45 @@
       return this.group.add(new Kinetic.Rect({
         name: 'firinc_arc_range_center',
         x: this.base.width / 2,
-        y: -this.base.width / 2,
+        y: -y_offset,
         width: range,
-        height: this.base.width,
+        height: 2 * y_offset,
         fillRed: 255,
         fillAlpha: alpha
       }));
     };
 
-    FiringArc.prototype.destroy = function() {};
+    FiringArc.prototype.destroy = function() {
+      return this.group.destroy();
+    };
 
-    FiringArc.prototype.draw = function(layer) {
-      var child, _i, _len, _ref, _results;
-      if (layer == null) {
-        layer = this.base.group.getLayer();
+    FiringArc.prototype.draw = function() {
+      this.layer.clear();
+      if (this.isVisible) {
+        this.group.show();
+      } else {
+        this.group.hide();
       }
-      layer.add(this.group);
-      _ref = this.group.children;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        child = _ref[_i];
-        _results.push(child.draw());
+      this.layer.draw();
+      return this;
+    };
+
+    FiringArc.prototype.hide = function() {
+      this.isVisible = false;
+      return this.draw();
+    };
+
+    FiringArc.prototype.show = function() {
+      this.isVisible = true;
+      return this.draw();
+    };
+
+    FiringArc.prototype.toggle = function() {
+      if (this.isVisible) {
+        return this.hide();
+      } else {
+        return this.show();
       }
-      return _results;
     };
 
     return FiringArc;
